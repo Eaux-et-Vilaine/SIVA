@@ -21,8 +21,7 @@ pkgload::load_all(export_all = FALSE)
 
 # Tablesiva
 
-La classe Tablesiva contient toutes les données pour identifier la table, aller la chercher à l'aide de la méthode RequeteODBCwhere du package stacomirtools.
-Elle possède aussi les méthodes décrites ci-dessous.
+La classe Tablesiva contient toutes les données pour identifier la table, aller la chercher à l'aide de la méthode RequeteODBCwhere du package stacomirtools. Elle possède aussi les méthodes décrites ci-dessous.
     
 ```{r function-Tablesiva}
 #' Classe de connexion SIVA

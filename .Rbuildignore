@@ -4,6 +4,6 @@
 ^.project
 ^SIVA\.Rproj$
 ^README.Rmd
-^LICENCE.md
+^LICENSE.md
 ^.dbeaver
 ^.github
