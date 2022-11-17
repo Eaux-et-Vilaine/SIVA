@@ -3,7 +3,7 @@
 ^dev$
 ^.project
 ^SIVA\.Rproj$
-^README.Rmd
-^LICENSE.md
-^.dbeaver
-^.github
+^README.Rmd$
+^.dbeaver$
+^.github$
+^LICENSE\.md$

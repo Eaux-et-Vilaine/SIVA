@@ -7,9 +7,10 @@ Authors@R: c(
     person("Anthony", "De Burghrave", , "anthony.deburghrave@eaux-et-vilaine.bzh", role = "aut")
   )
 Description: Interface graphique vers SIVA.
-License: `use_gpl3_license()`
+License: GPL (>= 3) + file LICENSE
 Imports: 
-    magrittr
+    magrittr,
+    methods
 Suggests: 
     knitr,
     rmarkdown,
