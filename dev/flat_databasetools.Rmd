@@ -1,0 +1,98 @@
+---
+title: "databasetools.Rmd for working package"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+```
+
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+<!-- TODO generate examples dev -->
+
+
+# Tablesiva
+
+La classe Tablesiva contient toutes les données pour identifier la table, aller la chercher à l'aide de la méthode RequeteODBCwhere du package stacomirtools.
+Elle possède aussi les méthodes décrites ci-dessous.
+    
+```{r class-Tablesiva}
+#' Class de connexion SIVA
+#' 
+#' 
+#' 
+#' @slot table, Nom de la table (serie de données) dans SIVA.
+#' @slot nom, Nom de la série dans le tableau de données.
+#' @slot tag, Tag dans siva
+#' @slot debut, horodate de début.
+#' @slot fin, horodate de fin.
+#' @slot rawdata, données brutes.
+#' @slot corrdata, données corrigées.
+#'
+#' @return
+#' 
+#' @export
+setClass(
+  Class = "Tablesiva",
+  representation =
+    representation(
+      table = "character",
+      nom = "character",
+      tag = "integer",
+      debut = "POSIXct",
+      fin = "POSIXct",
+      rawdata = "data.frame",
+      corrdata = "data.frame"
+    ) ,
+  prototype = prototype(
+    table = character(length = 1),
+    nom = character(length = 1),
+    tag = as.integer(NA),
+    debut = as.POSIXct(as.Date("2012-10-25 00:00:00")),
+    fin = as.POSIXct(as.Date(Sys.time()))
+  )
+)
+```
+  
+```{r example-Tablesiva}
+tablesiva <-
+  new(
+    "Tablesiva",
+    debut = as.POSIXct(as.Date("2021-10-25")),
+    fin =  as.POSIXct(as.Date("2021-12-01")),
+    table = "b_barrage_volet4_hauteur",
+    nom = "volet4"
+  )
+
+```
+  
+```{r tests-Tablesiva}
+test_that("Tablesiva fonctionne", {
+  tablesiva <-
+  new(
+    "Tablesiva",
+    debut = as.POSIXct(as.Date("2021-10-25")),
+    fin =  as.POSIXct(as.Date("2021-12-01")),
+    table = "b_barrage_volet4_hauteur",
+    nom = "volet4"
+  )
+  expect_s4_class(tablesiva,  class="Tablesiva") 
+})
+```
+  
+
+
+```{r development-inflate, eval=TRUE}
+# Keep eval=FALSE to avoid infinite loop in case you hit the knit button
+# Execute in the console directly
+fusen::inflate(pkg="C:\\workspace\\SIVA",flat_file = "dev/databasetools.Rmd", vignette_name = "database tools")
+```
+
+
