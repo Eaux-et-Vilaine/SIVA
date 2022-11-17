@@ -1,19 +1,22 @@
 Package: SIVA
-Version: 0.0.0.9000
 Title: Systeme D'information Sur La Vilaine Aval
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Cédric", "Briand", , "cedric.briand@eaux-et-vilaine.bzh", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-7721-5195")),
+    person("Anthony", "De Burghrave", , "anthony.deburghrave@eaux-et-vilaine.bzh", role = "aut")
+  )
 Description: Interface graphique vers SIVA.
-Authors@R: c(person(given = "Cédric",
-         family = "Briand",
-         role = c("aut", "cre"),
-         email = "cedric.briand@eaux-et-vilaine.bzh",
-         comment = c(ORCID = "0000-0002-7721-5195")),
-  person(given = "Anthony",
-         family = "De Burghrave",
-         role = "aut",
-         email = "anthony.deburghrave@eaux-et-vilaine.bzh"))
 License: GPL (>= 3)
+Imports: 
+    magrittr,
+    stats
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
-Imports: 
-    magrittr
