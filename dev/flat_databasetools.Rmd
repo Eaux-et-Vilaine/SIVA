@@ -7,6 +7,7 @@ editor_options:
 
 ```{r development, include=FALSE}
 library(testthat)
+library(methods)
 ```
 
 
@@ -23,7 +24,7 @@ pkgload::load_all(export_all = FALSE)
 La classe Tablesiva contient toutes les données pour identifier la table, aller la chercher à l'aide de la méthode RequeteODBCwhere du package stacomirtools.
 Elle possède aussi les méthodes décrites ci-dessous.
     
-```{r function}
+```{r function-Tablesiva}
 #' Classe de connexion SIVA
 #' 
 #' 
@@ -36,7 +37,7 @@ Elle possède aussi les méthodes décrites ci-dessous.
 #' @slot rawdata, données brutes.
 #' @slot corrdata, données corrigées.
 #'
-#' @return
+#' @return Un objet de classe Tablesiva.
 #' 
 #' @export
 setClass(
@@ -61,7 +62,7 @@ setClass(
 )
 ```
   
-```{r example}
+```{r example-Tablesiva}
 tablesiva <-
   new(
     "Tablesiva",
@@ -73,7 +74,7 @@ tablesiva <-
 
 ```
   
-```{r tests}
+```{r tests-Tablesiva}
 test_that("Tablesiva fonctionne", {
   tablesiva <-
   new(
@@ -89,10 +90,10 @@ test_that("Tablesiva fonctionne", {
   
 
 
-```{r development-inflate, eval=TRUE}
+```{r development-inflate, eval=FALSE}
 # Keep eval=FALSE to avoid infinite loop in case you hit the knit button
 # Execute in the console directly
-rstudioapi::documentPath()
+
 fusen::inflate(pkg="C:\\workspace\\SIVA",flat_file = "dev\\flat_databasetools.Rmd", vignette_name = "database tools",overwrite = TRUE)
 ```
 

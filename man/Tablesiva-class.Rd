@@ -4,6 +4,9 @@
 \name{Tablesiva-class}
 \alias{Tablesiva-class}
 \title{Classe de connexion SIVA}
+\value{
+Un objet de classe Tablesiva.
+}
 \description{
 Classe de connexion SIVA
 }

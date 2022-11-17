@@ -12,7 +12,7 @@
 #' @slot rawdata, données brutes.
 #' @slot corrdata, données corrigées.
 #'
-#' @return
+#' @return Un objet de classe Tablesiva.
 #' 
 #' @export
 setClass(
