@@ -2,5 +2,8 @@
 
 export("%>%")
 exportClasses(Tablesiva)
+exportMethods(loaddb)
 import(methods)
+import(stacomirtools)
 importFrom(magrittr,"%>%")
+importFrom(stringr,str_c)
