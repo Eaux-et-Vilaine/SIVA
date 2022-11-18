@@ -24,8 +24,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Collate:
-    'SIVA-package.R'
-    'tablesiva.R'
+    'siva-package.R'
+    'tablesiva-class.R'
     'utils-pipe.R'
-    'def.R'
-    'loaddb.R'
+    'loaddb-tablesiva.R'
+    'bilansiva-class.R'
+    'datesrondes-tablesiva.R'
+    'insert_into.R'
+    'loaddb-bilansiva.R'
+    'prepare_sql.R'
+    'sivaplot-tablesiva.R'

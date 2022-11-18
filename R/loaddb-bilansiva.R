@@ -19,7 +19,7 @@ setMethod(
       start = 1
     
     for (i in start:length(objet@tables)) {
-      tab <- new("Tablesiva") # création de la classe
+      tab <- new("tablesiva") # création de la classe
       tab@debut = objet@debut # attribut de la date de début de la classe prendre légèrement plus large que la période souhaitée
       tab@fin <-
         objet@fin  # attribut de la date de début de la classe

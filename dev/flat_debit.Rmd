@@ -14,7 +14,7 @@ library(testthat)
 pkgload::load_all(export_all = FALSE)
 ```
 
-# debit d'une vanne
+# Debit d'une vanne
 
  Fonction de calcul de débit pour une vanne
  Choisir canal="bazin" pour avoir les calculs qui étaient fait avant 2018 au
@@ -55,7 +55,8 @@ faux) entre crochet.  Les coefficients de Bazin ont été recalculés par une
 #'
 #' @return Un tableau de données avec deux colonnes, "Q" le débit calculé en m3/s et "typecalc" 
 #' le type de calcul "vanne fermee", "hmer>hvilaine", "canal aubuisson", "canal horton", "canal bazin",
-#' "canal manning", "canal ifsw (noye)" ou "canal ifsw (libre)".	
+#' "canal manning", "canal ifsw (noye)", "canal ifsw (libre)", "orifice noye (ferr)", "orifice noye (ifws) inf1.5" ou
+#' "orifice noye (ifws) sup1.5".	
 #' @export
 #' @author Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, Stephanie Woimant \email{stephanie.woimant@eaux-et-vilaine.bzh} 
 debit_vanne <- function(hvilaine, # vecteur
@@ -257,12 +258,6 @@ test_that("La fonction de calcul de débit-vanne fonctionne", {
 ```
 
 
-```{r development-inflate, eval=FALSE}
-# Run but keep eval=FALSE to avoid infinite loop
-# Execute in the console directly
-fusen::inflate(flat_file = "dev/flat_debit.Rmd", vignette_name = "Go further")
-```
-
 
 
 # Débit de l'ensemble des vannes : debit_vannes
@@ -318,6 +313,21 @@ test_that("debit_vannes works", {
 ```
 
 # Débit d'un volet : debit_volet
+
+Le fonctionnement en volet est déduit de l'absence d'ouverture de vanne, de la
+position du codeur, du niveau Vilaine et du niveau mer. Il semble, mais ce point
+reste à confirmer, que la formule par défaut du barrage ne calcule que pour les
+positions de codeur au dessus du fin de course (>1.38). La hauteur du volet
+varie en théorie entre 1.38 et 4.03 m NGF. En pratique il y a des dérives du
+niveau du codeur qui font qu'on ne peut utiliser que l'information sur la baisse
+du volet et une valeur approximative permettant de sélectionner les positions
+volet ouvert (<3.5m).
+
+$$
+si~&h_{vilaine}\geq 1.38~\& \\ &h_{volet}<3.5~\&\\ &h_0=0~\&\\
+&h_{vilaine}>h_{mer}+0.3\\
+&Q_{vo}=l'*\mu_{vo}(\frac{2}{3}g)^{0.5}(h_{vilaine}-1.38)^{1.5} 
+$$
     
 ```{r function-debit_volet}
 #' Débit d'un volet
@@ -405,60 +415,117 @@ test_that("debit_volets works", {
 
 # Débit de l'ensemble du barrage : debit_vannes_volet
     
-```{r function-debit_vannes_volets}
+```{r function-debit_total}
+
+
+
 #' Débit de l'ensemble des volets et des vannes du barrage.
 #' 
 #' Débit total (cette fonction retourne le débit total journalier et la valeur moyenne
 #' Pondérée du débit de Cran.) en utilisant les choix IFSW pour les fonctions de débit
-#' Briand et Woimant (2015)
+#' Briand et Woimant (2015). Le calcul se fait en utilisant canal="ifsw" et loi_orificenoye = "ifws".
+#' 
+#' 
+#'
+#' @param param Les paramètres à optimiser (4 paramètres "Cvo","Cvg","Cvgs","Cvw") voir 
+#' @param param0 
+#' @param dat 
+#' @note Cette fonction a été utilisée pour optimiser les coefficients de débit, 
+#' param est consititué des coefficients optimisés
+#' mais il faut les autres qui sont stocké dans param0 pour faire tourner débit_total
+#' Ainsi a_optimiser tourne bien sur param mais débit total sur param + les coeff de param0.
 #' CHANGEMENT 2016 la référence devient niveaumerb et niveauVilaineb.
 #' 
-#' @return
-#' 
+#'
+#' @return  Un data frame avec 
+#' date = la date (au format date),
+#' Qva12345 = la somme des débits des vannes 1 à 5, 
+#' Qvo12345 = la somme des débits des volets 1 à 5,
+#' tot_vol_ecluse = le volume total de l'écluse, tot_vol_siphon = le volume total du siphon, 
+#' tot_vol_passe = le volume total de la passe, 
+#' debit_moyen_cran = le débit moyen journalier au pont de Cran			 
 #' @export
-debit_vannes_volets <- function(){
-    
-}
-```
-  
-```{r example-debit_vannes_volets}
-debit_total()
-```
-  
-```{r tests-debit_vannes_volets}
-test_that("debit_vannes_volets works", {
-  expect_true(inherits(debit_vannes_volets, "function")) 
-})
-```
-
-# Debit de l'ensemble du barrage : debit_total
-    
-Cette fonction inclue le débit des vannes, des volets, des siphons, de l'écluse et de la passe.    
-    
-```{r function-debit_total}
-#' Title
-#' 
-#' Description
-#' 
-#' @return
-#' 
-#' @export
-debit_total <- function(){
-#TODO    
+debit_total <-
+  function(param = c(
+    "Cvo" = 0.392,
+    "Cvg" = 1.5,
+    "Cvgs" = 1.5,
+    "Cvw" = 1.5
+  ),
+  param0,
+  dat) {
+    if (length(param) < 4)
+      param <- c(param, param0[!names(param0) %in% names(param)])
+    dat$niveauvilaineb[is.na(dat$niveauvilaineb)] <-
+      dat$niveauvilaine[is.na(dat$niveauvilaineb)]
+    dat$niveaumerb[is.na(dat$niveaumerb)] <-
+      dat$niveaumer[is.na(dat$niveaumerb)]
+    Qvo12345 <- debit_volets(
+      hvolet1 = dat$volet1,
+      hvolet2 = dat$volet2,
+      hvolet3 = dat$volet3,
+      hvolet4 = dat$volet4,
+      hvolet5 = dat$volet5,
+      hvilaine = dat$niveauvilaineb,
+      hmer = dat$niveaumerb,
+      hvanne1 = dat$vanne1,
+      hvanne2 = dat$vanne2,
+      hvanne3 = dat$vanne3,
+      hvanne4 = dat$vanne4,
+      hvanne5 = dat$vanne5,
+      param["Cvo"]
+    )
+    Qvo12345$volvoletcalcule <- rowSums(Qvo12345) * 600
+    Qva12345 <- debit_vannes(
+      horodate = dat$HoroDate,
+      hvanne1 = dat$vanne1,
+      hvanne2 = dat$vanne2,
+      hvanne3 = dat$vanne3,
+      hvanne4 = dat$vanne4,
+      hvanne5 = dat$vanne5,
+      hvilaine = dat$niveauvilaineb,
+      hmer = dat$niveaumerb,
+      canal = "ifsw",
+      # choix bazin, aubuisson ou horton ou manning ou ifsw
+      Cvg = param["Cvg"],
+      #coefficient ifsw orifice h1<=1.5 hvanne
+      Cvgs = param["Cvgs"],
+      # coefficient ifsw h1>1.5 hvanne
+      Cvw = param["Cvw"],
+      #coefficient ifsw écoulement surface libre (canal)
+      loi_orificenoye = "ifws"#"ferrete"
+    )
+    Q12345 <-
+      cbind(
+        Qva12345,
+        Qvo12345,
+        "tot_vol_ecluse" = dat$tot_vol_ecluse,
+        "tot_vol_siphon" = dat$tot_vol_siphon,
+        "tot_vol_passe" = dat$tot_vol_passe
+      )
+    Q12345$date = as.Date(Q12345$horodate)
+    Q12345$debit_moyen_cran <- dat$debit_moyen_cran
+    return(Q12345)
 }
 ```
   
 ```{r example-debit_total}
 debit_total()
-#TODO
 ```
   
 ```{r tests-debit_total}
-test_that("debit_total works", {
-  #TODO
+test_that("debit_total fonctionne", {
   expect_true(inherits(debit_total, "function")) 
 })
 ```
+
+
   
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_debit.Rmd", vignette_name = "Go further")
+```
+
 
   

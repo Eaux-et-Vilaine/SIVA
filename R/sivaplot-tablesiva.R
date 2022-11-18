@@ -1,14 +1,15 @@
-
+#' @exportMethod
+setGeneric("sivaplot",def=function(objet,...) standardGeneric("sivaplot"))
 #' Methode sivaplot
 #' 
 #' La méthode sivaplot permet d'aller chercher les données après avoir installé le driver odbc et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace)
-#' @param objet, un objet de classe Tablesiva
+#' @param objet, un objet de classe tablesiva
 #' @importFrom stringr str_c
-#' @return Un object de classe Tablesiva
-#' @exportMethod
+#' @return Un object de classe tablesiva
+#' @export
 setMethod(
     "sivaplot",
-    signature = signature("Tablesiva"),
+    signature = signature("tablesiva"),
     definition = function(objet) {
       png(filename = str_c(imgwd, objet@nom, "_", label, ".png"))
       plot(

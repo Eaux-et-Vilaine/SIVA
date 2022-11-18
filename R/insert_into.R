@@ -14,6 +14,7 @@
 #' @export
 #'
 #' @examples
+#' #TODO
 insert_into <- function(data,columns,tabledest,baseODBC,display=FALSE,...) {
   insert_into_sub=function(){
     cat("ecriture dans la base\n")

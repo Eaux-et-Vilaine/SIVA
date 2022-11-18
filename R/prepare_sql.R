@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-#TODO
+#' #TODO
 prepare_sql <- function(data) {
   # c'est nul mais ni ddply ni apply ne me permettent de faire ça
   for (i in 1:ncol(data)) {

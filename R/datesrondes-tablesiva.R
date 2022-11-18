@@ -1,24 +1,40 @@
 
-#' @noRd
+#' @exportMethod
 setGeneric("datesrondes",def=function(objet,...) standardGeneric("datesrondes"))
 
 #' Methode daterondes
 #' 
 #' La méthode datesrondes permet d'arrondir les dates, les données sont passées de rawdata à corrdata. 
 #' Deux options methode="constant" et method="linear" voir approx()
-#' @param objet
+#' @param objet Un objet de classe tablesiva
 #' @param method, méthode d'interpolation linéaire passée à approx, "linear" ou "constant" ou "none".
-#' @exportMethod
-setMethod("datesrondes",signature=signature("Tablesiva"),definition=function(objet,method="constant") {
-      raw<-objet@rawdata
-      s<-seq.POSIXt(from=round(min(raw$HoroDate),"hour"),to=round(max(raw$HoroDate),"hour")+1,by="10 mins")
-      s<-s[s>=min(raw$HoroDate)&s<=max(raw$HoroDate)]
-      s<-data.frame("HoroDate"=s)
-      s$Valeur<-approx(raw$HoroDate,raw[,3], xout=s$HoroDate,method=method,ties="ordered")$y
-      objet@corrdata<-s
-      colnames(objet@corrdata)[2]<-objet@nom
-      return(objet)
-    })
+#' @export
+setMethod(
+  "datesrondes",
+  signature = signature("tablesiva"),
+  definition = function(objet, method = "constant") {
+    raw <- objet@rawdata
+    s <-
+      seq.POSIXt(
+        from = round(min(raw$HoroDate), "hour"),
+        to = round(max(raw$HoroDate), "hour") + 1,
+        by = "10 mins"
+      )
+    s <- s[s >= min(raw$HoroDate) & s <= max(raw$HoroDate)]
+    s <- data.frame("HoroDate" = s)
+    s$Valeur <-
+      approx(
+        raw$HoroDate,
+        raw[, 3],
+        xout = s$HoroDate,
+        method = method,
+        ties = "ordered"
+      )$y
+    objet@corrdata <- s
+    colnames(objet@corrdata)[2] <- objet@nom
+    return(objet)
+  }
+)
 
 
 
