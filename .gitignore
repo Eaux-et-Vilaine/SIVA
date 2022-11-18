@@ -102,3 +102,8 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 .project
 inst/doc
+
+
+# Other folders : markdown produced 
+
+flat_debit_file

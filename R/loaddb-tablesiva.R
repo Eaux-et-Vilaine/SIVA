@@ -109,11 +109,6 @@ setMethod(
 
 
 
-#' @noRd
-setGeneric(
-  "sivaplot",
-  def = function(objet, ...)
-    standardGeneric("sivaplot")
-)
+
 
 

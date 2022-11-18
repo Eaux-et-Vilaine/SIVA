@@ -1,7 +1,7 @@
 #' @title Methode de chargement pour loadb
 #' @param objet Un objet de class bilansiva.
 #' @param datawd Le chemin vers le repertoire ou sauver les données.
-#' @param graphe Boolean, faut il un graphe ?
+#' @param plot Boolean, faut il un graphe ?
 #' @param restart Default NULL, si non null, l'objet est sauvé sous "tempsauvobjet" dans datawd.
 #' @return Un objet de classe bilansiva
 #' @export
@@ -10,7 +10,7 @@ setMethod(
   signature = signature("bilansiva"),
   definition = function(objet,
                         datawd,
-                        graphe = TRUE,
+                        plot = TRUE,
                         restart = NULL) {
     if (!is.null(restart)) {
       start <- restart
@@ -53,7 +53,7 @@ setMethod(
             tab@corrdata <- tab@rawdata[, c(2, 3)] # j'enlève le tag
           }
         )
-        if (graphe)
+        if (plot)
           sivaplot(tab)
       } else {
         tab@corrdata <- tab@rawdata
@@ -69,7 +69,6 @@ setMethod(
             all.x = TRUE,
             all.y = TRUE
           )
-        save(objet, file = file.path(datawd, paste0("tempsauvobjet", CY, ".Rdata")))
       }
       
       
