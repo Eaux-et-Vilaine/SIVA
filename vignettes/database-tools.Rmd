@@ -1,5 +1,5 @@
 ---
-title: "database tools"
+title: "database-tools"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{database-tools}
@@ -24,17 +24,17 @@ library(SIVA)
 
 
 
-# Tablesiva
+# tablesiva
 
-La classe Tablesiva contient toutes les données pour identifier la table, aller la chercher à l'aide de la méthode RequeteODBCwhere du package stacomirtools. Elle possède aussi les méthodes décrites ci-dessous.
-    
+La classe tablesiva contient toutes les données pour identifier la table, 
+aller la chercher à l'aide de la méthode RequeteODBCwhere du package
+stacomirtools.  Elle possède aussi les méthodes décrites ci-dessous.
 
-  
 
-```{r example-Tablesiva}
+```{r example-tablesiva}
 tablesiva <-
   new(
-    "Tablesiva",
+    "tablesiva",
     debut = as.POSIXct(as.Date("2021-10-25")),
     fin =  as.POSIXct(as.Date("2021-12-01")),
     table = "b_barrage_volet4_hauteur",
@@ -43,9 +43,72 @@ tablesiva <-
 
 ```
 
-  
+# loaddb-method
 
-  
+La méthode loaddb permet d'aller chercher les données après avoir installé le driver odbc.
+Pour installer le driver odbc, il faut télécharger sur ordi puis le configurer (tapper odbc dans la barre de recherche).
+[installation odbc]("/image/configure_odbc.jpg)
+et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace. 
+Il faut configurer le rprofile.site comme suit dans R/R_version/etc/Rprofile.site
 
 
+```{r exempleRprofile, echo = TRUE, eval = FALSE}
+ local({
+ library(safer)
+ mainpass <- "xxxxx"
+ umysql<<-encrypt_string("xxxxx",key="mainpass")
+ pwdmysql <<- encrypt_string("xxxxxx",key="mainpass")
+ hostmysql <<- encrypt_string("xxxxxx",key="mainpass")
+cat("creation des passwords umysql, pwdmysql, hostmysql \n")
+ })
+```
+
+## loaddb-method generic
+
+## loaddb-method 
+
+```{r example-loaddb-method}
+# sur mon ordi j'ai des mots de passe chargés au démarrage à partir de Rprofile.site
+# Ici test si existent et si oui il faut le main password pour les decrypter, sinon il
+# faut les entrer après un prompt du programme. 
+if (interactive()){
+if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+if (!exists("hostmysql")) {
+  hostmysql. <- getPass::getPass(msg = "Saisir host")
+  # ci dessous pour ne pas redemander au prochain tour
+  hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+} else {
+  hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+}
+if (!exists("pwdmysql")) {
+  pwdmysql. <- getPass::getPass(msg = "Saisir password")
+  pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+}  else {
+  # pass should be loaded
+  pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+}
+if (!exists("umysql")) {
+  umysql. <- getPass::getPass(msg = "Saisir user")
+  umysql <- encrypt_string(string = umysql., key = mainpass)
+} else {
+  umysql. <- decrypt_string(string = umysql, key = mainpass)
+}
+
+options(stacomiR.dbname="archive_IAV", # TODO not used....
+        stacomiR.host = hostmysql.,
+        stacomiR.password = pwdmysql.,
+        stacomiR.user = umysql.,
+        stacomiR.ODBClink = "archive_IAV")
+
+tablesiva <-
+  new(
+    "tablesiva",
+    debut = as.POSIXct(as.Date("2021-10-25")),
+    fin =  as.POSIXct(as.Date("2021-12-01")),
+    table = "b_barrage_volet4_hauteur",
+    nom = "volet4"
+  )
+tablesiva <- loaddb(tablesiva)
+}
+```
 
