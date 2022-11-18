@@ -84,7 +84,8 @@ Choisir `canal="bazin"` pour avoir les calculs qui étaient fait avant 2018 au b
 #' "canal manning", "canal ifsw (noye)", "canal ifsw (libre)", "orifice noye (ferr)", "orifice noye (ifws) inf1.5" ou
 #' "orifice noye (ifws) sup1.5".	
 #' @export
-#' @author Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, Stephanie Woimant \email{stephanie.woimant@eaux-et-vilaine.bzh} 
+#' @author Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, Stephanie Woimant 
+#' \email{stephanie.woimant@eaux-et-vilaine.bzh} 
 debit_vanne <- function(hvilaine, # vecteur
     hmer, #vecteur
     hvanne, # vecteur
@@ -360,6 +361,7 @@ load(system.file("param2012_2014.Rdata", package = "SIVA"))
 knitr::kable(param)
 load(system.file("dat2019.Rdata", package = "SIVA"))
 head(dat)
+
 ```
 
 ```{r tests-debit_vannes}
@@ -387,14 +389,23 @@ $$
 #' 
 #' Formule déversoir à crête épaisse (Ferrette, 2004).
 #' 
-#' @return
-#' 
+#' @param hvolet La hauteur du volet.
+#' @param hvilaine Le niveau Vilaine.
+#' @param hvanne La hauteur de vanne.
+#' @param hmer Le niveau mer.
+#' @param Cvo Le coefficient de débit sur le volet défaut 0.627.
+#' @param g La pesanteur, toujours 9.81.
+#' @param l La largeur d'une vanne 16.4
+#'
+#' @return Le calcul de débit d'un volet Q
+#' @author Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, Stephanie Woimant 
+#' \email{stephanie.woimant@eaux-et-vilaine.bzh} 
 #' @export
 debit_volet = function(hvolet,
                        hvilaine,
                        hvanne,
                        hmer,
-                       Cvo = 0.392,
+                       Cvo = 0.627,
                        g = 9.81,
                        l = 16.4) {
   H0 = ifelse(hvilaine >= 1.38 &
@@ -406,16 +417,37 @@ debit_volet = function(hvolet,
 ```
 
 ```{r example-debit_volet}
-
+load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load(system.file("dat2019.Rdata", package = "SIVA"))
+dv <-debit_volet(
+  hvolet = dat$volet1,
+  hvilaine = dat$niveauvilaine,
+  hvanne = dat$vanne1,
+  hmer = dat$niveaumer,
+  Cvo = param["Cvo"]
+)
 ```
 
 ```{r tests-debit_volet}
 test_that("debit_volet works", {
-  expect_true(inherits(debit_volet, "function")) 
+  load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load(system.file("dat2019.Rdata", package = "SIVA"))
+dv <-debit_volet(
+  hvolet = dat$volet1,
+  hvilaine = dat$niveauvilaine,
+  hvanne = dat$vanne1,
+  hmer = dat$niveaumer,
+  Cvo = param["Cvo"]
+)
+  expect_lt(max(dv), 30)
+  expect_gt(max(dv), 0)
 })
 ```
 
-# Débit de l'ensemble des volets : debit_volets
+#  debit_volets
+Débit de l'ensemble des volets
+<!-- Comprends pas pourquoi Débit de l'ensemble des volets : débit_volets génère
+un truc debit-de-l-ensemble-des-volets-debit_volets.R -->
 
 ```{r function-debit_volets}
 #' Calcul du débit sur tous les volets
@@ -457,16 +489,106 @@ debit_volets <-
 ```
 
 ```{r example-debit_volets}
-debit_volets()
+load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load(system.file("dat2019.Rdata", package = "SIVA"))
+dat <- head(dat,5000)
+Qvo12345 <- debit_volets(
+  hvolet1 = dat$volet1,
+  hvolet2 = dat$volet2,
+  hvolet3 = dat$volet3,
+  hvolet4 = dat$volet4,
+  hvolet5 = dat$volet5,
+  hvilaine = dat$niveauvilaine,
+  hmer = dat$niveaumer,
+  hvanne1 = dat$vanne1,
+  hvanne2 = dat$vanne2,
+  hvanne3 = dat$vanne3,
+  hvanne4 = dat$vanne4,
+  hvanne5 = dat$vanne5,
+  Cvo = param["Cvo"]
+)
+
+plot(
+  dat$HoroDate,
+  rowSums(Qvo12345) * 600,
+  pch = 19,
+  cex = 0.5,
+  ylab = "volume 10 min"
+)
+points(
+  dat$HoroDate,
+  dat$tot_vol_volet,
+  pch = 19,
+  cex = 0.2,
+  col = "red"
+)
+
+
+datt <- dat
+datt$volvoletcalcule <- rowSums(Qvo12345) * 600
+datt$date = as.Date(datt$HoroDate)
+debj <-
+  as.data.frame(
+    dplyr::select(datt, date, tot_vol_volet, volvoletcalcule) %>%
+      dplyr::group_by(date) %>%
+      dplyr::summarize(
+        volumevoletcalcule = sum(volvoletcalcule),
+        volumevoletbarrage = sum(tot_vol_volet)
+      ) %>%
+      dplyr::mutate(
+        debitvoletcalcule = volumevoletcalcule / (24 * 60 * 60),
+        debitvoletbarrage = volumevoletbarrage / (24 * 60 * 60)
+      )
+  )
+
+plot(
+  debj$date,
+  debj$debitvoletcalcule,
+  type = "l",
+  col = "black",
+  ylab = "Debit (m3/s)",
+  xlab = "Date",
+  ylim = c(0, max(
+    c(debj$debitvoletcalcule, debj$debitvoletbarrage), na.rm = TRUE
+  ))
+)
+points(debj$date,
+       debj$debitvoletbarrage,
+       type = "l",
+       col = "red")
+legend(
+  "top",
+  legend = c("calcul", "barrage"),
+  col = c("black", "red"),
+  lty = c(1, 1)
+)
+
 ```
 
 ```{r tests-debit_volets}
 test_that("debit_volets works", {
-  expect_true(inherits(debit_volets, "function")) 
+  load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load(system.file("dat2019.Rdata", package = "SIVA"))
+Qvo12345<-debit_volets(hvolet1=dat$volet1,
+		hvolet2=dat$volet2,
+		hvolet3=dat$volet3,
+		hvolet4=dat$volet4,
+		hvolet5=dat$volet5,
+		hvilaine=dat$niveauvilaine,
+		hmer=dat$niveaumer,
+		hvanne1=dat$vanne1,
+		hvanne2=dat$vanne2,
+		hvanne3=dat$vanne3,
+		hvanne4=dat$vanne4,
+		hvanne5=dat$vanne5,
+		Cvo=param["Cvo"])
+expect_is(Qvo12345,"data.frame")
 })
 ```
 
-# Débit de l'ensemble du barrage : debit_total
+# debit_total
+
+Débits de l'ensemble du barrage
 
 Les données de SIVA étant enregistrées au pas de temps de dix minutes, le débit
 instantanné au barrage $Q_{ba}$ s'écrit :
@@ -581,7 +703,72 @@ debit_total <-
 ```
 
 ```{r example-debit_total}
-debit_total()
+load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load(system.file("dat2019.Rdata", package = "SIVA"))
+Q12345 <- debit_total(param, param0 = param, dat)
+Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
+Q12345$volet_vanne <-
+  dat$tot_vol_barrage + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
+mQ <-
+  reshape2::melt(
+    Q12345[, c("horodate",
+               "qvanne1",
+               "qvanne2",
+               "qvanne3",
+               "qvanne4",
+               "qvanne5")],
+    id.vars = "horodate",
+    value.name = "Qvanne",
+    variable.name = "vanne"
+  )
+mcond <-
+  reshape2::melt(Q12345[, c("horodate",
+                  "typecalc1",
+                  "typecalc2",
+                  "typecalc3",
+                  "typecalc4",
+                  "typecalc5")], value.name = "typecalc", id.vars = "horodate")
+mQ$vanne <- as.character(mQ$vanne)
+mQ$vanne <- gsub("qvanne", "", mQ$vanne)
+mQ12345 <- cbind(mQ, "typecalc" = mcond[, 3]) # melted object
+
+
+g <-ggplot2::ggplot(mQ12345, ggplot2::aes(
+  x = horodate,
+  y = Qvanne,
+  col = typecalc,
+  shape = vanne
+)) + ggplot2::geom_jitter(size = 0.6)
+
+print(g)
+
+# Calcul du débit journalier
+Qj <-
+  as.data.frame(
+    dplyr::select(
+      Q12345,
+      Q,
+      date,
+      volvoletcalcule,
+      debit_moyen_cran,
+      tot_vol,
+      volet_vanne,
+      tot_vol_siphon,
+      tot_vol_passe
+    ) %>%
+      dplyr::group_by(date) %>%
+      dplyr::summarize(
+        volumevilainecalcule = sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon, na.rm =TRUE),
+        tot_vol = sum(tot_vol, na.rm = TRUE),
+        volet_vanne = sum(volet_vanne),
+        debit_moyen_cran = mean(debit_moyen_cran)
+      ) %>%
+      dplyr::mutate(
+        debitvilainecalcule = volumevilainecalcule / (24 * 60 * 60),
+        tot_bar = tot_vol / (24 * 60 * 60),
+        tot_volvan_bar = volet_vanne / (24 * 60 * 60)
+      )
+  )
 ```
 
 ```{r tests-debit_total}
@@ -604,7 +791,7 @@ Utilisation de bilansiva pour extraire les débits du barrage. Le tableau dans c
 #' @param debut La date de début, format texte, format = "%Y-%m-%d %H:%M:%S".
 #' @param fin La date de fin, format texte, format = "%Y-%m-%d %H:%M:%S".
 #' @param plot Boolean défaut FALSE.
-#' @return
+#' @return Un tableau de données avec les données chargées
 #' 
 #' @export
 bilansiva_debit <- function(debut, fin, plot=FALSE) {
@@ -831,5 +1018,5 @@ test_that("traitement_siva fonctionne", {
 ```{r development-inflate, eval=FALSE}
 # Run but keep eval=FALSE to avoid infinite loop
 # Execute in the console directly
-fusen::inflate(flat_file = "dev/flat_debit.Rmd", vignette_name = "Go further")
+fusen::inflate(flat_file = "dev/flat_debit.Rmd", vignette_name = "Fonctions de débit")
 ```

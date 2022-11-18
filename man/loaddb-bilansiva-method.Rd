@@ -4,14 +4,14 @@
 \alias{loaddb,bilansiva-method}
 \title{Methode de chargement pour loadb}
 \usage{
-\S4method{loaddb}{bilansiva}(objet, datawd, graphe = TRUE, restart = NULL)
+\S4method{loaddb}{bilansiva}(objet, datawd, plot = TRUE, restart = NULL)
 }
 \arguments{
 \item{objet}{Un objet de class bilansiva.}
 
 \item{datawd}{Le chemin vers le repertoire ou sauver les données.}
 
-\item{graphe}{Boolean, faut il un graphe ?}
+\item{plot}{Boolean, faut il un graphe ?}
 
 \item{restart}{Default NULL, si non null, l'objet est sauvé sous "tempsauvobjet" dans datawd.}
 }
