@@ -14,19 +14,45 @@ library(testthat)
 pkgload::load_all(export_all = FALSE)
 ```
 
-# Debit d'une vanne
+# Débit d'une vanne : debit_vanne
 
- Fonction de calcul de débit pour une vanne
- Choisir canal="bazin" pour avoir les calculs qui étaient fait avant 2018 au
-barrage.  Aubuisson et horton pour calculer les débits suivant Ferrette (2004)
-en prenant ou non compte des vitesses  Par rapport à Ferette (2004), la formule
-en orifice dénoyé calcule les vitesses par iteration.  Le calcul est effectué à
-partir d'une indexation des conditions de débits (vecteur de valeurs vrai et
-faux) entre crochet.  Les coefficients de Bazin ont été recalculés par une
-'regression' loess sur la base du rapport annexé à Briand et Woimant (2015)
+Deux conditions sont utilisées pour les vannes, (1) le canal (la vanne est hors d'eau) et (2) l'orifice noyé.
 
+(1) Pour la loi de canal deux conditions sont proposées dans la formule du logiciel Infoworks: $h_2/h_1<=0.98$ écoulement libre, $h_2/h_1>0.98$ écoulement noyé. En pratique, dans le cas des très grandes ouvertures de vanne, les écoulements libres sont assez rares. Pour le calcul des coefficients de débits, des paramètres un peu arbitraires ont été choisis (10 m de longueur de radier dans la formule $C_d$). Dans le cas où l'écoulement est noyé par l'aval la formule canal s'écrit (source Infoworks):
+
+$$      
+\begin{align*}
+C_d=&(1-0.01\frac{10}{l})\left(10(1-\frac{0.01}{2h_1})\right)^{1.5}\\   
+Q_{va}=&C_d \mu_{vw}(\frac{2}{3})^{1.5} g^{0.5} l h_1 (\frac{h_1-h_2}{1-0.98})^{0.5}                
+\end{align*}
+$$
+
+Dans le cas où l'écoulement est libre la formule est plus simple (source Infoworks):
+
+$$      
+\begin{align*}  
+Q_{va}=&C_d \mu_{vw}(\frac{2}{3})^{1.5} g^{0.5} l h_1 ^{1.5}                
+\end{align*}
+$$
+
+Pour l'orifice noyé, deux conditions de noyage de la vanne sont considérés. Nous avons en pratique calé deux coefficients séparés pour les conditions où la vanne est fortement noyée ($h_1\geq1.5h_0$) et les conditions ou elle sort plus de l'eau ($h_1<1.5h_0$) $$
+\begin{align*}
+C_e=&0.61(1+0.15\frac{l+2h_0}{(2l+2h_0})\\
+\end{align*} 
+$$ $$
+Q=
+\begin{cases}
+C_e\mu_{vg}h_0l(2g\Delta)^{0.5}~si~h_1<1.5h_0\\
+C_e\mu_{vgs}h_0l(2g\Delta)^{0.5}~si~h_1\geq1.5h_0
+\end{cases} 
+$$
+
+**Fonction de calcul de débit pour une vanne**
+
+Choisir `canal="bazin"` pour avoir les calculs qui étaient fait avant 2018 au barrage. Aubuisson et horton pour calculer les débits suivant Ferrette (2004) en prenant ou non compte des vitesses Par rapport à Ferette (2004), la formule en orifice dénoyé calcule les vitesses par iteration. Le calcul est effectué à partir d'une indexation des conditions de débits (vecteur de valeurs vrai et faux) entre crochet. Les coefficients de Bazin ont été recalculés par une 'regression' loess sur la base du rapport annexé à Briand et Woimant (2015)
 
 ```{r function-debit_vanne}
+
 #' Fonction de calcul du débit d'une vanne au barrage d'Arzal
 #' 
 #' Fonction de calcul de débit pour une vanne
@@ -251,36 +277,42 @@ load(system.file("dat2019.Rdata", package = "SIVA"))
 # Calcul du débit d'une vanne
 Qva1 <-
   debit_vanne(
-    hvilaine = hvilaine,
-    hmer = hmer,
-    hvanne = hvanne1,
-    canal = canal,
-    Cma = Cma,
-    Cho = Cho,
-    m_oninf4 = m_oninf4,
-    m_onsup4 = m_onsup4,
-    Cvg = Cvg,
-    Cvgs = Cvgs,
-    Cvw = Cvw,
+    hvilaine = dat$niveauvilaineb,
+    hmer = dat$niveaumerb,
+    hvanne = dat$vanne1,
+    canal = "ifsw",
+    Cvg = param["Cvg"],
+    Cvgs = param["Cvgs"],
+    Cvw = param["Cvw"],
     loi_orificenoye = "ifws"
   )
-
-
+plot(Qva1[4000:5000,])
 
 
 ```
 
 ```{r tests-debit_vanne}
 test_that("La fonction de calcul de débit-vanne fonctionne", {
-#TODO
+load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load(system.file("dat2019.Rdata", package = "SIVA"))
+# Calcul du débit d'une vanne
+Qva1 <-
+  debit_vanne(
+    hvilaine = dat$niveauvilaineb[4000:5000],
+    hmer = dat$niveaumerb[4000:5000],
+    hvanne = dat$vanne1[4000:5000],
+    canal = "ifsw",
+    Cvg = param["Cvg"],
+    Cvgs = param["Cvgs"],
+    Cvw = param["Cvw"],
+    loi_orificenoye = "ifws"
+  )
+expect_is(Qva1, "data.frame")
 })
 ```
 
-
-
-
 # Débit de l'ensemble des vannes : debit_vannes
-    
+
 ```{r function-debit_vannes}
 #' débit de l'ensemble des vannes du barrage d'Arzal
 #' 
@@ -320,7 +352,7 @@ debit_vannes<-function(horodate,hvanne1,hvanne2,hvanne3,hvanne4,hvanne5,hvilaine
       ))
 }
 ```
-  
+
 ```{r example-debit_vannes}
 # chargement des paramètres
 load(system.file("param2012_2014.Rdata", package = "SIVA"))
@@ -329,7 +361,7 @@ knitr::kable(param)
 load(system.file("dat2019.Rdata", package = "SIVA"))
 head(dat)
 ```
-  
+
 ```{r tests-debit_vannes}
 test_that("debit_vannes works", {
   expect_true(inherits(debit_vannes, "function")) 
@@ -338,21 +370,18 @@ test_that("debit_vannes works", {
 
 # Débit d'un volet : debit_volet
 
-Le fonctionnement en volet est déduit de l'absence d'ouverture de vanne, de la
-position du codeur, du niveau Vilaine et du niveau mer. Il semble, mais ce point
-reste à confirmer, que la formule par défaut du barrage ne calcule que pour les
-positions de codeur au dessus du fin de course (>1.38). La hauteur du volet
-varie en théorie entre 1.38 et 4.03 m NGF. En pratique il y a des dérives du
-niveau du codeur qui font qu'on ne peut utiliser que l'information sur la baisse
-du volet et une valeur approximative permettant de sélectionner les positions
-volet ouvert (<3.5m).
+Le fonctionnement en volet est déduit de l'absence d'ouverture de vanne, de la position du codeur, du niveau Vilaine et du niveau mer. Il semble, mais ce point reste à confirmer, que la formule par défaut du barrage ne calcule que pour les positions de codeur au dessus du fin de course (\>1.38). La hauteur du volet varie en théorie entre 1.38 et 4.03 m NGF. En pratique il y a des dérives du niveau du codeur qui font qu'on ne peut utiliser que l'information sur la baisse du volet et une valeur approximative permettant de sélectionner les positions volet ouvert (\<3.5m).
 
 $$
-si~&h_{vilaine}\geq 1.38~\& \\ &h_{volet}<3.5~\&\\ &h_0=0~\&\\
+\begin{align*}
+si~&h_{vilaine}\geq 1.38~\& \\
+&h_{volet}<3.5~\&\\
+&h_0=0~\&\\
 &h_{vilaine}>h_{mer}+0.3\\
-&Q_{vo}=l'*\mu_{vo}(\frac{2}{3}g)^{0.5}(h_{vilaine}-1.38)^{1.5} 
+&Q_{vo}=l'*\mu_{vo}(\frac{2}{3}g)^{0.5}(h_{vilaine}-1.38)^{1.5}
+\end{align*}
 $$
-    
+
 ```{r function-debit_volet}
 #' Débit d'un volet
 #' 
@@ -375,11 +404,11 @@ debit_volet = function(hvolet,
   Q = l * Cvo * (2 / 3 * g) ^ 0.5 * (H0) ^ 1.5
 }
 ```
-  
+
 ```{r example-debit_volet}
-debit_volet()
+
 ```
-  
+
 ```{r tests-debit_volet}
 test_that("debit_volet works", {
   expect_true(inherits(debit_volet, "function")) 
@@ -387,7 +416,7 @@ test_that("debit_volet works", {
 ```
 
 # Débit de l'ensemble des volets : debit_volets
-    
+
 ```{r function-debit_volets}
 #' Calcul du débit sur tous les volets
 #' 
@@ -426,19 +455,37 @@ debit_volets <-
     )
   }
 ```
-  
+
 ```{r example-debit_volets}
 debit_volets()
 ```
-  
+
 ```{r tests-debit_volets}
 test_that("debit_volets works", {
   expect_true(inherits(debit_volets, "function")) 
 })
 ```
 
-# Débit de l'ensemble du barrage : debit_vannes_volet
-    
+# Débit de l'ensemble du barrage : debit_total
+
+Les données de SIVA étant enregistrées au pas de temps de dix minutes, le débit
+instantanné au barrage $Q_{ba}$ s'écrit :
+$$
+Q_{ba}(t)=\frac{\sum_{i=1}^5 \beta Q_{va}(t,i)+\sum_{i=1}^5 \beta
+Q_{vo}(t,i)+V_{s}+V_{p}}{\beta}
+$$ 
+Avec :\\
+$V_s$= volume siphon\\
+$V_p$=volume passe	\\
+$\beta$=600\\
+Les écoulements
+passe $V_p$ et siphon $V_s$, qui sont faible, ne sont pas recalculés et viennent
+directement de SIVA.
+Les Volumes écluse ne sont pas inclus dans la formule.
+<!-- TODO voir avec Aldo.-->
+
+
+
 ```{r function-debit_total}
 
 
@@ -532,22 +579,21 @@ debit_total <-
     return(Q12345)
 }
 ```
-  
+
 ```{r example-debit_total}
 debit_total()
 ```
-  
+
 ```{r tests-debit_total}
 test_that("debit_total fonctionne", {
   expect_true(inherits(debit_total, "function")) 
 })
 ```
 
-# bilansiva-debit
+# Extraction des données à l'aide des fonctions SIVA : bilansiva-debit
 
-Utilisation de bilansiva pour extraire les débits du barrage. Le tableau dans 
-cette forme peut être utilisé directement dans les fonctions de débit.
-    
+Utilisation de bilansiva pour extraire les débits du barrage. Le tableau dans cette forme peut être utilisé directement dans les fonctions de débit.
+
 ```{r function-bilansiva_debit}
 #' bilansiva-debit extraction des données de la base
 #' 
@@ -676,7 +722,7 @@ bilansiva_debit <- function(debut, fin, plot=FALSE) {
   return(dat)
 }
 ```
-  
+
 ```{r example-bilansiva_debit}
 # Ne pas oublier que la bdd du barrage est en vieux GMT tout pourri.
 Sys.setenv(TZ='GMT')	
@@ -715,22 +761,13 @@ Sys.setenv(TZ='GMT')
          stacomiR.ODBClink = "archive_IAV")
  dat <- bilansiva_debit(debut="2020-01-01 00:00:00",fin="2020-01-20 00:00:00", plot =FALSE)
  knitr::kable(dat)
+ rawdata2020 <- dat
+ save(rawdata2020, file="inst/rawdata2020.Rdata")
  }
 ```
-  
-```{r tests-bilansiva_debit}
-test_that("bilansiva-debit works", {
-  expect_true(inherits(bilansiva_debit, "function")) 
-})
-```
-  
 
+# Traitement des données en sortie de bilansiva-debit : traitement_siva
 
-
-
-
-# Traitement des données en sortie de Bilan = traitement_siva
-    
 ```{r function-traitement_siva}
 #' Traitement des données en sortie de SIVA
 #' 
@@ -756,6 +793,8 @@ traitement_siva <- function(dat) {
   volumes[volumes < 0] <- NA
   dat[2:nrow(dat), totcol] <- volumes
   dat$tot_vol = rowSums(dat[, totcol])
+    dat[dat$tot_vol_barrage > 1e5 &
+        !is.na(dat$tot_vol_passe), "tot_vol_barrage"] <- NA
   dat[dat$tot_vol_passe > 1e5 &
         !is.na(dat$tot_vol_passe), "tot_vol_passe"] <- NA
   dat[dat$tot_vol_siphon > 1e5 &
@@ -770,23 +809,27 @@ traitement_siva <- function(dat) {
   
 }
 ```
-  
-```{r example-traitement_siva}
 
+```{r example-traitement_siva}
+# voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
+load(system.file("rawdata2020.Rdata", package="SIVA"))
+plot(rawdata2020$tot_vol_barrage)
+# les totaliseurs sont remis à plat
+cordata2020 <- traitement_siva(dat=rawdata2020)
+plot(cordata2020$tot_vol_barrage)
 ```
-  
+
 ```{r tests-traitement_siva}
-test_that("traitement_siva works", {
-  expect_true(inherits(traitement_siva, "function")) 
+test_that("traitement_siva fonctionne", {
+ load(system.file("rawdata2020.Rdata", package="SIVA"))
+ cordata2020 <- traitement_siva(dat=rawdata2020)
+ # si les valeurs sont transformées les valeurs sont plus loin de 1e9
+ expect_lt(max(cordata2020$tot_vol_barrage, na.rm=T),2e5)
 })
 ```
-  
-  
+
 ```{r development-inflate, eval=FALSE}
 # Run but keep eval=FALSE to avoid infinite loop
 # Execute in the console directly
 fusen::inflate(flat_file = "dev/flat_debit.Rmd", vignette_name = "Go further")
 ```
-
-
-  
