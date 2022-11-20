@@ -1,5 +1,5 @@
 
-#' @exportMethod
+
 setGeneric("datesrondes",def=function(objet,...) standardGeneric("datesrondes"))
 
 #' Methode daterondes
@@ -9,6 +9,7 @@ setGeneric("datesrondes",def=function(objet,...) standardGeneric("datesrondes"))
 #' @param objet Un objet de classe tablesiva
 #' @param method, méthode d'interpolation linéaire passée à approx, "linear" ou "constant" ou "none".
 #' @export
+#' @importFrom stats approx
 setMethod(
   "datesrondes",
   signature = signature("tablesiva"),

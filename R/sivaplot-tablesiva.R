@@ -1,4 +1,4 @@
-#' @exportMethod
+
 setGeneric("sivaplot",def=function(objet,...) standardGeneric("sivaplot"))
 #' Methode sivaplot
 #' 
@@ -6,12 +6,12 @@ setGeneric("sivaplot",def=function(objet,...) standardGeneric("sivaplot"))
 #' @param objet, un objet de classe tablesiva
 #' @importFrom stringr str_c
 #' @return Un object de classe tablesiva
+#' @importFrom graphics points
 #' @export
 setMethod(
     "sivaplot",
     signature = signature("tablesiva"),
     definition = function(objet) {
-      png(filename = str_c(imgwd, objet@nom, "_", label, ".png"))
       plot(
           objet@rawdata$HoroDate,
           objet@rawdata[, 3],
@@ -20,10 +20,9 @@ setMethod(
           ylab = "",
           main = objet@nom
       )
-      points(objet@corrdata$HoroDate,
+      graphics::points(objet@corrdata$HoroDate,
           objet@corrdata[, 2],
           col = "red",
           pch = "*")
-      dev.off()
     }
 )

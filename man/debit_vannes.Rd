@@ -24,6 +24,9 @@ debit_vannes(
   loi_orificenoye = "ifws"
 )
 }
+\value{
+Un data frame avec le débit de chaque vanne, et le type de calcul appliqué (typecalc)
+}
 \description{
 Le débit de toutes les vannes est calculé à partir de la fonction de calcul du débit sur une vanne
 et des coefficients de débit

@@ -26,14 +26,18 @@
 #' @param Cvg Coefficient ifsw orifice h1<=1.5 hvanne défaut 1.5.
 #' @param Cvgs Coefficient ifsw h1>1.5 hvanne défaut 1.5.
 #' @param loi_orificenoye défaut "ifws", choisir "ferrette" ou "ifws".	
+#' @importFrom stats predict
 #'
-#' @return Un tableau de données avec deux colonnes, "Q" le débit calculé en m3/s et "typecalc" 
-#' le type de calcul "vanne fermee", "hmer>hvilaine", "canal aubuisson", "canal horton", "canal bazin",
-#' "canal manning", "canal ifsw (noye)", "canal ifsw (libre)", "orifice noye (ferr)", "orifice noye (ifws) inf1.5" ou
+#' @return Un tableau de données avec deux colonnes, 
+#' "Q" le débit calculé en m3/s et "typecalc" 
+#' le type de calcul "vanne fermee", "hmer>hvilaine", "canal aubuisson", 
+#' "canal horton", "canal bazin",
+#' "canal manning", "canal ifsw (noye)", "canal ifsw (libre)", 
+#' "orifice noye (ferr)", "orifice noye (ifws) inf1.5" ou
 #' "orifice noye (ifws) sup1.5".	
 #' @export
-#' @author Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, Stephanie Woimant 
-#' \email{stephanie.woimant@eaux-et-vilaine.bzh} 
+#' @author Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, 
+#' Stephanie Woimant #' \email{stephanie.woimant@eaux-et-vilaine.bzh} 
 #' @examples
 #' # Exploration des coefficients la formule de Bazin 
 #' 
@@ -45,8 +49,10 @@
 #' gamma=87*Rh/(K+sqrt(Rh))
 #' plot(H,gamma,pch="A")
 #' df<-data.frame(H=H,gamma=gamma)
-#' loess_gamma_bazin<-loess(gamma~H,data=df,control = loess.control(surface = "direct")) # contol pour extrapolation en dehors de la gamme
-#' #save(loess_gamma_bazin,file=str_c(datawd,"loess_gamma_bazin.Rdata"))
+#' loess_gamma_bazin<-loess(gamma~H,data=df,control = 
+#' loess.control(surface = "direct")) 
+#' # contol pour extrapolation en dehors de la gamme
+#' #save(loess_gamma_bazin,file=str_c("inst","loess_gamma_bazin.Rdata"))
 #' df2<-data.frame(H=seq(from=5,to=11,by=0.1)) # pour les prédictions
 #' df2$gamma<-predict(loess_gamma_bazin,newdata=df2)
 #' points(df2$H,df2$gamma,col="red")
@@ -139,7 +145,7 @@ debit_vanne <- function(hvilaine, # vecteur
 # I3- formule de Bazin (telle que calculée au barrage) -----------------------------------
 	
     } else if (canal=="bazin"){
-      load(file=str_c(datawd,"loess_gamma_bazin.Rdata"))
+      load(file=system.file("loess_gamma_bazin.Rdata", package = "SIVA"))
       res$typecalc[loicanal]<-"canal bazin"
       # Dm=73
       # Dv=94
@@ -149,7 +155,7 @@ debit_vanne <- function(hvilaine, # vecteur
       H<-hmer+I*dv+7.72 # # hauteur d'eau au niveau de la vanne
       #Rh=S/perimetre mouille
       Rh=l*H/(2*H+l)
-      gamma<-predict(loess_gamma_bazin,data.frame(H=H[loicanal]))
+      gamma <- stats::predict(loess_gamma_bazin,data.frame(H=H[loicanal]))
       res$Q[loicanal]<-gamma*H[loicanal]*l*sqrt(I[loicanal])
 
 # I4- formule de Manning ------------------------------------------------------------------

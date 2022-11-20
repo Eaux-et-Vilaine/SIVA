@@ -1,10 +1,11 @@
 #' @title Methode de chargement pour loadb
 #' @param objet Un objet de class bilansiva.
-#' @param datawd Le chemin vers le repertoire ou sauver les données.
+#' @param datawd Le chemin vers le repertoire où sauver les données.
 #' @param plot Boolean, faut il un graphe ?
 #' @param restart Default NULL, si non null, l'objet est sauvé sous "tempsauvobjet" dans datawd.
 #' @return Un objet de classe bilansiva
 #' @export
+
 setMethod(
   "loaddb",
   signature = signature("bilansiva"),
@@ -14,7 +15,16 @@ setMethod(
                         restart = NULL) {
     if (!is.null(restart)) {
       start <- restart
-      load(file = file.path(datawd, paste0("tempsauvobjet", CY, ".Rdata"))) #replace objet
+      load(file = file.path(
+        datawd,
+        paste0(
+          "bilansiva",
+          strftime(objet@debut, "%d%m%y"),
+          "-",
+          strftime(objet@fin, "%d%m%y"),
+          ".Rdata"
+        )
+      )) #replace objet
     } else
       start = 1
     
@@ -74,6 +84,16 @@ setMethod(
       
     }
     cat("fin des calculs \n")
+    # sauvegarde de l'objet ------------------
+    save(objet,file.path(
+      datawd,
+      paste0(
+        "bilansiva",
+        strftime(objet@debut, "%d%m%y"),
+        "-",
+        strftime(objet@fin, "%d%m%y"),
+        ".Rdata"
+      )))
     return(objet)
   }
 )

@@ -4,7 +4,7 @@
 \alias{insert_into}
 \title{Fonction pour insérer des données dans SIVA. Attention zone de danger !}
 \usage{
-insert_into(data, columns, tabledest, baseODBC, display = FALSE, ...)
+insert_into(data, columns, tabledest, baseODBC, ...)
 }
 \arguments{
 \item{data}{Les données à exporter.}
@@ -14,8 +14,6 @@ insert_into(data, columns, tabledest, baseODBC, display = FALSE, ...)
 \item{tabledest}{Le nom de la table de destination dans la base.}
 
 \item{baseODBC}{Le lien ODBC vers la base.}
-
-\item{display}{Faut il afficher les données.}
 
 \item{...}{Autres paramètres passés à la fonction.}
 }

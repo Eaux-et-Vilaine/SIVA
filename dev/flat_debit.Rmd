@@ -1,5 +1,5 @@
 ---
-title: "flat_debit.Rmd"
+title: "flat_debit.Rmd" DEPRECATED EDITION MANUELLE DES FICHIERS DE SORTIE !
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -454,7 +454,21 @@ un truc debit-de-l-ensemble-des-volets-debit_volets.R -->
 #' 
 #' Somme du débit de tous les volets
 #' 
-#' @return
+#' @param hvolet1 La hauteur du volet1.
+#' @param hvolet2 La hauteur du volet2.
+#' @param hvolet3 La hauteur du volet3.
+#' @param hvolet4 La hauteur du volet4.
+#' @param hvolet5 La hauteur du volet5.
+#' @param hvilaine Le niveau Vilaine.
+#' @param hvanne1 La hauteur de vanne.
+#' @param hvanne2 La hauteur de vanne.
+#' @param hvanne3 La hauteur de vanne. 
+#' @param hvanne4 La hauteur de vanne. 
+#' @param hvanne5 La hauteur de vanne. 
+#' @param hmer Le niveau mer.
+#' @param Cvo Le coefficient de calcul de débit sur les volets, défaut 0.627.
+#'
+#' @return Un data frame avec les colonnes Qvolet1 ... Qvolet5.
 #' 
 #' @export
 debit_volets <-

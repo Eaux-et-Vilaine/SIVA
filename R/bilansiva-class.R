@@ -20,7 +20,7 @@ validity_bilansiva = function(object)
 
 
 
-#' @title Class BilanSiva
+#' @title Class bilanSiva
 #' Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables
 #' @slot table = noms des la tables a aller chercher
 #' @slot nom = noms des la colonnes

@@ -7,7 +7,6 @@
 #' @param columns Le nom des colonnes à exporter.
 #' @param tabledest Le nom de la table de destination dans la base.
 #' @param baseODBC Le lien ODBC vers la base.
-#' @param display Faut il afficher les données.
 #' @param ... Autres paramètres passés à la fonction.
 #'
 #' @return nothing
@@ -15,7 +14,10 @@
 #'
 #' @examples
 #' #TODO
-insert_into <- function(data,columns,tabledest,baseODBC,display=FALSE,...) {
+#' @importFrom utils setWinProgressBar
+#' @importFrom RODBC odbcCloseAll
+#' @importFrom utils winProgressBar
+insert_into <- function(data,columns,tabledest,baseODBC,...) {
   insert_into_sub=function(){
     cat("ecriture dans la base\n")
     progres<-winProgressBar(title = "progression",
@@ -24,7 +26,6 @@ insert_into <- function(data,columns,tabledest,baseODBC,display=FALSE,...) {
         max = nrow(data), 
         initial = 1,
         width = 400)
-    if (display) assign("showmerequest",1,envir=.GlobalEnv)				
     requete=new("RequeteODBC")
     requete@baseODBC=baseODBC
     requete@open=TRUE

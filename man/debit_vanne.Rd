@@ -57,9 +57,12 @@ debit_vanne(
 \item{loi_orificenoye}{défaut "ifws", choisir "ferrette" ou "ifws".}
 }
 \value{
-Un tableau de données avec deux colonnes, "Q" le débit calculé en m3/s et "typecalc"
-le type de calcul "vanne fermee", "hmer>hvilaine", "canal aubuisson", "canal horton", "canal bazin",
-"canal manning", "canal ifsw (noye)", "canal ifsw (libre)", "orifice noye (ferr)", "orifice noye (ifws) inf1.5" ou
+Un tableau de données avec deux colonnes,
+"Q" le débit calculé en m3/s et "typecalc"
+le type de calcul "vanne fermee", "hmer>hvilaine", "canal aubuisson",
+"canal horton", "canal bazin",
+"canal manning", "canal ifsw (noye)", "canal ifsw (libre)",
+"orifice noye (ferr)", "orifice noye (ifws) inf1.5" ou
 "orifice noye (ifws) sup1.5".
 }
 \description{
@@ -81,8 +84,10 @@ points(Rh,predict(lm(K~Rh)),type="l")
 gamma=87*Rh/(K+sqrt(Rh))
 plot(H,gamma,pch="A")
 df<-data.frame(H=H,gamma=gamma)
-loess_gamma_bazin<-loess(gamma~H,data=df,control = loess.control(surface = "direct")) # contol pour extrapolation en dehors de la gamme
-#save(loess_gamma_bazin,file=str_c(datawd,"loess_gamma_bazin.Rdata"))
+loess_gamma_bazin<-loess(gamma~H,data=df,control = 
+loess.control(surface = "direct")) 
+# contol pour extrapolation en dehors de la gamme
+#save(loess_gamma_bazin,file=str_c("inst","loess_gamma_bazin.Rdata"))
 df2<-data.frame(H=seq(from=5,to=11,by=0.1)) # pour les prédictions
 df2$gamma<-predict(loess_gamma_bazin,newdata=df2)
 points(df2$H,df2$gamma,col="red")
@@ -108,6 +113,6 @@ plot(Qva1[4000:5000,])
 
 }
 \author{
-Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh}, Stephanie Woimant
-\email{stephanie.woimant@eaux-et-vilaine.bzh}
+Cedric Briand \email{cedric.briand@eaux-et-vilaine.bzh},
+Stephanie Woimant #' \email{stephanie.woimant@eaux-et-vilaine.bzh}
 }

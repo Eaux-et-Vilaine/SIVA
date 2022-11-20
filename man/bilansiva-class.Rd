@@ -3,10 +3,10 @@
 \docType{class}
 \name{bilansiva-class}
 \alias{bilansiva-class}
-\title{Class BilanSiva
+\title{Class bilanSiva
 Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables}
 \description{
-Class BilanSiva
+Class bilanSiva
 Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables
 }
 \section{Slots}{

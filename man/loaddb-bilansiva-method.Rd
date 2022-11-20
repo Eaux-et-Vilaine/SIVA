@@ -9,7 +9,7 @@
 \arguments{
 \item{objet}{Un objet de class bilansiva.}
 
-\item{datawd}{Le chemin vers le repertoire ou sauver les données.}
+\item{datawd}{Le chemin vers le repertoire où sauver les données.}
 
 \item{plot}{Boolean, faut il un graphe ?}
 

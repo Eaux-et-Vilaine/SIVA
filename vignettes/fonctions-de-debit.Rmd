@@ -135,7 +135,7 @@ dv <-debit_volet(
 )
 ```
 
-# Débit de l`'`ensemble des volets : debit_volets
+# Débit de l'ensemble des volets : debit_volets
 
 ```{r example-debit_volets}
 load(system.file("param2012_2014.Rdata", package = "SIVA"))
@@ -214,7 +214,7 @@ legend(
 
 ```
 
-# Débit de l`'`ensemble du barrage : debit_total
+# Débit de l'ensemble du barrage : debit_total
 
 Les données de SIVA étant enregistrées au pas de temps de dix minutes, le débit
 instantanné au barrage $Q_{ba}$ s'écrit :

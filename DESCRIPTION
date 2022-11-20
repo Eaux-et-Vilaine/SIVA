@@ -10,19 +10,25 @@ Description: Interface graphique vers SIVA.
 License: GPL (>= 3) + file LICENSE
 Imports: 
     magrittr,
-    methods,
-    stacomirtools,
-    stringr
+    stringr,
+    RODBC
 Suggests: 
     getPass,
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    dplyr,
+    ggplot2,
+    reshape2
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
+Depends:
+    R (>= 4.0.0),
+    methods,
+    stacomirtools (>= 0.6.0.1)
 Collate:
     'siva-package.R'
     'tablesiva-class.R'
@@ -34,3 +40,10 @@ Collate:
     'loaddb-bilansiva.R'
     'prepare_sql.R'
     'sivaplot-tablesiva.R'
+    'bilansiva_debit.R'
+    'debit_total.R'
+    'debit_vanne.R'
+    'debit_vannes.R'
+    'debit_volet.R'
+    'debit_volets.R'
+    'traitement_siva.R'
