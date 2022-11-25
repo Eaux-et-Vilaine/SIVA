@@ -20,12 +20,11 @@
 insert_into <- function(data,columns,tabledest,baseODBC,...) {
   insert_into_sub=function(){
     cat("ecriture dans la base\n")
-    progres<-winProgressBar(title = "progression",
-        label = "progression %",
+    progres<-txtProgressBar(
         min = 1,
         max = nrow(data), 
-        initial = 1,
-        width = 400)
+        style=3,
+        width = nrow(data))
     requete=new("RequeteODBC")
     requete@baseODBC=baseODBC
     requete@open=TRUE
@@ -34,7 +33,7 @@ insert_into <- function(data,columns,tabledest,baseODBC,...) {
     # this will affect content but not outside the function
     for (i in 1:nrow(data)){
       info<-sprintf("%d%% ecrit",round(100*i/nrow(data)))					
-      setWinProgressBar(progres,value=i,label=info)     
+      setTxtProgressBar(progres,value=i)     
       requete@sql=paste( "INSERT INTO ",tabledest,		
           "(",paste(columns,sep="",collapse=","),
           ")VALUES (",paste(data[i,columns],sep="",collapse=","),
