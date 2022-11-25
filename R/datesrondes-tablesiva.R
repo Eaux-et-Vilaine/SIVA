@@ -1,5 +1,6 @@
 
-
+#' Generic function for datesrondes
+#' @keywords internal
 setGeneric("datesrondes",def=function(objet,...) standardGeneric("datesrondes"))
 
 #' Methode daterondes

@@ -20,14 +20,19 @@ validity_bilansiva = function(object)
 
 
 
-#' @title Class bilanSiva
-#' Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables
-#' @slot tables = noms des la tables a aller chercher
-#' @slot nom = noms des la colonnes
-#' @slot daterondes = traitement par la methode datesrondes, soit "constant" pour ouvertures en tout ou rien des vannes, soit "linear" pour des données continues, soit "none" pour pas de traitement
-#' @slot tags = si plusieurs variables sont dans la même table il faut donner leur tag pour les différentier
-#' @slot debut = date de début
-#' @slot fin = date de fin
+#' Class bilansiva
+#' 
+#' Cette classe utilise tablesiva pour récupérer les infos sur plusieurs tables
+#' 
+#' @slot tables Noms des la tables a aller chercher.
+#' @slot noms Noms des la colonnes.
+#' @slot daterondes Traitement par la methode datesrondes, soit "constant" pour ouvertures en tout
+#'  ou rien des vannes, soit "linear" pour des données continues, soit "none" pour pas de traitement.
+#' @slot tags Si plusieurs variables sont dans la même table il faut donner leur
+#'  tag pour les différentier.
+#' @slot debut Date de début.
+#' @slot fin Date de fin.
+#' @slot bilandata Un data frame avec les données de bilan chargé.
 #' @note Cette classe teste que les longueurs des champs nom, daterondes,et table sont égales
 #' @export
 setClass(Class="bilansiva",representation=

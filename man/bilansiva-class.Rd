@@ -3,26 +3,28 @@
 \docType{class}
 \name{bilansiva-class}
 \alias{bilansiva-class}
-\title{Class bilanSiva
-Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables}
+\title{Class bilansiva}
 \description{
-Class bilanSiva
-Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables
+Cette classe utilise tablesiva pour récupérer les infos sur plusieurs tables
 }
 \section{Slots}{
 
 \describe{
-\item{\code{tables}}{= noms des la tables a aller chercher}
+\item{\code{tables}}{Noms des la tables a aller chercher.}
 
-\item{\code{nom}}{= noms des la colonnes}
+\item{\code{noms}}{Noms des la colonnes.}
 
-\item{\code{daterondes}}{= traitement par la methode datesrondes, soit "constant" pour ouvertures en tout ou rien des vannes, soit "linear" pour des données continues, soit "none" pour pas de traitement}
+\item{\code{daterondes}}{Traitement par la methode datesrondes, soit "constant" pour ouvertures en tout
+ou rien des vannes, soit "linear" pour des données continues, soit "none" pour pas de traitement.}
 
-\item{\code{tags}}{= si plusieurs variables sont dans la même table il faut donner leur tag pour les différentier}
+\item{\code{tags}}{Si plusieurs variables sont dans la même table il faut donner leur
+tag pour les différentier.}
 
-\item{\code{debut}}{= date de début}
+\item{\code{debut}}{Date de début.}
 
-\item{\code{fin}}{= date de fin}
+\item{\code{fin}}{Date de fin.}
+
+\item{\code{bilandata}}{Un data frame avec les données de bilan chargé.}
 }}
 
 \note{

@@ -1,4 +1,6 @@
 
+#' Generic function for plot
+#' @keywords internal
 setGeneric("sivaplot",def=function(objet,...) standardGeneric("sivaplot"))
 #' Methode sivaplot
 #' 
