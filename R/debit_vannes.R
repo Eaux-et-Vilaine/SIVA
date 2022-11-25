@@ -5,6 +5,24 @@
 #' Le débit de toutes les vannes est calculé à partir de la fonction de calcul du débit sur une vanne
 #' et des coefficients de débit
 #' 
+#' @param horodate date
+#' @param hvanne1 hauteur vanne 1
+#' @param hvanne2 hauteur vanne 2
+#' @param hvanne3 hauteur vanne 3
+#' @param hvanne4 hauteur vanne 4
+#' @param hvanne5 hauteur vanne 5
+#' @param hvilaine niveau vilaine
+#' @param hmer niveau mer
+#' @param canal  Loi de débit choisir "bazin", "aubuisson", "horton", "manning" ou "ifsw".
+#' @param Cma Coefficient canal pour Manning défaut 0.65.
+#' @param Cho Coefficient canal pour Horton défaut .79.
+#' @param m_oninf4 Coefficient Orifice noyé noyé hvanne<4 (Ferrette) défaut 0.663.
+#' @param m_onsup4 Orifice noyé hvanne >4 défaut 0.995.
+#' @param Cvw Coefficient ifsw canal défaut 1.
+#' @param Cvg Coefficient ifsw orifice h1<=1.5 hvanne défaut 1.5.
+#' @param Cvgs Coefficient ifsw h1>1.5 hvanne défaut 1.5.
+#' @param loi_orificenoye défaut "ifws", choisir "ferrette" ou "ifws".	
+#'
 #' @return Un data frame avec le débit de chaque vanne, et le type de calcul appliqué (typecalc)
 #' 
 #' @export
@@ -16,32 +34,119 @@
 #' load(system.file("dat2019.Rdata", package = "SIVA"))
 #' head(dat)
 #' 
-debit_vannes<-function(horodate,hvanne1,hvanne2,hvanne3,hvanne4,hvanne5,hvilaine,hmer,canal="manning",
-    Cma=0.65, #coefficient de manning à ajuster
-    Cho=.79, #horton
-    m_oninf4=0.663, # Orifice noyé noyé hvanne<4
-    m_onsup4=0.995, #Orifice noyé hvanne >4
-    Cvg=1.5, #coefficient ifsw orifice h1<=1.5 hvanne
-    Cvgs=1.5, # coefficient ifsw h1>1.5 hvanne
-    Cvw=1.5,
-    loi_orificenoye="ifws"
-) {
-  Qva1<-debit_vanne(hvilaine=hvilaine, hmer=hmer, hvanne=hvanne1, canal=canal,Cma=Cma, Cho=Cho, m_oninf4=m_oninf4,m_onsup4=m_onsup4,Cvg=Cvg,Cvgs=Cvgs,Cvw=Cvw,loi_orificenoye="ifws")
-  Qva2<-debit_vanne(hvilaine=hvilaine, hmer=hmer, hvanne=hvanne2, canal=canal,Cma=Cma, Cho=Cho, m_oninf4=m_oninf4,m_onsup4=m_onsup4,Cvg=Cvg,Cvgs=Cvgs,Cvw=Cvw,loi_orificenoye="ifws")
-  Qva3<-debit_vanne(hvilaine=hvilaine, hmer=hmer, hvanne=hvanne3, canal=canal,Cma=Cma, Cho=Cho, m_oninf4=m_oninf4,m_onsup4=m_onsup4,Cvg=Cvg,Cvgs=Cvgs,Cvw=Cvw,loi_orificenoye="ifws")
-  Qva4<-debit_vanne(hvilaine=hvilaine, hmer=hmer, hvanne=hvanne4, canal=canal,Cma=Cma, Cho=Cho, m_oninf4=m_oninf4,m_onsup4=m_onsup4,Cvg=Cvg,Cvgs=Cvgs,Cvw=Cvw,loi_orificenoye="ifws")
-  Qva5<-debit_vanne(hvilaine=hvilaine, hmer=hmer, hvanne=hvanne5, canal=canal,Cma=Cma, Cho=Cho, m_oninf4=m_oninf4,m_onsup4=m_onsup4,Cvg=Cvg,Cvgs=Cvgs,Cvw=Cvw,loi_orificenoye="ifws")
-  return(data.frame(horodate=horodate,
-          qvanne1=Qva1$Q,
-          qvanne2=Qva2$Q,
-          qvanne3=Qva3$Q,
-          qvanne4=Qva4$Q,
-          qvanne5=Qva5$Q,
-          Q=Qva1$Q+Qva2$Q+Qva3$Q+Qva4$Q+Qva5$Q,
-          typecalc1=Qva1$typecalc,
-          typecalc2=Qva2$typecalc,
-          typecalc3=Qva3$typecalc,
-          typecalc4=Qva4$typecalc,
-          typecalc5=Qva5$typecalc												
-      ))
-}
+debit_vannes <-
+  function(horodate,
+           hvanne1,
+           hvanne2,
+           hvanne3,
+           hvanne4,
+           hvanne5,
+           hvilaine,
+           hmer,
+           canal = "manning",
+           Cma = 0.65,
+           #coefficient de manning à ajuster
+           Cho = .79,
+           #horton
+           m_oninf4 = 0.663,
+           # Orifice noyé noyé hvanne<4
+           m_onsup4 = 0.995,
+           #Orifice noyé hvanne >4
+           Cvg = 1.5,
+           #coefficient ifsw orifice h1<=1.5 hvanne
+           Cvgs = 1.5,
+           # coefficient ifsw h1>1.5 hvanne
+           Cvw = 1.5,
+           loi_orificenoye = "ifws") {
+    Qva1 <-
+      debit_vanne(
+        hvilaine = hvilaine,
+        hmer = hmer,
+        hvanne = hvanne1,
+        canal = canal,
+        Cma = Cma,
+        Cho = Cho,
+        m_oninf4 = m_oninf4,
+        m_onsup4 = m_onsup4,
+        Cvg = Cvg,
+        Cvgs = Cvgs,
+        Cvw = Cvw,
+        loi_orificenoye = "ifws"
+      )
+    Qva2 <-
+      debit_vanne(
+        hvilaine = hvilaine,
+        hmer = hmer,
+        hvanne = hvanne2,
+        canal = canal,
+        Cma = Cma,
+        Cho = Cho,
+        m_oninf4 = m_oninf4,
+        m_onsup4 = m_onsup4,
+        Cvg = Cvg,
+        Cvgs = Cvgs,
+        Cvw = Cvw,
+        loi_orificenoye = "ifws"
+      )
+    Qva3 <-
+      debit_vanne(
+        hvilaine = hvilaine,
+        hmer = hmer,
+        hvanne = hvanne3,
+        canal = canal,
+        Cma = Cma,
+        Cho = Cho,
+        m_oninf4 = m_oninf4,
+        m_onsup4 = m_onsup4,
+        Cvg = Cvg,
+        Cvgs = Cvgs,
+        Cvw = Cvw,
+        loi_orificenoye = "ifws"
+      )
+    Qva4 <-
+      debit_vanne(
+        hvilaine = hvilaine,
+        hmer = hmer,
+        hvanne = hvanne4,
+        canal = canal,
+        Cma = Cma,
+        Cho = Cho,
+        m_oninf4 = m_oninf4,
+        m_onsup4 = m_onsup4,
+        Cvg = Cvg,
+        Cvgs = Cvgs,
+        Cvw = Cvw,
+        loi_orificenoye = "ifws"
+      )
+    Qva5 <-
+      debit_vanne(
+        hvilaine = hvilaine,
+        hmer = hmer,
+        hvanne = hvanne5,
+        canal = canal,
+        Cma = Cma,
+        Cho = Cho,
+        m_oninf4 = m_oninf4,
+        m_onsup4 = m_onsup4,
+        Cvg = Cvg,
+        Cvgs = Cvgs,
+        Cvw = Cvw,
+        loi_orificenoye = "ifws"
+      )
+    return(
+      data.frame(
+        horodate = horodate,
+        qvanne1 = Qva1$Q,
+        qvanne2 = Qva2$Q,
+        qvanne3 = Qva3$Q,
+        qvanne4 = Qva4$Q,
+        qvanne5 = Qva5$Q,
+        Q = Qva1$Q + Qva2$Q + Qva3$Q + Qva4$Q + Qva5$Q,
+        typecalc1 = Qva1$typecalc,
+        typecalc2 = Qva2$typecalc,
+        typecalc3 = Qva3$typecalc,
+        typecalc4 = Qva4$typecalc,
+        typecalc5 = Qva5$typecalc
+      )
+    )
+  }

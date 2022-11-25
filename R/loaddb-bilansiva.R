@@ -45,7 +45,7 @@ setMethod(
           constant = {
             tab <- datesrondes(tab, method = "constant")
             print(paste(
-              "methode d'arrondi constant appliquée pour",
+              "methode d\'arrondi constant appliqu\u00e9e pour",
               objet@noms[i],
               "\n"
             ))
@@ -53,13 +53,13 @@ setMethod(
           linear = {
             tab <- datesrondes(tab, method = "linear")
             print(paste(
-              "methode d'arrondi linear appliquée pour",
+              "methode d\'arrondi linear appliqu\u00e9e pour",
               objet@noms[i],
               "\n"
             ))
           },
           none = {
-            print(paste("pas d'arrondi dans la date pour", objet@noms[i], "\n"))
+            print(paste("pas d\'arrondi dans la date pour", objet@noms[i], "\n"))
             tab@corrdata <- tab@rawdata[, c(2, 3)] # j'enlève le tag
           }
         )

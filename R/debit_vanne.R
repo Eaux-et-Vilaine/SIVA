@@ -95,7 +95,7 @@ debit_vanne <- function(hvilaine, # vecteur
     loi_orificenoye="ifws"#choisir "ferrette" ou ifws		
 ){
   # test initial	
-  if (!(length(hmer)==length(hvilaine)&length(hmer)==length(hvanne))) stop("hmer, hmvilaine, hvanne doivent avoir la même longueur")
+  if (!(length(hmer)==length(hvilaine)&length(hmer)==length(hvanne))) stop("hmer, hmvilaine, hvanne doivent avoir la m\u00eame longueur")
   #initialisation des variables
   res<-data.frame("hvilaine"=hvilaine,"hmer"=hmer,"hvanne"=hvanne)
   res$Q<-rep(NA,length(hmer)) 
@@ -108,7 +108,7 @@ debit_vanne <- function(hvilaine, # vecteur
   loicanal[is.na(loicanal)]<-FALSE # pour éviter le plantiage lors de la réindexation
   loinoye<-delta>0&hvanne>0&hvilaine>(hvanne-7.72)#&hmer>=(hvanne-7.72)
   loinoye[is.na(loinoye)]<-FALSE
-  # On n'utilise plus les loi dénoyé par l'aval (orifice)
+  # On n'utilise plus les loi d\u00e9noy\u00e9 par l'aval (orifice)
   #loidenoye<-delta>0&hvanne>0&hvilaine>(hvanne-7.72)&hmer<(hvanne-7.72)
   #loidenoye[is.na(loidenoye)]<-FALSE
   # Situations ou le débit est nul
@@ -185,7 +185,7 @@ debit_vanne <- function(hvilaine, # vecteur
       res$typecalc[canalnoye]<-"canal ifsw (noye)"
       
     }	else	{			
-      stop("canal doit être bazin, aubusson,  horton, manning ou ifsw")
+      stop("canal doit \u00eatre bazin, aubusson,  horton, manning ou ifsw")
     } # end canal
   }
 	

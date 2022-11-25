@@ -12,7 +12,7 @@ Cette classe utilise TableSiva pour récupérer les infos sur plusieurs tables
 \section{Slots}{
 
 \describe{
-\item{\code{table}}{= noms des la tables a aller chercher}
+\item{\code{tables}}{= noms des la tables a aller chercher}
 
 \item{\code{nom}}{= noms des la colonnes}
 

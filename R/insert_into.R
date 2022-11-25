@@ -43,12 +43,11 @@ insert_into <- function(data,columns,tabledest,baseODBC,...) {
       
     } # end for
     print(Sys.time()-t1)
-    if (display) remove("showmerequest",envir=.GlobalEnv)
     odbcCloseAll()
     close(progres)
   } 			
   # main part of the function below
-  if (!all(columns%in%names(data))) stop(paste("toutes les colonnes ne sont pas dans les données, il faut les créer avant de lancer cette merveilleuse fonction"))
+  if (!all(columns%in%names(data))) stop(paste("toutes les colonnes ne sont pas dans les donn\u00e9es, il faut les cr\u00e9er avant de lancer cette merveilleuse fonction"))
   requete=new("RequeteODBC")
   requete@baseODBC=baseODBC
   requete@sql=paste("SELECT * FROM ",tabledest, " LIMIT 1000",sep="")
@@ -59,7 +58,7 @@ insert_into <- function(data,columns,tabledest,baseODBC,...) {
     if (all(columns%in%names(requete@query))) {
       insert_into_sub()
     }else {
-      stop("Les colonnes insérées ne sont pas la table de la base de données.")	
+      stop("Les colonnes ins\u00e9r\u00e9es ne sont pas la table de la base de donn\u00e9es.")	
     }	
   }
   return(invisible(NULL))

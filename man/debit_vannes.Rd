@@ -24,6 +24,41 @@ debit_vannes(
   loi_orificenoye = "ifws"
 )
 }
+\arguments{
+\item{horodate}{date}
+
+\item{hvanne1}{hauteur vanne 1}
+
+\item{hvanne2}{hauteur vanne 2}
+
+\item{hvanne3}{hauteur vanne 3}
+
+\item{hvanne4}{hauteur vanne 4}
+
+\item{hvanne5}{hauteur vanne 5}
+
+\item{hvilaine}{niveau vilaine}
+
+\item{hmer}{niveau mer}
+
+\item{canal}{Loi de débit choisir "bazin", "aubuisson", "horton", "manning" ou "ifsw".}
+
+\item{Cma}{Coefficient canal pour Manning défaut 0.65.}
+
+\item{Cho}{Coefficient canal pour Horton défaut .79.}
+
+\item{m_oninf4}{Coefficient Orifice noyé noyé hvanne<4 (Ferrette) défaut 0.663.}
+
+\item{m_onsup4}{Orifice noyé hvanne >4 défaut 0.995.}
+
+\item{Cvg}{Coefficient ifsw orifice h1<=1.5 hvanne défaut 1.5.}
+
+\item{Cvgs}{Coefficient ifsw h1>1.5 hvanne défaut 1.5.}
+
+\item{Cvw}{Coefficient ifsw canal défaut 1.}
+
+\item{loi_orificenoye}{défaut "ifws", choisir "ferrette" ou "ifws".}
+}
 \value{
 Un data frame avec le débit de chaque vanne, et le type de calcul appliqué (typecalc)
 }
