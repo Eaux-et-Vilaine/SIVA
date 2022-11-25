@@ -7,3 +7,4 @@
 ^.dbeaver$
 ^.github$
 ^LICENSE\.md$
+^vignettes/articles$

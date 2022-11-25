@@ -1,5 +1,5 @@
 ---
-title: "Fonctions de débit"
+title: "Fonctions-de-debit"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{fonctions-de-debit}

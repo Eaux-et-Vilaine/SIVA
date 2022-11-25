@@ -11,6 +11,7 @@
 #'
 #' @return nothing
 #' @export
+#' @importFrom utils txtProgressBar
 #'
 #' @examples
 #' #TODO

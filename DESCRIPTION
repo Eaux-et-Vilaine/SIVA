@@ -47,3 +47,4 @@ Collate:
     'debit_volet.R'
     'debit_volets.R'
     'traitement_siva.R'
+    'load_debit_barrage.R'

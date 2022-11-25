@@ -85,15 +85,15 @@ setMethod(
     }
     cat("fin des calculs \n")
     # sauvegarde de l'objet ------------------
-    save(objet,file.path(
-      datawd,
-      paste0(
-        "bilansiva",
-        strftime(objet@debut, "%d%m%y"),
-        "-",
-        strftime(objet@fin, "%d%m%y"),
-        ".Rdata"
-      )))
+    # save(objet,file.path(
+    #   datawd,
+    #   paste0(
+    #     "bilansiva",
+    #     strftime(objet@debut, "%d%m%y"),
+    #     "-",
+    #     strftime(objet@fin, "%d%m%y"),
+    #     ".Rdata"
+    #   )))
     return(objet)
   }
 )
