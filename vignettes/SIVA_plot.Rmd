@@ -1,6 +1,9 @@
 ---
 title: "SIVA_plot"
 output: rmarkdown::html_vignette
+params: 
+  debut: !r Sys.Date()-10
+  fin: !r Sys.Date()
 vignette: >
   %\VignetteIndexEntry{SIVA_plot}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,8 +15,63 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+list=ls(all=TRUE)
+library(safer)
+library(getPass)
+pois <- getPass(msg="Main password")
+list<-list[-match(c("passworddistant","passwordlocal","umysql","pwdmysql"),list)  ]
+rm(list) # nettoyage complet
+debut<-as.character(params$debut)
+fin<-as.character(params$fin)
+load_library=function(necessary) {
+	if(!all(necessary %in% installed.packages()[, 'Package']))
+		install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+	for(i in 1:length(necessary))
+		library(necessary[i], character.only = TRUE)
+}
+load_library('stringr') # text handling
+load_library('RODBC')
+load_library('stacomirtools') # fonctions de requetage odbc 
+load_library('lubridate')
+#install.packages('RMySQL',type='source')
+#library(RMySQL)
+load(system.file("param2012_2014.Rdata", package = "SIVA"))
+load_library('RPostgreSQL') # one can use RODBC, here I'm using direct connection load_library('ggplot2')# join fuction
+load_library('lubridate')
+load_library('reshape2')
+load_library('tidyverse')	
+
+#'==========================================================
+#' fonction d'application de la transparence à des couleurs.
+#'==========================================================
+makeTransparent<-function(someColor, alpha=100)
+{
+	newColor<-col2rgb(someColor)
+	apply(newColor, 2, function(curcoldata){rgb(red=curcoldata[1], green=curcoldata[2],
+						blue=curcoldata[3],alpha=alpha, maxColorValue=255)})
+}	#note: always pass alpha on the 0-255 scale
+
+#'==========================================================
+#' Définition du nom des couleurs
+#'==========================================================
+
+bleu_EV <- "#00218f"
+turquoise_EV <- "#00C9C4"
+orange_EV <- "#ff7557"
+jaune_EV <- "#ffb428"
+bleu_EVf <- "#001350"
+jaune_EVf <- "#AD7000"
+orange_EVf <- "#b2513c"
+bleu_clair_EV <- "#33b5ff"
+turquoise_EVf <- "#007873"
+
 ```
+
+Les données seront chargées de `r debut` à `r fin`
+
 
 ```{r setup}
 library(SIVA)
+
+
 ```
