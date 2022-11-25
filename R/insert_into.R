@@ -12,7 +12,8 @@
 #' @return nothing
 #' @export
 #' @importFrom utils txtProgressBar
-#'
+#' @importFrom utils setTxtProgressBar
+#' @importFrom lubridate is.POSIXct
 #' @examples
 #' #TODO
 #' @importFrom utils setWinProgressBar

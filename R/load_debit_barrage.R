@@ -10,8 +10,10 @@
 #'
 #' @examples
 #' if (interactive){
-#' load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
-#'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")))
+#' load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
+#' format = "%Y-%m-%d %H:%M:%S")),
+#'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
+#'    format = "%Y-%m-%d %H:%M:%S")))
 #'    }
 load_debit_barrage <- function(debut, fin, datawd){
   if (!is.POSIXct(debut)) stop("La date de debut doit etre au format POSIXct")

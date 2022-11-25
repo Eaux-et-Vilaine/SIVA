@@ -11,7 +11,8 @@ License: GPL (>= 3) + file LICENSE
 Imports: 
     magrittr,
     stringr,
-    RODBC
+    RODBC,
+    lubridate
 Suggests: 
     getPass,
     knitr,
