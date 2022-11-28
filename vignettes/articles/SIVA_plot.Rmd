@@ -62,6 +62,7 @@ turquoise_EVf <- "#007873"
 
 library(SIVA)
 
+
 ```
 
 Les données seront chargées de `r debut` à `r fin`
@@ -70,8 +71,9 @@ Les données seront chargées de `r debut` à `r fin`
 # Plot des données de débit
 
 ```{r loadniveau}
-
-if (interactive()){
+envir_stacomi <- new.env()
+assign("archive_IAV", envir_stacomi)
+#if (interactive()){
 if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
 if (!exists("hostmysql")) {
   hostmysql. <- getPass::getPass(msg = "Saisir host")
@@ -108,7 +110,7 @@ options(stacomiR.dbname="archive_IAV", # TODO not used....
                 fin = as.POSIXct(
                   strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
                 )))# 70 s maison
-} # end if interactive
+#} # end if interactive
 
   system.time(debit_barrage <-
                 load_debit_barrage (debut = as.POSIXct(
