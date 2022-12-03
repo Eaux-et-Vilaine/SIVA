@@ -49,5 +49,6 @@ Collate:
     'debit_volets.R'
     'traitement_siva.R'
     'load_debit_barrage.R'
-Remotes:  
+Remotes: 
     git::git@forgemia.inra.fr:stacomi/stacomirtools.git
+LazyData: true
