@@ -103,21 +103,161 @@ options(stacomiR.dbname="archive_IAV", # TODO not used....
         stacomiR.ODBClink = "archive_IAV")
 
 
-  system.time(debit_barrage <-
-                load_debit_barrage (debut = as.POSIXct(
-                  strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                ),
-                fin = as.POSIXct(
-                  strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                )))# 70 s maison
+system.time(debit_barrage <-
+              load_debit_barrage (debut = as.POSIXct(
+                strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+              ),
+              fin = as.POSIXct(
+                strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+              )))# 37-70 s maison # 10.5 EPTB
 #} # end if interactive
 
-  system.time(debit_barrage <-
-                load_debit_barrage (debut = as.POSIXct(
-                  strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                ),
-                fin = as.POSIXct(
-                  strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                )))# 70 s maison
+debit_barrage <-traitement_siva(debit_barrage)
+
 
 ```
+```{r calcul_plot_debit_journalier}
+# chargement des paramètres du barrage
+load(system.file("param2012_2014.Rdata", package = "SIVA"))
+Q12345 <- debit_total(param, param0 = param, debit_barrage)
+Q12345$tot_vol <- debit_barrage$tot_vol # volume total au barrage d'Arzal
+Q12345$volet_vanne <-
+  debit_barrage$tot_vol_barrage + debit_barrage$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
+mQ <-
+  reshape2::melt(
+    Q12345[, c("horodate",
+               "qvanne1",
+               "qvanne2",
+               "qvanne3",
+               "qvanne4",
+               "qvanne5")],
+    id.vars = "horodate",
+    value.name = "Qvanne",
+    variable.name = "vanne"
+  )
+mcond <-
+  reshape2::melt(Q12345[, c("horodate",
+                            "typecalc1",
+                            "typecalc2",
+                            "typecalc3",
+                            "typecalc4",
+                            "typecalc5")], value.name = "typecalc", id.vars = "horodate")
+mQ$vanne <- as.character(mQ$vanne)
+mQ$vanne <- gsub("qvanne", "", mQ$vanne)
+mQ12345 <- cbind(mQ, "typecalc" = mcond[, 3]) # melted object
+
+
+g <-ggplot2::ggplot(mQ12345, ggplot2::aes(
+  x = horodate,
+  y = Qvanne,
+  col = typecalc,
+  shape = vanne
+)) + ggplot2::geom_jitter(size = 0.6)
+
+print(g)
+
+# Calcul du débit journalier
+Qj <-
+  as.data.frame(
+    dplyr::select(
+      Q12345,
+      Q,
+      date,
+      volvoletcalcule,
+      debit_moyen_cran,
+      tot_vol,
+      volet_vanne,
+      tot_vol_siphon,
+      tot_vol_passe
+    ) %>%
+      dplyr::group_by(date) %>%
+      dplyr::summarize(
+        volumevilainecalcule = 
+          sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon, na.rm =TRUE),
+        tot_vol = sum(tot_vol, na.rm = TRUE),
+        volet_vanne = sum(volet_vanne),
+        debit_moyen_cran = mean(debit_moyen_cran)
+      ) %>%
+      dplyr::mutate(
+        debitvilainecalcule = volumevilainecalcule / (24 * 60 * 60),
+        tot_bar = tot_vol / (24 * 60 * 60),
+        tot_volvan_bar = volet_vanne / (24 * 60 * 60)
+      )
+  )
+
+
+Qj %>% select(date|  starts_with("debit")) %>% 
+  rename(debit_vilaine_calcule=debitvilainecalcule) %>%
+  pivot_longer(cols=starts_with("debit"),names_to = "source",values_to = "Q") %>%
+  ggplot() + geom_point(aes(x=date,y=Q, col=source)) +
+  geom_line(aes(x=date,y=Q, col=source))
+
+```
+
+
+
+```{r graphes niveaux}
+niveaux <- debit_barrage %>% select(HoroDate, niveauvilaineb,
+                                    niveaumerb) %>%
+  rename(horodate = HoroDate) %>% # todo get rid of HoroDate in code
+  pivot_longer(
+    cols = c("niveauvilaineb", "niveaumerb"),
+    names_to = "source",
+    names_prefix = "niveau",
+    values_to = "niveau"
+  )
+debits_vannes <-
+  Q12345 %>% select(horodate, starts_with("Qvanne")) %>%
+  pivot_longer(
+    cols = starts_with("Qvanne"),
+    names_to = "vanne",
+    names_prefix = "qvanne",
+    values_to = "Q"
+  )
+debits_volets <-
+  Q12345 %>% select(horodate, starts_with("Qvolet")) %>%
+  pivot_longer(
+    cols = starts_with("Qvolet"),
+    names_to = "volet",
+    names_prefix = "Qvolet",
+    values_to = "Q"
+  )
+
+ggplot()+ geom_line(aes(x=horodate, y=niveau, col=source), data=niveaux) 
+ggplot()+  geom_line(aes(x=horodate, y=Q, col=vanne), data=debits_vannes)+ geom_line(aes(x=horodate, y=Q, col=volet), data=debits_volets)
+
+
+
+
+```
+
+
+```{r graphes niveaux armchart}
+#install.packages("rAmCharts")
+library("rAmCharts")
+debit_barrage %>% rename(horodate = HoroDate) %>%
+  amTimeSeries(
+    'horodate',
+    c("niveaumerb", "niveauvilaineb"),
+    bullet = c("round", "square"),
+    color = col <-
+      c("orange", "limegreen"),
+    #"yellow","#39CCCC")
+    backgroundColor = "#40555E",
+    backgroundAlpha = 0.4,
+    bulletSize = c(6, 4),
+    aggregation = "Average",
+    fillAlphas = c(0.1, 0.1),
+    groupToPeriods = c('10mm', '30mm', 'hh', 'DD', 'MM', 'MAX'),
+    #  c('hh', 'DD', '10DD','MM','MAX'),
+    linewidth = c(0.2, 0.2),
+    legend = TRUE,
+    # maxSeries = 200,
+    categoryAxesSettings.minPeriod = "30mm"
+  ) %>%
+  setExport(enabled = TRUE)   
+
+
+```
+
+
