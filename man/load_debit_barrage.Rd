@@ -20,7 +20,7 @@ Le tableau de données pour le calcul des debits du barrage
 Il faut avoir configuré la connexion à la base
 }
 \examples{
-if (interactive){
+\dontrun{
 load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
 format = "\%Y-\%m-\%d \%H:\%M:\%S")),
    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 

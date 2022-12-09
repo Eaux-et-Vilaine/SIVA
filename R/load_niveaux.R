@@ -1,6 +1,6 @@
 #' Chargement des donnees de niveaux
 #' 
-#' Il faut avoir configuré la connexion à la base
+#' Il faut avoir configuré la connexion à la base, les données de niveau peuvent être mise à jour dans niveau voir variable.R
 #'
 #' @param debut La date de début format POSIXct
 #' @param fin La fin
@@ -25,6 +25,7 @@ load_niveaux <- function(debut,
   if (!is.POSIXct(fin)) stop("La date de fin doit etre au format POSIXct")
   missing <- setdiff(tags, niveau$tag)
   if (length(missing) >0) stop(sprintf("Element(s) %s non presents, verifier tags", paste(missing,collapse=", ")))
+  niveau <- SIVA::niveau
   niveau_sel <- niveau[niveau$tag %in% tags,]
 
   bil <- new("bilansiva",

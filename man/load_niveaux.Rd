@@ -19,7 +19,7 @@ load_niveaux(debut, fin, tags, con)
 Le tableau de données de niveaux
 }
 \description{
-Il faut avoir configuré la connexion à la base
+Il faut avoir configuré la connexion à la base, les données de niveau peuvent être mise à jour dans niveau voir variable.R
 }
 \examples{
 \dontrun{
