@@ -1,4 +1,4 @@
-# TODO testme
+
 test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de données", {
       skip_if_not(interactive())
       if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")

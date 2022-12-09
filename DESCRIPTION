@@ -58,6 +58,7 @@ Collate:
     'param.R'
     'rawdata2020.R'
     'variable.R'
+    'niveau.R'
 Remotes: 
     git::git@forgemia.inra.fr:stacomi/stacomirtools.git
 LazyData: true

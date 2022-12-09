@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#' if (interactive){
+#' \dontrun{
 #' load_niveaux(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
 #' format = "%Y-%m-%d %H:%M:%S")),
 #'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 

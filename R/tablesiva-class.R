@@ -9,7 +9,6 @@
 #' @slot fin Horodate de fin.
 #' @slot rawdata Données brutes.
 #' @slot corrdata Données corrigées.
-#' @slot con Une connexion de classe stacomirtools
 #'
 #' @return Un objet de classe tablesiva.
 #' 
