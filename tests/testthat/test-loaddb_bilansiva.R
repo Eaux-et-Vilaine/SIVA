@@ -31,7 +31,6 @@ test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de donn
           password = pwdmysql.,
           port=3306
       )
-      con <- pool::poolCheckout(pool)
 
       bil<-new("bilansiva",
           tables=c("b_barrage_debit", 
@@ -43,13 +42,13 @@ test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de donn
           ),
           tags=as.integer(c(NA,1900)),
           daterondes=rep("constant",2),
-          debut=as.POSIXct(strptime(paste0(2019,"-09-01 00:00:00"),
+          debut=as.POSIXct(strptime(paste0(2019,"-05-01 00:00:00"),
                   format="%Y-%m-%d %H:%M:%S")),
-          fin=as.POSIXct(strptime(paste0(2019,"-05-01 00:00:00"),
+          fin=as.POSIXct(strptime(paste0(2019,"-09-01 00:00:00"),
                   format="%Y-%m-%d %H:%M:%S"))
       )
       # the pool connexion will be removed when executing loaddb 
-      res <- loaddb(bil, con=con)
+      res <- loaddb(bil, con = pool)
       expect_is(res@bilandata,"data.frame")
-      dbDisconnect(con)
+      poolClose(pool)
     })

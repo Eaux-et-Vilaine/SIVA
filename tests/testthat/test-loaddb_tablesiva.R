@@ -30,7 +30,6 @@ test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de donn
           password = pwdmysql.,
           port=3306
       )
-      con <- pool::poolCheckout(pool)
       tablesiva <-
           new(
               "tablesiva",
@@ -39,7 +38,8 @@ test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de donn
               table = "b_barrage_volet4_hauteur",
               nom = "volet4"
           )     
-      res <- loaddb(tablesiva, con)
+      res <- loaddb(tablesiva, pool)
       expect_s4_class(res,  class="tablesiva")
       expect_is(res@rawdata,"data.frame")
+      poolClose(pool)
     })

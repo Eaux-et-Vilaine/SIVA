@@ -4,7 +4,7 @@
 #' @param con A pool connexion object
 #' @param plot Boolean, faut il un graphe ?
 #' @return Un objet de classe bilansiva
-#' @example 
+#' @examples 
 #' pool <- pool::dbPool(
 #'    drv = RMariaDB::MariaDB(),
 #'    dbname = "archive_IAV",
@@ -32,7 +32,7 @@ setMethod(
         plot = TRUE,
         restart = NULL) {
       if (!is.null(restart)) {
-        on.exit(pool::poolClose(con))
+        on.exit(pool::poolReturn(con))
         start <- restart
         load(file = file.path(
                 datawd,

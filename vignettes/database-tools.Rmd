@@ -45,11 +45,8 @@ tablesiva <-
 
 # loaddb-method
 
-La méthode loaddb permet d'aller chercher les données après avoir installé le driver odbc.
-Pour installer le driver odbc, il faut télécharger sur ordi puis le configurer (tapper odbc dans la barre de recherche).
-[installation odbc]("/image/configure_odbc.jpg)
-et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace. 
 Il faut configurer le rprofile.site comme suit dans R/R_version/etc/Rprofile.site
+pour stocker les user et password lors des tests
 
 
 ```{r exempleRprofile, echo = TRUE, eval = FALSE}
@@ -63,9 +60,11 @@ cat("creation des passwords umysql, pwdmysql, hostmysql \n")
  })
 ```
 
-## loaddb-method generic
+## loaddb-method - tablesiva
 
-## loaddb-method 
+La méthode loaddb fonctionne d'abord table par table, ici tablesiva, la classe de connextion, 
+va chercher des données pour une table : b_barrage_volet4_hauteur.
+Si un tag est nécessaire pour la table il peut être passé également.
 
 ```{r example-loaddb-method}
 # sur mon ordi j'ai des mots de passe chargés au démarrage à partir de Rprofile.site
@@ -94,21 +93,64 @@ if (!exists("umysql")) {
   umysql. <- decrypt_string(string = umysql, key = mainpass)
 }
 
-options(stacomiR.dbname="archive_IAV", # TODO not used....
-        stacomiR.host = hostmysql.,
-        stacomiR.password = pwdmysql.,
-        stacomiR.user = umysql.,
-        stacomiR.ODBClink = "archive_IAV")
 
-tablesiva <-
-  new(
-    "tablesiva",
-    debut = as.POSIXct(as.Date("2021-10-25")),
-    fin =  as.POSIXct(as.Date("2021-12-01")),
-    table = "b_barrage_volet4_hauteur",
-    nom = "volet4"
-  )
-tablesiva <- loaddb(tablesiva)
+     # attention il faut avaoir définit mainpass <- "xxxxx"
+      pool <- pool::dbPool(
+          drv = RMariaDB::MariaDB(),
+          dbname = "archive_IAV",
+          host = hostmysql.,
+          username = umysql.,
+          password = pwdmysql.,
+          port=3306
+      )
+      tablesiva <-
+          new(
+              "tablesiva",
+              debut = as.POSIXct(as.Date("2021-10-25")),
+              fin =  as.POSIXct(as.Date("2021-12-01")),
+              table = "b_barrage_volet4_hauteur",
+              nom = "volet4"
+          )  
+ 
+      res <- loaddb(tablesiva, pool)
+      poolClose(pool)
 }
 ```
+## loaddb-method - bilansiva
 
+La méthode loaddb fonctionne ensuite pour un ensemble de tables, il s'agit alors d'un objet bilan (bilansiva)
+
+
+```{r example-loaddb-method}
+
+if (interactive()){
+
+      pool <- pool::dbPool(
+          drv = RMariaDB::MariaDB(),
+          dbname = "archive_IAV",
+          host = hostmysql.,
+          username = umysql.,
+          password = pwdmysql.,
+          port=3306
+      )
+
+      bil<-new("bilansiva",
+          tables=c("b_barrage_debit", 
+              "b_pont_de_cran_debit"
+          ),
+          noms=c(
+              "debit_vilaine_estime",
+              "debit_moyen_cran"          
+          ),
+          tags=as.integer(c(NA,1900)),
+          daterondes=rep("constant",2),
+          debut=as.POSIXct(strptime(paste0(2019,"-05-01 00:00:00"),
+                  format="%Y-%m-%d %H:%M:%S")),
+          fin=as.POSIXct(strptime(paste0(2019,"-09-01 00:00:00"),
+                  format="%Y-%m-%d %H:%M:%S"))
+      )
+      # the pool connexion will be removed when executing loaddb 
+      res <- loaddb(bil, con = pool)
+      expect_is(res@bilandata,"data.frame")
+}
+```

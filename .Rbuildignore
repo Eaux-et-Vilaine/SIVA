@@ -8,4 +8,4 @@
 ^.github$
 ^LICENSE\.md$
 ^vignettes/articles$
-^data-raw$
+^data-raw/$

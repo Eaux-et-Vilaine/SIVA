@@ -4,20 +4,39 @@
 \alias{loaddb,bilansiva-method}
 \title{Methode de chargement pour loadb}
 \usage{
-\S4method{loaddb}{bilansiva}(objet, datawd, plot = TRUE, restart = NULL)
+\S4method{loaddb}{bilansiva}(objet, datawd, con, plot = TRUE, restart = NULL)
 }
 \arguments{
 \item{objet}{Un objet de class bilansiva.}
 
 \item{datawd}{Le chemin vers le repertoire où sauver les données.}
 
-\item{plot}{Boolean, faut il un graphe ?}
+\item{con}{A pool connexion object}
 
-\item{restart}{Default NULL, si non null, l'objet est sauvé sous "tempsauvobjet" dans datawd.}
+\item{plot}{Boolean, faut il un graphe ?}
 }
 \value{
 Un objet de classe bilansiva
 }
 \description{
 Methode de chargement pour loadb
+}
+\examples{
+pool <- pool::dbPool(
+   drv = RMariaDB::MariaDB(),
+   dbname = "archive_IAV",
+   host = hostmysql.,
+   username = umysql.,
+   password = pwdmysql.
+)
+con <- pool::poolCheckout(pool)
+tablesiva <-
+  new(
+    "tablesiva",
+    debut = as.POSIXct(as.Date("2021-10-25")),
+    fin =  as.POSIXct(as.Date("2021-12-01")),
+   table = "b_barrage_volet4_hauteur",
+    nom = "volet4"
+ )
+loaddb(tablesiva)
 }
