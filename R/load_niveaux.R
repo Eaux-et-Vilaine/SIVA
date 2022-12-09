@@ -4,131 +4,38 @@
 #'
 #' @param debut La date de début format POSIXct
 #' @param fin La fin
-#'
+#' @param tags les tags des données à charger
+#' @param con Une connexion pool
 #' @return Le tableau de données de niveaux
 #' @export
 #'
 #' @examples
 #' if (interactive){
-#' load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
+#' load_niveaux(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
 #' format = "%Y-%m-%d %H:%M:%S")),
 #'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
-#'    format = "%Y-%m-%d %H:%M:%S")))
+#'    format = "%Y-%m-%d %H:%M:%S")),
+#'    tags=c(2507,2508,2100)
 #'    }
 load_niveaux <- function(debut, 
                          fin,
-                         redon = TRUE,
-                         painfault = TRUE,
-                         langon = TRUE,
-                         malon = TRUE,
-                         aucfer= TRUE,
-                         molac = TRUE,
-                         potinais=TRUE,
-                         leguelin=TRUE,
-                         Sixt=TRUE){
+                         tags,
+                         con){
   if (!is.POSIXct(debut)) stop("La date de debut doit etre au format POSIXct")
   if (!is.POSIXct(fin)) stop("La date de fin doit etre au format POSIXct")
-  Sys.setenv(TZ='GMT')	
-  niveau <- variable %>% dplyr::filter(grepl("Niveau",Libelle)) %>% 
-    select(TableHisto) %>%
-    pull() %>%
-    tolower() #%>% str_split("_") %>%
-    #lapply(function(x) x[2])
-  d
-  bil<-new("bilansiva",
-           tables=c("b_barrage_volet1_hauteur",
-                    "b_barrage_volet2_hauteur",
-                    "b_barrage_volet3_hauteur",
-                    "b_barrage_volet4_hauteur",
-                    "b_barrage_volet5_hauteur",
-                    "b_barrage_vanne1_hauteur",
-                    "b_barrage_vanne2_hauteur",
-                    "b_barrage_vanne3_hauteur",
-                    "b_barrage_vanne4_hauteur",
-                    "b_barrage_vanne5_hauteur",
-                    "b_barrage_debit", # Débit Vilaine estimé
-                    "b_barrage_debit",
-                    "b_pont_de_cran_debit",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_passeapoisson_niveauvilaine",
-                    "b_passeapoisson_niveaumer",
-                    "b_barrage_niveau",
-                    "b_barrage_niveau",
-                    "b_siphon_debit",
-                    "b_siphon_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit"
-           ),
-           noms=c("volet1",
-                  "volet2",
-                  "volet3",
-                  "volet4",
-                  "volet5",
-                  "vanne1",
-                  "vanne2",
-                  "vanne3",
-                  "vanne4",
-                  "vanne5",
-                  "debit_vilaine_estime",
-                  "debit_passe",
-                  "debit_moyen_cran",
-                  "tot_vol_barrage",
-                  "tot_vol_passe",
-                  "tot_vol_siphon",
-                  "tot_vol_volet",
-                  "tot_vol_ecluse",
-                  "niveauvilaine",
-                  "niveaumer",
-                  "niveauvilaineb",
-                  "niveaumerb",
-                  "debit_siphon_1",
-                  "debit_siphon_2",
-                  "debit_vanne1",
-                  "debit_vanne2",
-                  "debit_vanne3",
-                  "debit_vanne4",
-                  "debit_vanne5",
-                  "debit_volet1",
-                  "debit_volet2",
-                  "debit_volet3",
-                  "debit_volet4",
-                  "debit_volet5"			
-           ),
-           tags=c(rep(as.integer(NA),10),
-                  as.integer(c(2515,2523,
-                               1900, # pont de cran
-                               2550:2554,
-                               NA,NA,2507,2508,
-                               1528, #siphon debit
-                               1565,  #siphon debit 2
-                               2571, #debit vanne1
-                               2572, 
-                               2573,
-                               2574,
-                               2575,
-                               2581,
-                               2582,
-                               2583,
-                               2584,
-                               2585
-                               
-                  ))),
-           daterondes=c(rep("constant",10),rep("linear",24)),
+  missing <- setdiff(tags, niveau$tag)
+  if (length(missing) >0) stop(sprintf("Element(s) %s non presents, verifier tags", paste(missing,collapse=", ")))
+  niveau_sel <- niveau[niveau$tag %in% tags,]
+
+  bil <- new("bilansiva",
+           tables= tolower(niveau_sel$tablehisto),
+           noms =niveau_sel$code,
+           tags=as.integer(niveau_sel$tag),
+           daterondes=rep("constant", nrow(niveau_sel)),
            debut=debut,
            fin=fin
            )
-  dat <- loaddb(bil,plot=FALSE)@bilandata
+  dat <- loaddb(bil,plot=FALSE, con = con)@bilandata
+  attributes(dat)$libelle <- niveau_sel$libelle
   return(dat)
 }

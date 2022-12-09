@@ -22,14 +22,14 @@ test_that("load_debit_barrage works", {
   } else {
     umysql. <- decrypt_string(string = umysql, key = mainpass)
   }
-  # attention il faut avaoir définit mainpass <- "xxxxx"
-  options(
-    stacomiR.dbname = "archive_IAV",
-    # TODO not used....
-    stacomiR.host = hostmysql.,
-    stacomiR.password = pwdmysql.,
-    stacomiR.user = umysql.,
-    stacomiR.ODBClink = "archive_IAV"
+
+  pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = hostmysql.,
+    username = umysql.,
+    password = pwdmysql.,
+    port=3306
   )
   system.time(debit_barrage <-
                 load_debit_barrage (debut = as.POSIXct(
@@ -37,6 +37,9 @@ test_that("load_debit_barrage works", {
                 ),
                 fin = as.POSIXct(
                   strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                )))# 70 s maison
+                ),
+              con=con)
+              )# 70 s maison
   expect_is(debit_barrage, "data.frame")
+  poolClose(pool)
 })

@@ -4,12 +4,14 @@
 \alias{load_debit_barrage}
 \title{Chargement des donnees de debit du barrage}
 \usage{
-load_debit_barrage(debut, fin)
+load_debit_barrage(debut, fin, con)
 }
 \arguments{
 \item{debut}{La date de début format POSIXct}
 
 \item{fin}{La fin}
+
+\item{con}{une connexion pool}
 }
 \value{
 Le tableau de données pour le calcul des debits du barrage
@@ -22,6 +24,7 @@ if (interactive){
 load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
 format = "\%Y-\%m-\%d \%H:\%M:\%S")),
    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
-   format = "\%Y-\%m-\%d \%H:\%M:\%S")))
+   format = "\%Y-\%m-\%d \%H:\%M:\%S")),
+   con= con)
    }
 }

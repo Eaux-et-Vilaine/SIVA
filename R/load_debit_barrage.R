@@ -4,7 +4,7 @@
 #'
 #' @param debut La date de début format POSIXct
 #' @param fin La fin
-#'
+#' @param con une connexion pool
 #' @return Le tableau de données pour le calcul des debits du barrage
 #' @export
 #'
@@ -13,9 +13,10 @@
 #' load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
 #' format = "%Y-%m-%d %H:%M:%S")),
 #'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
-#'    format = "%Y-%m-%d %H:%M:%S")))
+#'    format = "%Y-%m-%d %H:%M:%S")),
+#'    con= con)
 #'    }
-load_debit_barrage <- function(debut, fin){
+load_debit_barrage <- function(debut, fin, con){
   if (!is.POSIXct(debut)) stop("La date de debut doit etre au format POSIXct")
   if (!is.POSIXct(fin)) stop("La date de fin doit etre au format POSIXct")
   Sys.setenv(TZ='GMT')		
@@ -113,6 +114,6 @@ load_debit_barrage <- function(debut, fin){
            debut=debut,
            fin=fin
            )
-  dat <- loaddb(bil,plot=FALSE)@bilandata
+  dat <- loaddb(bil,plot=FALSE, con=con)@bilandata
   return(dat)
 }

@@ -66,7 +66,7 @@ La méthode loaddb fonctionne d'abord table par table, ici tablesiva, la classe 
 va chercher des données pour une table : b_barrage_volet4_hauteur.
 Si un tag est nécessaire pour la table il peut être passé également.
 
-```{r example-loaddb-method}
+```{r example-loaddb-tablesiva-method}
 # sur mon ordi j'ai des mots de passe chargés au démarrage à partir de Rprofile.site
 # Ici test si existent et si oui il faut le main password pour les decrypter, sinon il
 # faut les entrer après un prompt du programme. 
@@ -112,8 +112,9 @@ if (!exists("umysql")) {
               nom = "volet4"
           )  
  
-      res <- loaddb(tablesiva, pool)
+      tablesiva <- loaddb(tablesiva, pool)
       poolClose(pool)
+      knitr::kable(head(tablesiva@rawdata ))
 }
 ```
 ## loaddb-method - bilansiva
@@ -121,7 +122,7 @@ if (!exists("umysql")) {
 La méthode loaddb fonctionne ensuite pour un ensemble de tables, il s'agit alors d'un objet bilan (bilansiva)
 
 
-```{r example-loaddb-method}
+```{r example-loaddb-bilansiva-method}
 
 if (interactive()){
 

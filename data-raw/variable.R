@@ -52,4 +52,34 @@ FROM SIVA_R.svg2015_variable"
   )
 requete <- connect(requete)
 variable <- requete@query
+
+
+Encoding(variable$Libelle) <- "latin1"
+variable$Libelle <- iconv(
+    variable$Libelle, 
+    "latin1", 
+    "UTF-8"
+)
+Encoding(variable$Unite) <- "latin1"
+variable$Unite <- iconv(
+    variable$Unite, 
+    "latin1", 
+    "UTF-8"
+)
+colnames(variable) <- tolower(colnames(variable))
 usethis::use_data(variable, overwrite = TRUE)
+
+
+
+# niveaux ---------------------
+
+library(readxl)
+niveau <- read_excel("data-raw/variables.xlsx")
+#Encoding(niveau$Libelle) <- "latin1"
+#niveau$Libelle <- iconv(
+#    niveau$Libelle, 
+#    "latin1", 
+#    "UTF-8"
+#)
+colnames(niveau) <- tolower(colnames(niveau))
+usethis::use_data(niveau, overwrite = TRUE)
