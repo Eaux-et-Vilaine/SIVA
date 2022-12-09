@@ -1,4 +1,4 @@
-test_that("loaddb-method fonctionne et retourne un tableau de données", {
+test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de données", {
       skip_if_not(interactive())
       if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
       if (!exists("hostmysql")) {
@@ -22,12 +22,15 @@ test_that("loaddb-method fonctionne et retourne un tableau de données", {
         umysql. <- decrypt_string(string = umysql, key = mainpass)
       }
       # attention il faut avaoir définit mainpass <- "xxxxx"
-      options(stacomiR.dbname="archive_IAV", # TODO not used....
-          stacomiR.host = hostmysql.,
-          stacomiR.password = pwdmysql.,
-          stacomiR.user = umysql.,
-          stacomiR.ODBClink = "archive_IAV")
-      
+      pool <- pool::dbPool(
+          drv = RMariaDB::MariaDB(),
+          dbname = "archive_IAV",
+          host = hostmysql.,
+          username = umysql.,
+          password = pwdmysql.,
+          port=3306
+      )
+      con <- pool::poolCheckout(pool)
       tablesiva <-
           new(
               "tablesiva",
@@ -35,8 +38,8 @@ test_that("loaddb-method fonctionne et retourne un tableau de données", {
               fin =  as.POSIXct(as.Date("2021-12-01")),
               table = "b_barrage_volet4_hauteur",
               nom = "volet4"
-          )
-      res <- loaddb(tablesiva)
+          )     
+      res <- loaddb(tablesiva, con)
       expect_s4_class(res,  class="tablesiva")
       expect_is(res@rawdata,"data.frame")
     })
