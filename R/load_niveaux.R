@@ -1,11 +1,11 @@
-#' Chargement des donnees de debit du barrage
+#' Chargement des donnees de niveaux
 #' 
 #' Il faut avoir configuré la connexion à la base
 #'
 #' @param debut La date de début format POSIXct
 #' @param fin La fin
 #'
-#' @return Le tableau de données pour le calcul des debits du barrage
+#' @return Le tableau de données de niveaux
 #' @export
 #'
 #' @examples
@@ -15,10 +15,26 @@
 #'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
 #'    format = "%Y-%m-%d %H:%M:%S")))
 #'    }
-load_debit_barrage <- function(debut, fin){
+load_niveaux <- function(debut, 
+                         fin,
+                         redon = TRUE,
+                         painfault = TRUE,
+                         langon = TRUE,
+                         malon = TRUE,
+                         aucfer= TRUE,
+                         molac = TRUE,
+                         potinais=TRUE,
+                         leguelin=TRUE,
+                         Sixt=TRUE){
   if (!is.POSIXct(debut)) stop("La date de debut doit etre au format POSIXct")
   if (!is.POSIXct(fin)) stop("La date de fin doit etre au format POSIXct")
-  Sys.setenv(TZ='GMT')		
+  Sys.setenv(TZ='GMT')	
+  niveau <- variable %>% dplyr::filter(grepl("Niveau",Libelle)) %>% 
+    select(TableHisto) %>%
+    pull() %>%
+    tolower() #%>% str_split("_") %>%
+    #lapply(function(x) x[2])
+  d
   bil<-new("bilansiva",
            tables=c("b_barrage_volet1_hauteur",
                     "b_barrage_volet2_hauteur",

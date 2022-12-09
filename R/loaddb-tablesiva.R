@@ -15,13 +15,12 @@ setMethod(
   "loaddb",
   signature = signature("tablesiva"),
   definition = function(objet, con) {
-    
 
     # si il y a un @tag non NA, vérification qu'il est bien dans les tag de la table
     if (!is.na(objet@tag)) {     
      sql <-
          paste0("SELECT distinct tag FROM archive_IAV.", objet@table)
-    tag <- pool::dbGetQuery(con,sql)
+    tag <- DBI::dbGetQuery(conn=con,sql)
       if (!objet@tag %in% tag$tag)
         stop("le tag n'existe pas dans la table")
     }
@@ -44,10 +43,10 @@ setMethod(
               objet@fin,
               "'")
     }
-    orderbysiva = "ORDER BY HoroDate"
+    orderbysiva = " ORDER BY HoroDate"
     sql <- stringr::str_c(selectsiva, wheresiva, orderbysiva)
-    objet@rawdata <- pool::dbGetQuery(con,sql)
-    if (nrow(objet@rawdata) == 0)
+    objet@rawdata <- DBI::dbGetQuery(conn=con, statement = sql)
+    if (nrow(objet@rawdata) == 0) 
       warning(paste("no data for", objet@table))
     colnames(objet@rawdata)[3] <- objet@nom
     return(objet)

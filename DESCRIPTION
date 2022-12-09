@@ -49,6 +49,13 @@ Collate:
     'debit_volets.R'
     'traitement_siva.R'
     'load_debit_barrage.R'
+    'dat2001.R'
+    'dat2003.R'
+    'dat2019.R'
+    'load_niveaux.R'
+    'param.R'
+    'rawdata2020.R'
+    'variable.R'
 Remotes: 
     git::git@forgemia.inra.fr:stacomi/stacomirtools.git
 LazyData: true
