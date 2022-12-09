@@ -4,24 +4,14 @@
 \alias{load_niveaux}
 \title{Chargement des donnees de niveaux}
 \usage{
-load_niveaux(
-  debut,
-  fin,
-  redon = TRUE,
-  painfault = TRUE,
-  langon = TRUE,
-  malon = TRUE,
-  aucfer = TRUE,
-  molac = TRUE,
-  potinais = TRUE,
-  leguelin = TRUE,
-  Sixt = TRUE
-)
+load_niveaux(debut, fin, tags)
 }
 \arguments{
 \item{debut}{La date de début format POSIXct}
 
 \item{fin}{La fin}
+
+\item{tags}{les tags des données à charger}
 }
 \value{
 Le tableau de données de niveaux
