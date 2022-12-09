@@ -26,7 +26,5 @@ Classe de connexion SIVA
 \item{\code{rawdata}}{Données brutes.}
 
 \item{\code{corrdata}}{Données corrigées.}
-
-\item{\code{con}}{Une connexion de classe stacomirtools}
 }}
 
