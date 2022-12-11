@@ -15,16 +15,18 @@ setMethod(
     signature = signature("tablesiva"),
     definition = function(objet) {
       plot(
-          objet@rawdata$HoroDate,
-          objet@rawdata[, 3],
+          objet@rawdata$horodate,
+          objet@rawdata[, 2],
           type = "b",
           xlab = "date",
           ylab = "",
           main = objet@nom
       )
-      graphics::points(objet@corrdata$HoroDate,
+      if (nrow(objet@corrdata >0)) {
+      graphics::points(objet@corrdata$horodate,
           objet@corrdata[, 2],
           col = "red",
           pch = "*")
+      }
     }
 )

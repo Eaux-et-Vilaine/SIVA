@@ -186,14 +186,14 @@ Qvo12345 <- debit_volets(
 )
 
 plot(
-  dat$HoroDate,
+  dat$horodate,
   rowSums(Qvo12345) * 600,
   pch = 19,
   cex = 0.5,
   ylab = "volume 10 min"
 )
 points(
-  dat$HoroDate,
+  dat$horodate,
   dat$tot_vol_volet,
   pch = 19,
   cex = 0.2,
@@ -203,7 +203,7 @@ points(
 
 datt <- dat
 datt$volvoletcalcule <- rowSums(Qvo12345) * 600
-datt$date = as.Date(datt$HoroDate)
+datt$date = as.Date(datt$horodate)
 debj <-
   as.data.frame(
     dplyr::select(datt, date, tot_vol_volet, volvoletcalcule) %>%

@@ -70,9 +70,8 @@ Les données seront chargées de `r debut` à `r fin`
 
 # Plot des données de débit
 
-```{r loadniveau}
-envir_stacomi <- new.env()
-assign("archive_IAV", envir_stacomi)
+```{r loaddebit}
+
 #if (interactive()){
 if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
 if (!exists("hostmysql")) {
@@ -109,16 +108,17 @@ pool <- pool::dbPool(
 
 system.time(debit_barrage <-
               load_debit_barrage (debut = as.POSIXct(
-                strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+                strptime("2018-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
               ),
               fin = as.POSIXct(
-                strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-              )))# 37-70 s maison # 10.5 EPTB
+                strptime("2018-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+              ),
+              con=pool))# 37-70 s maison # 10.5 EPTB
 #} # end if interactive
 
 debit_barrage <-traitement_siva(debit_barrage)
 
-
+pool:poolClose(pool)
 ```
 ```{r calcul_plot_debit_journalier}
 # chargement des paramètres du barrage
@@ -201,9 +201,9 @@ Qj %>% select(date|  starts_with("debit")) %>%
 
 
 ```{r graphes niveaux}
-niveaux <- debit_barrage %>% select(HoroDate, niveauvilaineb,
+niveaux <- debit_barrage %>% select(horodate, niveauvilaineb,
                                     niveaumerb) %>%
-  rename(horodate = HoroDate) %>% # todo get rid of HoroDate in code
+  rename(horodate = horodate) %>% # todo get rid of horodate in code
   pivot_longer(
     cols = c("niveauvilaineb", "niveaumerb"),
     names_to = "source",
@@ -227,19 +227,21 @@ debits_volets <-
     values_to = "Q"
   )
 
-ggplot()+ geom_line(aes(x=horodate, y=niveau, col=source), data=niveaux) 
-ggplot()+  geom_line(aes(x=horodate, y=Q, col=vanne), data=debits_vannes)+ geom_line(aes(x=horodate, y=Q, col=volet), data=debits_volets)
 
+g1 <- ggplot()+ geom_line(aes(x=horodate, y=niveau, col=source), data=niveaux) 
+g2 <- ggplot()+  geom_line(aes(x=horodate, y=Q, col=vanne), data=debits_vannes)+ geom_line(aes(x=horodate, y=Q, col=volet), data=debits_volets)
+plotly::ggplotly(g1)
+plotly::ggplotly(g2)
 
 
 
 ```
 
 
-```{r graphes niveaux armchart}
+```{r graphes debitniveau armchart}
 #install.packages("rAmCharts")
 library("rAmCharts")
-debit_barrage %>% rename(horodate = HoroDate) %>%
+debit_barrage %>% 
   amTimeSeries(
     'horodate',
     c("niveaumerb", "niveauvilaineb"),
@@ -264,4 +266,93 @@ debit_barrage %>% rename(horodate = HoroDate) %>%
 
 ```
 
+# traitement des données de niveau
 
+
+```{r loadniveaux}
+
+
+if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+if (!exists("hostmysql")) {
+  hostmysql. <- getPass::getPass(msg = "Saisir host")
+  # ci dessous pour ne pas redemander au prochain tour
+  hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+} else {
+  hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+}
+if (!exists("pwdmysql")) {
+  pwdmysql. <- getPass::getPass(msg = "Saisir password")
+  pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+}  else {
+  # pass should be loaded
+  pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+}
+if (!exists("umysql")) {
+  umysql. <- getPass::getPass(msg = "Saisir user")
+  umysql <- encrypt_string(string = umysql., key = mainpass)
+} else {
+  umysql. <- decrypt_string(string = umysql, key = mainpass)
+}
+# attention il faut avaoir définit mainpass <- "xxxxx"
+
+pool <- pool::dbPool(
+  drv = RMariaDB::MariaDB(),
+  dbname = "archive_IAV",
+  host = hostmysql.,
+  username = umysql.,
+  password = pwdmysql.,
+  port=3306
+)
+
+
+
+niveaux2 <-
+  load_niveaux(
+    debut = as.POSIXct(strptime("2021-01-01 00:00:00",
+                                format = "%Y-%m-%d %H:%M:%S")),
+    fin = as.POSIXct(strptime("2021-01-10 00:00:00",
+                              format = "%Y-%m-%d %H:%M:%S")),
+    tags = c(2507, 2508, 2100, 1000, 
+             1100,1300,1400,1902,2000),
+    con = pool
+  )
+
+poolClose(pool)
+
+```
+```{r graphes niveau armchart}
+#install.packages("rAmCharts")
+
+
+library("rAmCharts")
+niveaux2 %>%
+  amTimeSeries(
+    'horodate',
+    c("vilaine_barrage",
+      "mer_barrage",
+      "redon_ecluse",
+      "aucfer",
+      "molac",
+      "legueslin",
+      "sixtsuraff",
+      "pontdecran",
+      "guerouet"
+    ),
+    bullet = "round",
+    color =   randomcoloR::distinctColorPalette(9),
+    #backgroundColor = "#40555E",
+    #backgroundAlpha = 0.4,
+    bulletSize =  4,
+    aggregation = "Average",
+    fillAlphas = 0.1,
+    groupToPeriods = c('10mm', '30mm', 'hh', 'DD', 'MM', 'MAX'),
+    #  c('hh', 'DD', '10DD','MM','MAX'),
+    linewidth = 0.2,
+    legend = TRUE,
+    # maxSeries = 200,
+    categoryAxesSettings.minPeriod = "30mm"
+  ) %>%
+  setExport(enabled = TRUE)   
+
+
+```

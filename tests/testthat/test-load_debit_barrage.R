@@ -22,24 +22,22 @@ test_that("load_debit_barrage works", {
   } else {
     umysql. <- decrypt_string(string = umysql, key = mainpass)
   }
-
+  
   pool <- pool::dbPool(
     drv = RMariaDB::MariaDB(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,
     password = pwdmysql.,
-    port=3306
+    port = 3306
   )
+  # les données annuelles commencent en 2017 pour les données de chaque vanne
   system.time(debit_barrage <-
-                load_debit_barrage (debut = as.POSIXct(
-                  strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                ),
-                fin = as.POSIXct(
-                  strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
-                ),
-              con=con)
-              )# 70 s maison
+                load_debit_barrage (
+                  debut = as.POSIXct(strptime("2017-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
+                  fin = as.POSIXct(strptime("2017-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
+                  con = con
+                ))# 23 s maison
   expect_is(debit_barrage, "data.frame")
   poolClose(pool)
 })

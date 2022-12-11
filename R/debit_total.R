@@ -67,7 +67,7 @@ debit_total <-
     )
     Qvo12345$volvoletcalcule <- rowSums(Qvo12345) * 600
     Qva12345 <- debit_vannes(
-      horodate = dat$HoroDate,
+      horodate = dat$horodate,
       hvanne1 = dat$vanne1,
       hvanne2 = dat$vanne2,
       hvanne3 = dat$vanne3,

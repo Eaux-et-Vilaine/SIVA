@@ -19,7 +19,7 @@
 #' plot(cordata2020$tot_vol_barrage)
 traitement_siva <- function(dat) {
   # avant 2016 les variables n'existent pas, pb de "tags"
-  if (min(as.numeric(dat$HoroDate)) < 1451607000)	{
+  if (min(as.numeric(dat$horodate)) < 1451607000)	{
     dat <- dat[, -grep("Tag", colnames(dat))]
   }
   # colonnes contenant les cumuls

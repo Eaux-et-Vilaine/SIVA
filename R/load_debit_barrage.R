@@ -10,10 +10,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
-#' format = "%Y-%m-%d %H:%M:%S")),
-#'    fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
-#'    format = "%Y-%m-%d %H:%M:%S")),
+#' load_debit_barrage(debut = 
+#' as.POSIXct(strptime("2010-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
+#'    fin = 
+#'    as.POSIXct(strptime("2010-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
 #'    con= con)
 #'    }
 load_debit_barrage <- function(debut, fin, con){
@@ -32,29 +32,14 @@ load_debit_barrage <- function(debut, fin, con){
                     "b_barrage_vanne4_hauteur",
                     "b_barrage_vanne5_hauteur",
                     "b_barrage_debit", # Débit Vilaine estimé
-                    "b_barrage_debit",
+                    "b_barrage_debit", #débit passe
                     "b_pont_de_cran_debit",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
-                    "b_barrage_volume",
+                    rep("b_barrage_volume",5),
                     "b_passeapoisson_niveauvilaine",
                     "b_passeapoisson_niveaumer",
-                    "b_barrage_niveau",
-                    "b_barrage_niveau",
-                    "b_siphon_debit",
-                    "b_siphon_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit",
-                    "b_barrage_debit"
+                    rep("b_barrage_niveau",2),
+                    rep("b_siphon_debit",2),
+                    rep("b_barrage_debit",10)
            ),
            noms=c("volet1",
                   "volet2",
@@ -89,16 +74,17 @@ load_debit_barrage <- function(debut, fin, con){
                   "debit_volet2",
                   "debit_volet3",
                   "debit_volet4",
-                  "debit_volet5"			
+                  "debit_volet5"
            ),
-           tags=c(rep(as.integer(NA),10),
-                  as.integer(c(2515,2523,
+           tags=c(as.integer(c(2555:2559,
+                               2509:2513,
+                                2515,2523,
                                1900, # pont de cran
-                               2550:2554,
-                               NA,NA,2507,2508,
+                               2550:2554, # tot_vol
+                               2519,2520,2507,2508, # niveaux barrage
                                1528, #siphon debit
                                1565,  #siphon debit 2
-                               2571, #debit vanne1
+                               2571, #debit vanne ....
                                2572, 
                                2573,
                                2574,

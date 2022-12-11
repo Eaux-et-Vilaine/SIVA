@@ -18,17 +18,17 @@ setMethod(
     raw <- objet@rawdata
     s <-
       seq.POSIXt(
-        from = round(min(raw$HoroDate), "hour"),
-        to = round(max(raw$HoroDate), "hour") + 1,
+        from = round(min(raw$horodate), "hour"),
+        to = round(max(raw$horodate), "hour") + 1,
         by = "10 mins"
       )
-    s <- s[s >= min(raw$HoroDate) & s <= max(raw$HoroDate)]
-    s <- data.frame("HoroDate" = s)
+    s <- s[s >= min(raw$horodate) & s <= max(raw$horodate)]
+    s <- data.frame("horodate" = s)
     s$Valeur <-
       approx(
-        raw$HoroDate,
-        raw[, 3],
-        xout = s$HoroDate,
+        raw$horodate,
+        raw[, 2],
+        xout = s$horodate,
         method = method,
         ties = "ordered"
       )$y

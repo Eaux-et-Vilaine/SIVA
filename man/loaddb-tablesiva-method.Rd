@@ -4,12 +4,14 @@
 \alias{loaddb,tablesiva-method}
 \title{Methode loaddb}
 \usage{
-\S4method{loaddb}{tablesiva}(objet, con)
+\S4method{loaddb}{tablesiva}(objet, con, checktag = FALSE)
 }
 \arguments{
 \item{objet, }{un objet de classe tablesiva}
 
 \item{con, }{une connexion pool}
+
+\item{checktag, }{faut il faire un check de l'existence d'un tag dans la table ?}
 }
 \value{
 Un object de classe tablesiva

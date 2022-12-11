@@ -523,14 +523,14 @@ Qvo12345 <- debit_volets(
 )
 
 plot(
-  dat$HoroDate,
+  dat$horodate,
   rowSums(Qvo12345) * 600,
   pch = 19,
   cex = 0.5,
   ylab = "volume 10 min"
 )
 points(
-  dat$HoroDate,
+  dat$horodate,
   dat$tot_vol_volet,
   pch = 19,
   cex = 0.2,
@@ -540,7 +540,7 @@ points(
 
 datt <- dat
 datt$volvoletcalcule <- rowSums(Qvo12345) * 600
-datt$date = as.Date(datt$HoroDate)
+datt$date = as.Date(datt$horodate)
 debj <-
   as.data.frame(
     dplyr::select(datt, date, tot_vol_volet, volvoletcalcule) %>%
@@ -684,7 +684,7 @@ debit_total <-
     )
     Qvo12345$volvoletcalcule <- rowSums(Qvo12345) * 600
     Qva12345 <- debit_vannes(
-      horodate = dat$HoroDate,
+      horodate = dat$horodate,
       hvanne1 = dat$vanne1,
       hvanne2 = dat$vanne2,
       hvanne3 = dat$vanne3,
@@ -982,7 +982,7 @@ Sys.setenv(TZ='GMT')
 #' @export
 traitement_siva <- function(dat) {
   # avant 2016 les variables n'existent pas, pb de "tags"
-  if (min(as.numeric(dat$HoroDate)) < 1451607000)	{
+  if (min(as.numeric(dat$horodate)) < 1451607000)	{
     dat <- dat[, -grep("Tag", colnames(dat))]
   }
   # colonnes contenant les cumuls

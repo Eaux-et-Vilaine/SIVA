@@ -9,7 +9,7 @@
 
 A data frame with 2338 rows and 28 columns:
 \describe{
-\item{HoroDate}{Horodate}
+\item{horodate}{Horodate}
 \item{volet1,...}{position du volet}
 \item{vanne1,...}{position de la vanne}
 ...

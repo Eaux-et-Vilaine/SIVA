@@ -21,10 +21,10 @@ Il faut avoir configuré la connexion à la base
 }
 \examples{
 \dontrun{
-load_debit_barrage(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 
-format = "\%Y-\%m-\%d \%H:\%M:\%S")),
-   fin = as.POSIXct(strptime("2010-01-10 00:00:00", 
-   format = "\%Y-\%m-\%d \%H:\%M:\%S")),
+load_debit_barrage(debut = 
+as.POSIXct(strptime("2010-01-01 00:00:00", format = "\%Y-\%m-\%d \%H:\%M:\%S")),
+   fin = 
+   as.POSIXct(strptime("2010-01-10 00:00:00", format = "\%Y-\%m-\%d \%H:\%M:\%S")),
    con= con)
    }
 }

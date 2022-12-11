@@ -5,7 +5,7 @@
 #' @format ## `rawdata2020`
 #' A data frame with 2735 rows and 35 columns:
 #' \describe{
-#'   \item{HoroDate}{Horodate}
+#'   \item{horodate}{Horodate}
 #'   \item{volet1,...}{position du volet}
 #'   \item{vanne1,...}{position de la vanne}
 #'   ...
