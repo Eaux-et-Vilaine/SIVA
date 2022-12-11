@@ -24,7 +24,7 @@ setMethod(
       if (!objet@tag %in% tag$tag)
         stop("le tag n'existe pas dans la table")
     }
-    selectsiva <- stringr::str_c("SELECT * FROM archive_IAV.", objet@table)
+    selectsiva <- stringr::str_c("SELECT HoroDate,Valeur FROM archive_IAV.", objet@table)
     if (!is.na(objet@tag)) {
       wheresiva <-
           stringr::str_c(
@@ -47,7 +47,7 @@ setMethod(
     sql <- stringr::str_c(selectsiva, wheresiva, orderbysiva)
     objet@rawdata <- DBI::dbGetQuery(conn=con, statement = sql)
     if (nrow(objet@rawdata) == 0) 
-      warning(paste("no data for", objet@table))
+      warning(paste("no data for", objet@table,"\n"))
     colnames(objet@rawdata)[3] <- objet@nom
     return(objet)
   }
