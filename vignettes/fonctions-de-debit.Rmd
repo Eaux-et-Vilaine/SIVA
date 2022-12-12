@@ -13,7 +13,8 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8, fig.height = 6
 )
 ```
 
@@ -80,26 +81,16 @@ Les coefficients de Bazin ont été recalculés par une 'regression' loess
 sur la base du rapport annexé à Briand et Woimant (2015)
 
 ```{r examples-debit_vanne}
-# Exploration des coefficients la formule de Bazin 
 
-H=c(5:11)
-Rh=c(2,2.25,2.5,2.8,3,3.2,3.4)
-K=c(118,125,133,140,146,152,156)
-plot(Rh,K)
-points(Rh,predict(lm(K~Rh)),type="l")
-gamma=87*Rh/(K+sqrt(Rh))
-plot(H,gamma,pch="A")
-df<-data.frame(H=H,gamma=gamma)
-loess_gamma_bazin<-loess(gamma~H,data=df,control = loess.control(surface = "direct")) # contol pour extrapolation en dehors de la gamme
-#save(loess_gamma_bazin,file=str_c(datawd,"loess_gamma_bazin.Rdata"))
-df2<-data.frame(H=seq(from=5,to=11,by=0.1)) # pour les prédictions
-df2$gamma<-predict(loess_gamma_bazin,newdata=df2)
-points(df2$H,df2$gamma,col="red")
 
 # utilisation de la fonction de débit pour une vanne
 # chargement des paramètres et des données de la base
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
-load(system.file("dat2019.Rdata", package = "SIVA"))
+param <- SIVA::param
+dat <- SIVA::dat2019
+
+# Pour obtenir de l'aide sur le calcul de débit lancer : ? debit_vanne
+
+
 # Calcul du débit d'une vanne
 Qva1 <-
   debit_vanne(
@@ -121,13 +112,36 @@ plot(Qva1[4000:5000,])
 
 ```{r example-debit_vannes}
 # chargement des paramètres
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
+param <- SIVA::param
 # les valeurs ajustées des paramètres sont
 knitr::kable(param)
-load(system.file("dat2019.Rdata", package = "SIVA"))
+dat <- SIVA::dat2019
 head(dat)
 
 ```
+
+## Pour mémoire : récupération et Calage pour formule de Bazin
+
+```{r pour_info}
+
+# Exploration des coefficients la formule de Bazin 
+
+H=c(5:11)
+Rh=c(2,2.25,2.5,2.8,3,3.2,3.4)
+K=c(118,125,133,140,146,152,156)
+plot(Rh,K)
+points(Rh,predict(lm(K~Rh)),type="l")
+gamma=87*Rh/(K+sqrt(Rh))
+plot(H,gamma,pch="A")
+df<-data.frame(H=H,gamma=gamma)
+loess_gamma_bazin<-loess(gamma~H,data=df,control = loess.control(surface = "direct")) # contol pour extrapolation en dehors de la gamme
+#save(loess_gamma_bazin,file=str_c(datawd,"loess_gamma_bazin.Rdata"))
+df2<-data.frame(H=seq(from=5,to=11,by=0.1)) # pour les prédictions
+df2$gamma<-predict(loess_gamma_bazin,newdata=df2)
+points(df2$H,df2$gamma,col="red")
+
+```
+
 
 # Débit d'un volet : debit_volet
 
@@ -151,9 +165,12 @@ si~&h_{vilaine}\geq 1.38~\& \\
 \end{align*}
 $$
 
+
+
+
 ```{r example-debit_volet}
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
-load(system.file("dat2019.Rdata", package = "SIVA"))
+param <- SIVA::param
+dat <- SIVA::dat2019
 dv <-debit_volet(
   hvolet = dat$volet1,
   hvilaine = dat$niveauvilaine,
@@ -165,10 +182,13 @@ dv <-debit_volet(
 
 # Débit de l'ensemble des volets : debit_volets
 
-```{r example-debit_volets}
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
-load(system.file("dat2019.Rdata", package = "SIVA"))
-dat <- head(dat,5000)
+
+Le débit recalculé par les formules est rapporté en noir, le débit calculé au 
+niveau du barrage est rapporté en rouge (totaliseur de volume).
+
+```{r example-debit_vol}
+
+dat <- head(SIVA::dat2019,5000)
 Qvo12345 <- debit_volets(
   hvolet1 = dat$volet1,
   hvolet2 = dat$volet2,
@@ -184,7 +204,6 @@ Qvo12345 <- debit_volets(
   hvanne5 = dat$vanne5,
   Cvo = param["Cvo"]
 )
-
 plot(
   dat$horodate,
   rowSums(Qvo12345) * 600,
@@ -248,15 +267,25 @@ Les données de SIVA étant enregistrées au pas de temps de dix minutes,
 le débit instantanné au barrage $Q_{ba}$ s'écrit : $$
 Q_{ba}(t)=\frac{\sum_{i=1}^5 \beta Q_{va}(t,i)+\sum_{i=1}^5 \beta
 Q_{vo}(t,i)+V_{s}+V_{p}}{\beta}
-$$ Avec :\\ $V_s$= volume siphon\\ $V_p$=volume passe \\ $\beta$=600\\
+$$
+Avec : 
+
+$V_s$= volume siphon 
+
+$V_p$=volume passe  
+
+$\beta$=600
+
 Les écoulements passe $V_p$ et siphon $V_s$, qui sont faible, ne sont
 pas recalculés et viennent directement de SIVA. Les Volumes écluse ne
-sont pas inclus dans la formule. <!-- TODO voir avec Aldo.-->
+sont pas inclus dans la formule. 
+
+<!-- TODO voir avec Aldo.-->
 
 ```{r example-debit_total}
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
-load(system.file("dat2019.Rdata", package = "SIVA"))
-Q12345 <- debit_total(param, param0 = param, dat)
+param <- SIVA::param
+dat <- SIVA::dat2019
+Q12345 <- debit_total(param, param0 = param, dat2019)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
 Q12345$volet_vanne <-
   dat$tot_vol_barrage + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
@@ -359,15 +388,20 @@ Sys.setenv(TZ='GMT')
    umysql. <- decrypt_string(string = umysql, key = mainpass)
  }
  
- options(stacomiR.dbname="archive_IAV", # TODO not used....
-         stacomiR.host = hostmysql.,
-         stacomiR.password = pwdmysql.,
-         stacomiR.user = umysql.,
-         stacomiR.ODBClink = "archive_IAV")
- dat <- bilansiva_debit(debut="2020-01-01 00:00:00",fin="2020-01-20 00:00:00", plot =FALSE)
+ pool <- pool::dbPool(
+     drv = RMariaDB::MariaDB(),
+     dbname = "archive_IAV",
+     host = hostmysql.,
+     username = umysql.,
+     password = pwdmysql.,
+     port=3306
+ )
+ dat <- load_debit_barrage(debut="2020-01-01 00:00:00",
+     fin="2020-01-20 00:00:00",
+     con=pool)
  knitr::kable(dat)
  rawdata2020 <- dat
- save(rawdata2020, file="inst/rawdata2020.Rdata")
+ save(rawdata2020, file="../inst/rawdata2020.Rdata")
  }
 ```
 

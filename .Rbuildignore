@@ -9,3 +9,4 @@
 ^LICENSE\.md$
 ^vignettes/articles$
 ^data-raw$
+^Scripts^$

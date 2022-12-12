@@ -152,6 +152,6 @@ if (interactive()){
       )
       # the pool connexion will be removed when executing loaddb 
       res <- loaddb(bil, con = pool)
-      expect_is(res@bilandata,"data.frame")
+
 }
 ```

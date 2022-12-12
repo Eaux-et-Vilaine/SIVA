@@ -7,9 +7,9 @@
 load_niveaux(debut, fin, tags, con)
 }
 \arguments{
-\item{debut}{La date de début format POSIXct}
+\item{debut}{La date de début format POSIXct ou character "\%Y-\%m-\%d \%H:\%M:\%S}
 
-\item{fin}{La fin}
+\item{fin}{La fin format POSIXct ou character "\%Y-\%m-\%d \%H:\%M:\%S}
 
 \item{tags}{les tags des données à charger}
 

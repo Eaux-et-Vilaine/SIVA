@@ -38,6 +38,7 @@
 #' )
 #' res <- loaddb(bil, con = pool)
 #' poolClose(pool)
+#' }
 #' @export
 setMethod(
   "loaddb",
@@ -66,7 +67,7 @@ setMethod(
         )
       load(file = datapath)
     } else {
-      if (any(!is.integer(objet@tags))) stop()
+      if (any(!is.integer(objet@tags))) stop("Les tags doivent \u00eatre des entiers, utiliser as.integer()")
       for (i in 1:length(objet@tables)) {
         tab <- new("tablesiva") # création de la classe
         tab@debut = objet@debut # attribut de la date de début de la classe prendre légèrement plus large que la période souhaitée
@@ -83,7 +84,7 @@ setMethod(
           # le test est ignoré si les horodates sont déjà arrondies, car la 
           # conversion est alors inutile !
           if (any(tab@rawdata$horodate != rounded10)) {
-            cat(sprintf("Des dates ne sont pas arrondies, application de la méthode %s \n",objet@daterondes[i]))
+            cat(sprintf("Des dates ne sont pas arrondies, application de la m\u00e9thode %s \n",objet@daterondes[i]))
             switch(
               objet@daterondes[i],
               constant = {

@@ -43,7 +43,6 @@ Collate:
     'loaddb-bilansiva.R'
     'prepare_sql.R'
     'sivaplot-tablesiva.R'
-    'bilansiva_debit.R'
     'debit_total.R'
     'debit_vanne.R'
     'debit_vannes.R'

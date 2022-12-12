@@ -2,8 +2,8 @@
 #' 
 #' Il faut avoir configuré la connexion à la base
 #'
-#' @param debut La date de début format POSIXct
-#' @param fin La fin
+#' @param debut La date de début format POSIXct ou character "%Y-%m-%d %H:%M:%S
+#' @param fin La fin format POSIXct ou character "%Y-%m-%d %H:%M:%S
 #' @param con une connexion pool
 #' @return Le tableau de données pour le calcul des debits du barrage
 #' @export
@@ -17,8 +17,8 @@
 #'    con= con)
 #'    }
 load_debit_barrage <- function(debut, fin, con){
-  if (!is.POSIXct(debut)) stop("La date de debut doit etre au format POSIXct")
-  if (!is.POSIXct(fin)) stop("La date de fin doit etre au format POSIXct")
+  if (!is.POSIXct(debut)) debut <- as.POSIXct(strptime(debut, format = "%Y-%m-%d %H:%M:%S"))
+  if (!is.POSIXct(fin)) fin <-as.POSIXct(strptime(fin, format = "%Y-%m-%d %H:%M:%S"))
   Sys.setenv(TZ='GMT')		
   bil<-new("bilansiva",
            tables=c("b_barrage_volet1_hauteur",

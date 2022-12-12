@@ -36,3 +36,31 @@ Un objet de classe bilansiva
 \description{
 Methode de chargement pour loadb
 }
+\examples{
+\dontrun{
+pool <- pool::dbPool(
+   drv = RMariaDB::MariaDB(),
+   dbname = "archive_IAV",
+   host = hostmysql.,
+   username = umysql.,
+   password = pwdmysql.
+)
+bil<-new("bilansiva",
+        tables=c("b_langon_debit", 
+                 "b_pont_de_cran_debit"
+        ),
+        noms=c(
+          "debit_langon",
+          "debit_moyen_cran"          
+        ),
+        tags=as.integer(c(3000,1900)),
+        daterondes=rep("constant",2), 
+        debut=as.POSIXct(strptime(paste0(2019,"-05-01 00:00:00"),
+                                  format="\%Y-\%m-\%d \%H:\%M:\%S")),
+        fin=as.POSIXct(strptime(paste0(2019,"-09-01 00:00:00"),
+                                format="\%Y-\%m-\%d \%H:\%M:\%S"))
+)
+res <- loaddb(bil, con = pool)
+poolClose(pool)
+}
+}
