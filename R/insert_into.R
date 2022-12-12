@@ -16,7 +16,6 @@
 #' @importFrom lubridate is.POSIXct
 #' @examples
 #' #TODO
-#' @importFrom utils setWinProgressBar
 #' @importFrom RODBC odbcCloseAll
 #' @importFrom utils winProgressBar
 insert_into <- function(data,columns,tabledest,baseODBC,...) {
