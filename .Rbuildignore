@@ -10,3 +10,4 @@
 ^vignettes/articles$
 ^data-raw$
 ^Scripts^$
+^SQL$
