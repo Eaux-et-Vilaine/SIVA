@@ -6,6 +6,21 @@
 #' @param fin La fin format POSIXct ou character "%Y-%m-%d %H:%M:%S
 #' @param con une connexion pool
 #' @return Le tableau de données pour le calcul des debits du barrage
+#' hauteur :
+#'    "volet1","volet2","volet3","volet4","volet5",
+#'          "vanne1","vanne2","vanne3","vanne4","vanne5",
+#' debits :
+#'         "debit_vilaine_estime (b_barrage_debit(2515))",
+#'         "debit_passe",
+#'         "debit_moyen_cran",
+#' volumes :
+#'         "tot_vol_barrage","tot_vol_passe","tot_vol_siphon","tot_vol_volet","tot_vol_ecluse",
+#' niveaux :                   
+#' "niveauvilaine"(passe),"niveaumer"(passe),"niveauvilaineb","niveaumerb",
+#' débits
+#' "debit_siphon_1","debit_siphon_2",
+#' "debit_vanne1","debit_vanne2","debit_vanne3","debit_vanne4","debit_vanne5",
+#' "debit_volet1","debit_volet2","debit_volet3","debit_volet4","debit_volet5"
 #' @export
 #'
 #' @examples
