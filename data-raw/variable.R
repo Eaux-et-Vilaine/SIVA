@@ -24,32 +24,32 @@ if (!exists("umysql")) {
 }
 # attention il faut avaoir définit mainpass <- "xxxxx"
 options(
-  stacomiR.dbname = "archive_IAV",
-  # TODO not used....
-  stacomiR.host = hostmysql.,
-  stacomiR.password = pwdmysql.,
-  stacomiR.user = umysql.,
-  stacomiR.ODBClink = "archive_IAV"
+    stacomiR.dbname = "archive_IAV",
+    # TODO not used....
+    stacomiR.host = hostmysql.,
+    stacomiR.password = pwdmysql.,
+    stacomiR.user = umysql.,
+    stacomiR.ODBClink = "archive_IAV"
 )
 
 
 
 sivacon <- c(
-  getOption("stacomiR.ODBClink"),
-  getOption("stacomiR.user"),
-  getOption("stacomiR.password")
+    getOption("stacomiR.ODBClink"),
+    getOption("stacomiR.user"),
+    getOption("stacomiR.password")
 )
 
 requete <- new("RequeteODBC")
 requete@baseODBC <- sivacon
 requete@sql <-
-  stringr::str_c(
-    "SELECT  Tag, TagStation, Libelle, MinStation, MaxStation, 
-    MinPC, MaxPC, Format, Unite, TableHisto, TableBilan, Categorie, 
-    tag_type_domaine, tag_domaine, tag_sous_domaine, tag_bassin, 
-    tag_sous_bassin, tag_sous_bassin_loc
-FROM SIVA_R.svg2015_variable"
-  )
+    stringr::str_c(
+        "SELECT  Tag, TagStation, Libelle, MinStation, MaxStation, 
+            MinPC, MaxPC, Format, Unite, TableHisto, TableBilan, Categorie, 
+            tag_type_domaine, tag_domaine, tag_sous_domaine, tag_bassin, 
+            tag_sous_bassin, tag_sous_bassin_loc
+            FROM SIVA_R.svg2015_variable"
+    )
 requete <- connect(requete)
 variable <- requete@query
 
@@ -83,3 +83,12 @@ niveau <- read_excel("data-raw/variables.xlsx")
 #)
 colnames(niveau) <- tolower(colnames(niveau))
 usethis::use_data(niveau, overwrite = TRUE)
+
+
+# Isac
+
+variable %>%dplyr::filter(tag %in% 
+            c(2000,233,2532,2533,1902,2100,2530,2531,900,700,2507,380,381,382,383,369,371,370,372)) %>%
+    dplyr::select(tag,  tagstation, libelle, unite, tablehisto) %>%     
+    dplyr::mutate(tablehisto = tolower(tablehisto)) %>% clipr::write_clip(object_type="table")
+
