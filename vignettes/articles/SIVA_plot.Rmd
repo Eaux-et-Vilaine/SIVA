@@ -134,8 +134,12 @@ debit_barrage <-traitement_siva(debit_barrage)
 #pool:poolClose(pool)
 #save(debit_barrage, file=str_c("C:/temp/debit_barrage.Rdata"))
 ```
+# Comparaison et analyse des débits
 
-```{r calcul_plot_debit_journalier}
+## Recalcul des débits du barrage.
+
+
+```{r calcul_plot_debit_10min}
 # chargement des paramètres du barrage
 if (!params$work_with_db){
 load(file=str_c("C:/temp/debit_barrage.Rdata"))
@@ -144,8 +148,7 @@ load(file=str_c("C:/temp/debit_barrage.Rdata"))
 Q12345 <- debit_total(param, param0 = param, debit_barrage)
 Q12345$tot_vol <- debit_barrage$tot_vol # volume total au barrage d'Arzal
 
-Q12345$volet_vanne <-
-  rowSums(debit_barrage[,c("tot_vol_barrage","tot_vol_volet")], na.rm=TRUE) # volume total toutes les dix minutes sur volets et vannes
+
 mQ <-
   reshape2::melt(
     Q12345[, c("horodate",
@@ -179,6 +182,13 @@ g <-ggplot2::ggplot(mQ12345, ggplot2::aes(
 
 print(g)
 
+```
+
+
+## Calcul des débits journaliers
+
+```{r debit_journalier}
+
 # Calcul du débit journalier
 Qj <-
   as.data.frame(
@@ -188,7 +198,8 @@ Qj <-
       volvoletcalcule,
       debit_moyen_cran,
       tot_vol,
-      volet_vanne,
+      tot_vol_vannes,
+      tot_vol_volet,
       tot_vol_siphon,
       tot_vol_passe,
       tot_vol_ecluse
@@ -202,13 +213,13 @@ Qj <-
         vol_passe = sum(tot_vol_passe, na.rm = TRUE),
         vol_ecluse = sum(tot_vol_ecluse, na.rm = TRUE),
         vol_siphon = sum(tot_vol_siphon, na.rm = TRUE),
-        vol_volet_vanne_bar = sum(volet_vanne),
-        debit_moyen_cran = mean(debit_moyen_cran),
-        debit_moyen_recalcule = mean(Q, na.rm=TRUE)
-        
+        vol_volet = sum(tot_vol_volet, na.rm = TRUE),
+        vol_vanne = sum(tot_vol_vanne, na.rm = TRUE),
+        vol_volet_vanne_bar = sum(tot_vol_vannes,  tot_vol_volet,  na.rm = TRUE),
+        debit_moyen_cran = sum(debit_moyen_cran*600, na.rm=TRUE)/(24 * 60 * 60)
       ) %>%
       dplyr::mutate(
-        debit_moyen_vol_recalc = vol_recalc / (24 * 60 * 60),
+        debit_moyen_recalcule = vol_recalc/(24 * 60 * 60),
         debit_moyen_vol_bar = vol_bar / (24 * 60 * 60),
         debit_moyen_volet_vanne_bar = vol_volet_vanne_bar / (24 * 60 * 60)
       )
@@ -219,10 +230,109 @@ Qj <- Qj %>%
   arrange(date) %>%
   slice(-1)
 
-knitr::kable(Qj)
+knitr::kable(head(Qj))
 
 
 ```
+
+## Analyse des débits individuels des vannes et des volets
+
+
+```{r debit_vanne volet}
+stopifnot(nrow(Q12345) == nrow(debit_barrage))
+
+
+
+date <-   debit_barrage %>%
+  select(horodate) %>%
+  mutate(date = as.Date(horodate))
+
+volets <- debit_barrage %>%
+  select(starts_with("debit_volet")) %>%
+  mutate(sdebit_volet_barQ = rowSums(., na.rm = TRUE),
+         volume_volet_barQ = sdebit_volet_barQ * 600)
+
+vannes <- debit_barrage %>%
+  select(starts_with("debit_vanne")) %>%
+  mutate(sdebit_vanne_barQ = rowSums(., na.rm = TRUE),
+         volume_vanne_barQ = sdebit_vanne_barQ * 600)
+
+
+
+
+
+# Comparaison des débits vannes - et recalculés
+comp_vannes <-  inner_join(
+  Q12345 %>% select("horodate", starts_with("qvanne")) %>%
+    pivot_longer(
+      cols = starts_with("qvanne"),
+      names_to = "vanne",
+      names_prefix = "qvanne",
+      values_to = "Qrecalcul"
+    ),
+  bind_cols(date, vannes)  %>% select("horodate", starts_with("debit_vanne")) %>%
+    pivot_longer(
+      cols = starts_with("debit_vanne"),
+      names_to = "vanne",
+      names_prefix = "debit_vanne",
+      values_to = "QSIVA"
+    ),
+)
+
+
+ggplot(comp_vannes) +
+  geom_point(aes(x = QSIVA, y = Qrecalcul, col = vanne)) +
+  viridis::scale_colour_viridis(discrete = T)
+
+
+
+# Comparaison des débits volets - et recalculés
+comp_volets <-  inner_join(
+  Q12345 %>% select("horodate", starts_with("qvolet")) %>%
+    pivot_longer(
+      cols = starts_with("qvolet"),
+      names_to = "volet",
+      names_prefix = "qvolet",
+      values_to = "Qrecalcul"
+    ),
+  bind_cols(date, volets)  %>% select("horodate", starts_with("debit_volet")) %>%
+    pivot_longer(
+      cols = starts_with("debit_volet"),
+      names_to = "volet",
+      names_prefix = "debit_volet",
+      values_to = "QSIVA"
+    ),
+)
+
+
+ggplot(comp_volets) +
+  geom_point(aes(x = QSIVA, y = Qrecalcul, col = volet)) +
+  viridis::scale_colour_viridis(discrete = T)
+
+Q2j <- bind_cols(date, bind_cols(volets, vannes)) %>%
+  mutate(date = as.Date(horodate)) %>%
+  select(date,
+         volume_volet_barQ,
+         volume_vanne_barQ) %>%
+  group_by(date) %>%
+  summarize(
+    vol_vanne_barQ = sum(volume_vanne_barQ, na.rm = TRUE),
+    vol_volet_barQ = sum(volume_volet_barQ, na.rm = TRUE)
+  ) %>%
+  inner_join(Qj,  by="date") %>% 
+  mutate(
+         volume_total_barQ = select(., contains(c("vol_vanne_barQ", "vol_volet_barQ",  "vol_passe", "vol_siphon",
+              "vol_ecluse"))) %>% rowSums(na.rm =TRUE),
+         debit_vanne_barQ = vol_vanne_barQ / 86400,
+         debit_volet_barQ = vol_volet_barQ / 86400,
+         debit_total_barQ = volume_total_barQ/86400
+         )
+  
+  
+  
+
+```
+
 
 Le barrage renvoit des volumes vannes, volet, écluse, passe et siphons. Les volumes sont recalculés par les fonctions de calcul `debit_total`. On a dans l'ordre :
 
@@ -245,9 +355,8 @@ $V_e$=volume écluse
 
 $\beta$=600
 
-* Debit_moy_vol_recalc : presque identique au précédent, au lieu de la moyenne des débits, on calcule la somme du volume et on ramène à 86400
 
-* Débit moyen vol_bar : en partant des totaliseurs de volume au barrage, qui sont pourris, on calcule un débit journalier.
+* Débit moyen vol_bar : en partant des totaliseurs de volume au barrage,  on calcule un débit journalier.
 
 * Débit moyen vanne_bar : Somme des totaliseurs de volumes volets et vannes sur le barrage, qui sont ramenés à des débits. C'est de là que le problème vient. 
 
@@ -255,79 +364,19 @@ $\beta$=600
 ```{r graphe analyse debit barrage}
 
 
-Qj %>% select(date|  starts_with("debit")) %>% 
+Q2j %>% select(date|  starts_with("debit")) %>% select(-debit_volet_barQ,-debit_vanne_barQ) %>% 
   pivot_longer(cols=starts_with("debit"),names_to = "source",values_to = "Q") %>%
-  ggplot() + geom_point(aes(x=date,y=Q, col=source)) +
-  geom_line(aes(x=date,y=Q, col=source))
+  ggplot() + geom_point(aes(x=date,y=Q, col=source, shape=source ), alpha=0.5) +
+  geom_line(aes(x=date,y=Q, col=source), alpha=0.5) 
+
 
 ```
 # comparaison des valeurs extraites de SIVA pour le débit du barrage avec les valeurs recalculées
 
 
-```{r debit_vanne volet}
-stopifnot(nrow(Q12345) == nrow(debit_barrage))
+Certaines valeurs de débits sur volets et vanne 5 diffèrent (pour 2018). Il s'agit problement d'un problème de niveaux amont.
 
 
-
-date <-   debit_barrage %>% 
-  select(horodate) %>%
-  mutate(date=as.Date(horodate)) 
-
-volets <- debit_barrage %>% 
-  select(starts_with("debit_volet")) %>%
-  mutate(sdebit_volet_barQ = rowSums(., na.rm= TRUE),
-         volume_volet_barQ = sdebit_volet_barQ * 600) 
-
-vannes <- debit_barrage %>%
-  select(starts_with("debit_vanne")) %>%
-  mutate(sdebit_vanne_barQ = rowSums(., na.rm= TRUE),
-         volume_vanne_barQ = sdebit_vanne_barQ * 600)
-
-Q2j <- bind_cols(date,bind_cols(volets, vannes))
-
-
-# Comparaison des débits vannes et volets - et recalculés
-comp_vannes <-  inner_join(
-Q12345 %>% select("horodate",starts_with("qvanne")) %>% 
-  pivot_longer(
-    cols = starts_with("qvanne"),
-    names_to = "vanne",
-    names_prefix = "qvanne",
-    values_to = "Qrecalcul"),
-bind_cols(date, vannes)  %>% select("horodate",starts_with("debit_vanne")) %>% 
-  pivot_longer(
-    cols = starts_with("debit_vanne"),
-    names_to = "vanne",
-    names_prefix = "debit_vanne",
-    values_to = "QSIVA"),
-)
-
-
-ggplot(comp_vannes) + geom_point(aes(x=QSIVA, y=Qrecalcul, col=vanne)) + viridis::scale_colour_viridis(discrete = T)
-
-Q2j%>%
-  seel
-  dplyr::group_by(date) %>%
-  dplyr::summarize(
-    vol_recalc = 
-      sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon,
-          tot_vol_ecluse, na.rm =TRUE),
-    vol_bar = sum(tot_vol, na.rm = TRUE),
-    vol_passe = sum(tot_vol_passe, na.rm = TRUE),
-    vol_ecluse = sum(tot_vol_ecluse, na.rm = TRUE),
-    vol_siphon = sum(tot_vol_siphon, na.rm = TRUE),
-    vol_volet_vanne_bar = sum(volet_vanne),
-    debit_moyen_cran = mean(debit_moyen_cran),
-    debit_moyen_recalcule = mean(Q, na.rm=TRUE)
-    
-  ) %>%
-  dplyr::mutate(
-    debit_moyen_vol_recalc = vol_recalc / (24 * 60 * 60),
-    debit_moyen_vol_bar = vol_bar / (24 * 60 * 60),
-    debit_moyen_volet_vanne_bar = vol_volet_vanne_bar / (24 * 60 * 60)
-  )
-
-```
 
 
 # Graphiques de niveaux
@@ -355,11 +404,11 @@ debits_vannes <-
     values_to = "Q"
   )
 debits_volets <-
-  Q12345 %>% select(horodate, starts_with("qvolet")) %>%
+  Q12345 %>% select(horodate, starts_with("Qvolet")) %>%
   pivot_longer(
-    cols = starts_with("qvolet"),
+    cols = starts_with("Qvolet"),
     names_to = "volet",
-    names_prefix = "qvolet",
+    names_prefix = "Qvolet",
     values_to = "Q"
   )
 
@@ -416,11 +465,11 @@ debits_vannes <-
     values_to = "Q"
   )
 debits_volets <-
-  Q12345 %>% select(horodate, starts_with("qvolet")) %>%
+  Q12345 %>% select(horodate, starts_with("Qvolet")) %>%
   pivot_longer(
-    cols = starts_with("qvolet"),
+    cols = starts_with("Qvolet"),
     names_to = "volet",
-    names_prefix = "qvolet",
+    names_prefix = "Qvolet",
     values_to = "Q"
   )
 total <- dplyr::inner_join(niveaux, dplyr::inner_join(debits_vannes, debits_volets))

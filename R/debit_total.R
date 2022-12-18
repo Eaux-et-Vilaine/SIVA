@@ -15,7 +15,7 @@
 #' @param param0 Paramètre sans optim
 #' @param dat Tableau de données formaté en entrée, colonnes volet1,volet2,volet3,
 #' volet4,volet5,vanne1,vanne2,vanne3,vanne4,vanne5,debit_vilaine_estime,debit_passe,
-#' debit_moyen_cran,tot_vol_barrage,tot_vol_passe,tot_vol_siphon,tot_vol_volet,
+#' debit_moyen_cran,tot_vol_vanne,tot_vol_passe,tot_vol_siphon,tot_vol_volet,
 #' tot_vol_ecluse,niveauvilaine,niveaumer,niveauvilaineb,niveaumerb,debit_siphon_1,
 #' debit_siphon_2,debit_vanne1,debit_vanne2,debit_vanne3,debit_vanne4,debit_vanne5,
 #' debit_volet1,debit_volet2,debit_volet3,debit_volet4,debit_volet5,tot_vol

@@ -10,7 +10,7 @@
 #' @param dat Un tableau de données contenant des données totalisées 
 #' par exemple chargées par la fonction `load_debit_barrage`
 #' @return Un tableau de données avec diff pour les totaux, 
-#' tot_vol_barrage, tot_vol_passe, tot_vol_siphon, tot_vol_volet, les débits
+#' tot_vol_vanne, tot_vol_passe, tot_vol_siphon, tot_vol_volet, les débits
 #' de siphon corrigés, et une colonne tot_vol= volume total journalier
 #' au barrage.
 #' 
@@ -18,10 +18,10 @@
 #' @examples
 #' # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 #' load(system.file("rawdata2020.Rdata", package="SIVA"))
-#' plot(rawdata2020$tot_vol_barrage)
+#' plot(rawdata2020$tot_vol_vanne)
 #' # les totaliseurs sont remis à plat
 #' cordata2020 <- traitement_siva(dat=rawdata2020)
-#' plot(cordata2020$tot_vol_barrage)
+#' plot(cordata2020$tot_vol_vanne)
 traitement_siva <- function(dat) {
   # avant 2016 les variables n'existent pas, pb de "tags"
   if (min(as.numeric(dat$horodate)) < 1451607000)	{
@@ -36,8 +36,8 @@ traitement_siva <- function(dat) {
   volumes[volumes < 0] <- NA
   dat[2:nrow(dat), totcol] <- volumes
   dat[1, totcol] <- NA
-  dat[dat$tot_vol_barrage > 1e5 &
-        !is.na(dat$tot_vol_barrage), "tot_vol_barrage"] <- NA
+  dat[dat$tot_vol_vanne > 1e5 &
+        !is.na(dat$tot_vol_vanne), "tot_vol_vanne"] <- NA
   dat[dat$tot_vol_passe > 1e5 &
         !is.na(dat$tot_vol_passe), "tot_vol_passe"] <- NA
   dat[dat$tot_vol_siphon > 1e5 &

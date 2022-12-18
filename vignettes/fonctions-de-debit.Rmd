@@ -291,7 +291,7 @@ dat <- SIVA::dat2019
 Q12345 <- debit_total(param, param0 = param, dat2019)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
 Q12345$volet_vanne <-
-  dat$tot_vol_barrage + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
+  dat$tot_vol_vanne + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
 mQ <-
   reshape2::melt(
     Q12345[, c("horodate",
@@ -424,8 +424,8 @@ Le débit du barrage est stocké dans des totaliseurs, le traitement SIVA
 ```{r example-traitement_siva}
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 load(system.file("rawdata2020.Rdata", package="SIVA"))
-plot(rawdata2020$tot_vol_barrage)
+plot(rawdata2020$tot_vol_vanne)
 # les totaliseurs sont remis à plat
 cordata2020 <- traitement_siva(dat=rawdata2020)
-plot(cordata2020$tot_vol_barrage)
+plot(cordata2020$tot_vol_vanne)
 ```

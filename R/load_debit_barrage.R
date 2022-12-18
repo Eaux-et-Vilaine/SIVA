@@ -14,7 +14,7 @@
 #'         "debit_passe",
 #'         "debit_moyen_cran",
 #' totaliseurs volumes :
-#'         "tot_vol_barrage","tot_vol_passe","tot_vol_siphon","tot_vol_volet","tot_vol_ecluse",
+#'         "tot_vol_vanne","tot_vol_passe","tot_vol_siphon","tot_vol_volet","tot_vol_ecluse",
 #' niveaux :                   
 #' "niveauvilaine"(passe),"niveaumer"(passe),"niveauvilaineb","niveaumerb",
 #' débits
@@ -69,7 +69,7 @@ load_debit_barrage <- function(debut, fin, con){
                   "debit_vilaine_estime",
                   "debit_passe",
                   "debit_moyen_cran",
-                  "tot_vol_barrage",
+                  "tot_vol_vanne",
                   "tot_vol_passe",
                   "tot_vol_siphon",
                   "tot_vol_volet",

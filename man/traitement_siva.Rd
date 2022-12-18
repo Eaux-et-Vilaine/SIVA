@@ -12,7 +12,7 @@ par exemple chargées par la fonction \code{load_debit_barrage}}
 }
 \value{
 Un tableau de données avec diff pour les totaux,
-tot_vol_barrage, tot_vol_passe, tot_vol_siphon, tot_vol_volet, les débits
+tot_vol_vanne, tot_vol_passe, tot_vol_siphon, tot_vol_volet, les débits
 de siphon corrigés, et une colonne tot_vol= volume total journalier
 au barrage.
 }
@@ -27,8 +27,8 @@ sont ramenés à 3.8
 \examples{
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 load(system.file("rawdata2020.Rdata", package="SIVA"))
-plot(rawdata2020$tot_vol_barrage)
+plot(rawdata2020$tot_vol_vanne)
 # les totaliseurs sont remis à plat
 cordata2020 <- traitement_siva(dat=rawdata2020)
-plot(cordata2020$tot_vol_barrage)
+plot(cordata2020$tot_vol_vanne)
 }

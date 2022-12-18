@@ -722,7 +722,7 @@ load(system.file("dat2019.Rdata", package = "SIVA"))
 Q12345 <- debit_total(param, param0 = param, dat)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
 Q12345$volet_vanne <-
-  dat$tot_vol_barrage + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
+  dat$tot_vol_vanne + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
 mQ <-
   reshape2::melt(
     Q12345[, c("horodate",
@@ -862,7 +862,7 @@ bilansiva_debit <- function(debut, fin, plot=FALSE) {
       "debit_vilaine_estime",
       "debit_passe",
       "debit_moyen_cran",
-      "tot_vol_barrage",
+      "tot_vol_vanne",
       "tot_vol_passe",
       "tot_vol_siphon",
       "tot_vol_volet",
@@ -994,8 +994,8 @@ traitement_siva <- function(dat) {
   volumes[volumes < 0] <- NA
   dat[2:nrow(dat), totcol] <- volumes
   dat$tot_vol = rowSums(dat[, totcol])
-    dat[dat$tot_vol_barrage > 1e5 &
-        !is.na(dat$tot_vol_passe), "tot_vol_barrage"] <- NA
+    dat[dat$tot_vol_vanne > 1e5 &
+        !is.na(dat$tot_vol_vanne), "tot_vol_vanne"] <- NA
   dat[dat$tot_vol_passe > 1e5 &
         !is.na(dat$tot_vol_passe), "tot_vol_passe"] <- NA
   dat[dat$tot_vol_siphon > 1e5 &
@@ -1014,10 +1014,10 @@ traitement_siva <- function(dat) {
 ```{r example-traitement_siva}
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 load(system.file("rawdata2020.Rdata", package="SIVA"))
-plot(rawdata2020$tot_vol_barrage)
+plot(rawdata2020$tot_vol_vanne)
 # les totaliseurs sont remis à plat
 cordata2020 <- traitement_siva(dat=rawdata2020)
-plot(cordata2020$tot_vol_barrage)
+plot(cordata2020$tot_vol_vanne)
 ```
 
 ```{r tests-traitement_siva}
@@ -1025,7 +1025,7 @@ test_that("traitement_siva fonctionne", {
  load(system.file("rawdata2020.Rdata", package="SIVA"))
  cordata2020 <- traitement_siva(dat=rawdata2020)
  # si les valeurs sont transformées les valeurs sont plus loin de 1e9
- expect_lt(max(cordata2020$tot_vol_barrage, na.rm=T),2e5)
+ expect_lt(max(cordata2020$tot_vol_vanne, na.rm=T),2e5)
 })
 ```
 
