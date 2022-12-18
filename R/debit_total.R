@@ -31,10 +31,11 @@
 #' date = la date (au format date),
 #' Qva12345 = la somme des débits des vannes 1 à 5, 
 #' Qvo12345 = la somme des débits des volets 1 à 5,
-#' tot_vol_ecluse = le volume total de l'écluse,
-#' tot_vol_siphon = le volume total du siphon, 
-#' tot_vol_passe = le volume total de la passe, 
-#' debit_moyen_cran = le débit moyen journalier au pont de Cran			 
+#' tot_vol_vanne = Le volume total évacué par les vannes,
+#' tot_vol_ecluse = le volume total évacué par l'écluse,
+#' tot_vol_siphon = le volume total évacucé par les deux siphons,
+#' tot_vol_passe = le volume total évacucé par la passe,
+#' debit_moyen_cran = le débit moyen journalier au pont de Cran	 ...	 
 #' @export
 debit_total <-
   function(param = c(
@@ -90,6 +91,8 @@ debit_total <-
       cbind(
         Qva12345,
         Qvo12345,
+        "tot_vol_volet" = dat$tot_vol_volet,
+        "tot_vol_vanne" = dat$tot_vol_vanne,
         "tot_vol_ecluse" = dat$tot_vol_ecluse,
         "tot_vol_siphon" = dat$tot_vol_siphon,
         "tot_vol_passe" = dat$tot_vol_passe

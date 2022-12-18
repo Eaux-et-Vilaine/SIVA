@@ -60,4 +60,5 @@ Collate:
     'rawdata2020.R'
     'variable.R'
     'niveau.R'
+    'debit_journalier.R'
 LazyData: true

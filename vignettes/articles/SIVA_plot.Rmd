@@ -11,7 +11,7 @@ output:
 params: 
   debut: !r Sys.Date()-30
   fin: !r Sys.Date()
-  work_with_db: TRUE
+  work_with_db: FALSE
 ---
 
 
@@ -86,50 +86,50 @@ Les données seront chargées de `r debut` à `r fin`
 ```{r loaddebit}
 
 if (params$work_with_db){
-if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
-if (!exists("hostmysql")) {
-  hostmysql. <- getPass::getPass(msg = "Saisir host")
-  # ci dessous pour ne pas redemander au prochain tour
-  hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
-} else {
-  hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
-}
-if (!exists("pwdmysql")) {
-  pwdmysql. <- getPass::getPass(msg = "Saisir password")
-  pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
-}  else {
-  # pass should be loaded
-  pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
-}
-if (!exists("umysql")) {
-  umysql. <- getPass::getPass(msg = "Saisir user")
-  umysql <- encrypt_string(string = umysql., key = mainpass)
-} else {
-  umysql. <- decrypt_string(string = umysql, key = mainpass)
-}
-# attention il faut avaoir définit mainpass <- "xxxxx"
-
-pool <- pool::dbPool(
-  drv = RMariaDB::MariaDB(),
-  dbname = "archive_IAV",
-  host = hostmysql.,
-  username = umysql.,
-  password = pwdmysql.,
-  port=3306
-)
-
-
-system.time(debit_barrage <-
-              load_debit_barrage (debut = as.POSIXct(
-                strptime(debut, format = "%Y-%m-%d")
-              ),
-              fin = as.POSIXct(
-                strptime(fin, format = "%Y-%m-%d")
-              ),
-              con=pool))# 37-70 s maison # 10.5 EPTB
+  if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+  if (!exists("hostmysql")) {
+    hostmysql. <- getPass::getPass(msg = "Saisir host")
+    # ci dessous pour ne pas redemander au prochain tour
+    hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+  } else {
+    hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+  }
+  if (!exists("pwdmysql")) {
+    pwdmysql. <- getPass::getPass(msg = "Saisir password")
+    pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+  }  else {
+    # pass should be loaded
+    pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+  }
+  if (!exists("umysql")) {
+    umysql. <- getPass::getPass(msg = "Saisir user")
+    umysql <- encrypt_string(string = umysql., key = mainpass)
+  } else {
+    umysql. <- decrypt_string(string = umysql, key = mainpass)
+  }
+  # attention il faut avaoir définit mainpass <- "xxxxx"
+  
+  pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = hostmysql.,
+    username = umysql.,
+    password = pwdmysql.,
+    port=3306
+  )
+  
+  
+  system.time(debit_barrage <-
+                load_debit_barrage (debut = as.POSIXct(
+                  strptime(debut, format = "%Y-%m-%d")
+                ),
+                fin = as.POSIXct(
+                  strptime(fin, format = "%Y-%m-%d")
+                ),
+                con=pool))# 37-70 s maison # 10.5 EPTB
 } # end if params$work_with_db
 
-debit_barrage <-traitement_siva(debit_barrage)
+
 
 #pool:poolClose(pool)
 #save(debit_barrage, file=str_c("C:/temp/debit_barrage.Rdata"))
@@ -142,9 +142,9 @@ debit_barrage <-traitement_siva(debit_barrage)
 ```{r calcul_plot_debit_10min}
 # chargement des paramètres du barrage
 if (!params$work_with_db){
-load(file=str_c("C:/temp/debit_barrage.Rdata"))
+  load(file=str_c("C:/temp/debit_barrage.Rdata"))
 }
-
+debit_barrage <- traitement_siva(debit_barrage)
 Q12345 <- debit_total(param, param0 = param, debit_barrage)
 Q12345$tot_vol <- debit_barrage$tot_vol # volume total au barrage d'Arzal
 
@@ -190,55 +190,19 @@ print(g)
 ```{r debit_journalier}
 
 # Calcul du débit journalier
-Qj <-
-  as.data.frame(
-    Q12345 %>%dplyr::select(
-      Q,
-      date,
-      volvoletcalcule,
-      debit_moyen_cran,
-      tot_vol,
-      tot_vol_vannes,
-      tot_vol_volet,
-      tot_vol_siphon,
-      tot_vol_passe,
-      tot_vol_ecluse
-    ) %>%
-      dplyr::group_by(date) %>%
-      dplyr::summarize(
-        vol_recalc = 
-          sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon,
-              tot_vol_ecluse, na.rm =TRUE),
-        vol_bar = sum(tot_vol, na.rm = TRUE),
-        vol_passe = sum(tot_vol_passe, na.rm = TRUE),
-        vol_ecluse = sum(tot_vol_ecluse, na.rm = TRUE),
-        vol_siphon = sum(tot_vol_siphon, na.rm = TRUE),
-        vol_volet = sum(tot_vol_volet, na.rm = TRUE),
-        vol_vanne = sum(tot_vol_vanne, na.rm = TRUE),
-        vol_volet_vanne_bar = sum(tot_vol_vannes,  tot_vol_volet,  na.rm = TRUE),
-        debit_moyen_cran = sum(debit_moyen_cran*600, na.rm=TRUE)/(24 * 60 * 60)
-      ) %>%
-      dplyr::mutate(
-        debit_moyen_recalcule = vol_recalc/(24 * 60 * 60),
-        debit_moyen_vol_bar = vol_bar / (24 * 60 * 60),
-        debit_moyen_volet_vanne_bar = vol_volet_vanne_bar / (24 * 60 * 60)
-      )
-  )
-Qj <- Qj %>% 
-  mutate(across(starts_with("vol"), round)) %>%
-  mutate(across(starts_with("debit"),  ~ round(.x,digits=3))) %>%
-  arrange(date) %>%
-  slice(-1)
 
-knitr::kable(head(Qj))
+Qj <- debit_journalier(debit_barrage=debit_barrage, type = "recalcule")
+Q2j <- debit_journalier(debit_barrage=debit_barrage, type = "barrage_volume")
+Q3j <- debit_journalier(debit_barrage=debit_barrage, type = "barrage_debit")
 
 
 ```
 
 ## Analyse des débits individuels des vannes et des volets
 
+Ci dessous on compare les valeurs de débits vannes volets toutes les dix minutes
 
-```{r debit_vanne volet}
+```{r debit_vanne_volet_10min}
 stopifnot(nrow(Q12345) == nrow(debit_barrage))
 
 
@@ -304,43 +268,19 @@ comp_volets <-  inner_join(
     ),
 )
 
-
 ggplot(comp_volets) +
   geom_point(aes(x = QSIVA, y = Qrecalcul, col = volet)) +
   viridis::scale_colour_viridis(discrete = T)
-
-Q2j <- bind_cols(date, bind_cols(volets, vannes)) %>%
-  mutate(date = as.Date(horodate)) %>%
-  select(date,
-         volume_volet_barQ,
-         volume_vanne_barQ) %>%
-  group_by(date) %>%
-  summarize(
-    vol_vanne_barQ = sum(volume_vanne_barQ, na.rm = TRUE),
-    vol_volet_barQ = sum(volume_volet_barQ, na.rm = TRUE)
-  ) %>%
-  inner_join(Qj,  by="date") %>% 
-  mutate(
-         volume_total_barQ = select(., contains(c("vol_vanne_barQ", "vol_volet_barQ",  "vol_passe", "vol_siphon",
-              "vol_ecluse"))) %>% rowSums(na.rm =TRUE),
-         debit_vanne_barQ = vol_vanne_barQ / 86400,
-         debit_volet_barQ = vol_volet_barQ / 86400,
-         debit_total_barQ = volume_total_barQ/86400
-         )
-  
-  
-  
 
 ```
 
 
 Le barrage renvoit des volumes vannes, volet, écluse, passe et siphons. Les volumes sont recalculés par les fonctions de calcul `debit_total`. On a dans l'ordre :
 
-Les recalculs qui sont OK :
 
-* debit_moyen_cran Le débit moyen à Cran 
+* `debit_moyen_cran` Le débit moyen à Cran 
 
-* Débit_moyen_recalculé = Débit recaculé vannes et volets + volumes :
+* `debit_moyen_recalcule` = Débit recaculé vannes et volets + volumes :
 
 $$ Q = \sum_{t}(vol/86400)=\sum_t \frac{\sum_{i=1}^5 \beta Q_{va}(t,i)+\sum_{i=1}^5 \beta
 Q_{vo}(t,i)+V_{s}(t)+V_{p}(t)+V_{e}(t)}{86400} $$
@@ -356,22 +296,42 @@ $V_e$=volume écluse
 $\beta$=600
 
 
-* Débit moyen vol_bar : en partant des totaliseurs de volume au barrage,  on calcule un débit journalier.
+* `debit_moyen_vol_bar` : en partant des totaliseurs de volume au barrage,  les valeurs de 
+vol_bar renvoyées par les vannes sont 0 et donc il y a un problème dans ces valeurs
 
-* Débit moyen vanne_bar : Somme des totaliseurs de volumes volets et vannes sur le barrage, qui sont ramenés à des débits. C'est de là que le problème vient. 
+* `debit_total_barQ` =Somme des débits 10 min vannes et volets et des autres volumes barrage
+
+* `debit_vilaine_estim` = Diffère des autres, je ne sais pas d'où vient ce calcul, 
+n'y aurait il pas une histoire avec en plus les variations de niveaux du plan d'eau ?
+
+* `debit_total_vol_vannes` : on voit clairement le problème c'est zéro
+
+* `debit_total_vol_volet` : il y a des valeurs.
 
 
 ```{r graphe analyse debit barrage}
 
+stopifnot(nrow(Qj) == nrow(Q2j))
+stopifnot(nrow(Q2j) == nrow(Q3j))
+QV <- bind_cols(Qj, Q2j %>% select(-date), Q3j %>% select(-date))
+Q <- QV %>% select(date |  starts_with("debit"))
+(
+  QV %>%
+    pivot_longer(
+      cols = starts_with("debit"),
+      names_to = "source",
+      values_to = "Q"
+    ) %>%
+    ggplot() + # geom_point(aes(x=date,y=Q, col=source, shape=source ), alpha=0.5) +
+    geom_line(aes(
+      x = date, y = Q, col = source
+    ), alpha = 0.5)
+) %>% plotly::ggplotly()
 
-Q2j %>% select(date|  starts_with("debit")) %>% select(-debit_volet_barQ,-debit_vanne_barQ) %>% 
-  pivot_longer(cols=starts_with("debit"),names_to = "source",values_to = "Q") %>%
-  ggplot() + geom_point(aes(x=date,y=Q, col=source, shape=source ), alpha=0.5) +
-  geom_line(aes(x=date,y=Q, col=source), alpha=0.5) 
+knitr::kable(QV)
 
 
 ```
-# comparaison des valeurs extraites de SIVA pour le débit du barrage avec les valeurs recalculées
 
 
 Certaines valeurs de débits sur volets et vanne 5 diffèrent (pour 2018). Il s'agit problement d'un problème de niveaux amont.
@@ -523,59 +483,64 @@ Ici on a un exemple, il suffit de passer les `tag` pour utiliser la fonction.
 
 ```{r loadniveaux}
 
-
-if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
-if (!exists("hostmysql")) {
-  hostmysql. <- getPass::getPass(msg = "Saisir host")
-  # ci dessous pour ne pas redemander au prochain tour
-  hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
-} else {
-  hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
-}
-if (!exists("pwdmysql")) {
-  pwdmysql. <- getPass::getPass(msg = "Saisir password")
-  pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
-}  else {
-  # pass should be loaded
-  pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
-}
-if (!exists("umysql")) {
-  umysql. <- getPass::getPass(msg = "Saisir user")
-  umysql <- encrypt_string(string = umysql., key = mainpass)
-} else {
-  umysql. <- decrypt_string(string = umysql, key = mainpass)
-}
-# attention il faut avaoir définit mainpass <- "xxxxx"
-
-pool <- pool::dbPool(
-  drv = RMariaDB::MariaDB(),
-  dbname = "archive_IAV",
-  host = hostmysql.,
-  username = umysql.,
-  password = pwdmysql.,
-  port=3306
-)
-
-
-
-niveaux2 <-
-  load_niveaux(
-    debut = as.POSIXct(strptime("2021-01-01 00:00:00",
-                                format = "%Y-%m-%d %H:%M:%S")),
-    fin = as.POSIXct(strptime("2021-01-10 00:00:00",
-                              format = "%Y-%m-%d %H:%M:%S")),
-    tags = c(2507, 2508, 2100, 1000, 
-             1100,1300,1400,1902,2000),
-    con = pool
+if (params$work_with_db){
+  if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+  if (!exists("hostmysql")) {
+    hostmysql. <- getPass::getPass(msg = "Saisir host")
+    # ci dessous pour ne pas redemander au prochain tour
+    hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+  } else {
+    hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+  }
+  if (!exists("pwdmysql")) {
+    pwdmysql. <- getPass::getPass(msg = "Saisir password")
+    pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+  }  else {
+    # pass should be loaded
+    pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+  }
+  if (!exists("umysql")) {
+    umysql. <- getPass::getPass(msg = "Saisir user")
+    umysql <- encrypt_string(string = umysql., key = mainpass)
+  } else {
+    umysql. <- decrypt_string(string = umysql, key = mainpass)
+  }
+  # attention il faut avaoir définit mainpass <- "xxxxx"
+  
+  pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = hostmysql.,
+    username = umysql.,
+    password = pwdmysql.,
+    port=3306
   )
-
-poolClose(pool)
+  
+  
+  
+  niveaux2 <-
+    load_niveaux(
+      debut = as.POSIXct(strptime("2021-01-01 00:00:00",
+                                  format = "%Y-%m-%d %H:%M:%S")),
+      fin = as.POSIXct(strptime("2021-01-10 00:00:00",
+                                format = "%Y-%m-%d %H:%M:%S")),
+      tags = c(2507, 2508, 2100, 1000, 
+               1100,1300,1400,1902,2000),
+      con = pool
+    )
+  
+  poolClose(pool)
+}
+# save(niveaux2, file="C:/temp/niveaux2.Rdata")
 
 ```
 
 ```{r graphes niveau armchart}
-#install.packages("rAmCharts")
+#install.packages("rAmCharts") 
 
+if (!params$work_with_db){
+  load(file="C:/temp/niveaux2.Rdata")
+}
 
 library("rAmCharts")
 niveaux2 %>%

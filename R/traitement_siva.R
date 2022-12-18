@@ -48,7 +48,7 @@ traitement_siva <- function(dat) {
                        !is.na(dat$tot_vol_siphon)] <- NA
   dat$debit_siphon_1[dat$debit_siphon_1 > 3.8] <- NA
   dat$debit_siphon_2[dat$debit_siphon_2 > 3.8] <- NA
-  dat$tot_vol = rowSums(dat[, totcol])
+  dat$tot_vol = rowSums(dat[, totcol],na.rm = TRUE)
   return(dat)
   
 }

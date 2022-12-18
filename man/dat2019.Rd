@@ -7,7 +7,7 @@
 \format{
 \subsection{\code{dat2019}}{
 
-A data frame with 52558 rows and 52 columns:
+A data frame with 52558 rows and 36 columns:
 \describe{
 \item{horodate}{Horodate}
 \item{volet1,...}{position du volet}

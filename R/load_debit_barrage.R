@@ -104,7 +104,7 @@ load_debit_barrage <- function(debut, fin, con){
                                2573,
                                2574,
                                2575,
-                               2581,
+                               2581, # debit volet
                                2582,
                                2583,
                                2584,
