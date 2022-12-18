@@ -37,7 +37,7 @@ traitement_siva <- function(dat) {
   dat[2:nrow(dat), totcol] <- volumes
   dat[1, totcol] <- NA
   dat[dat$tot_vol_barrage > 1e5 &
-        !is.na(dat$tot_vol_passe), "tot_vol_barrage"] <- NA
+        !is.na(dat$tot_vol_barrage), "tot_vol_barrage"] <- NA
   dat[dat$tot_vol_passe > 1e5 &
         !is.na(dat$tot_vol_passe), "tot_vol_passe"] <- NA
   dat[dat$tot_vol_siphon > 1e5 &

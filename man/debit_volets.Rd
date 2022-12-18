@@ -48,7 +48,7 @@ debit_volets(
 \item{Cvo}{Le coefficient de calcul de débit sur les volets, défaut 0.627.}
 }
 \value{
-Un data frame avec les colonnes Qvolet1 ... Qvolet5.
+Un data frame avec les colonnes qvolet1 ... qvolet5.
 }
 \description{
 Somme du débit de tous les volets

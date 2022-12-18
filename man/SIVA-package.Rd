@@ -8,6 +8,14 @@
 \description{
 Interface graphique vers SIVA.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/Eaux-et-Vilaine/SIVA}
+  \item Report bugs at \url{https://github.com/Eaux-et-Vilaine/SIVA/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Cédric Briand \email{cedric.briand@eaux-et-vilaine.bzh} (\href{https://orcid.org/0000-0002-7721-5195}{ORCID})
 

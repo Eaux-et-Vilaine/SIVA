@@ -13,7 +13,7 @@
 #'         "debit_vilaine_estime (b_barrage_debit(2515))",
 #'         "debit_passe",
 #'         "debit_moyen_cran",
-#' volumes :
+#' totaliseurs volumes :
 #'         "tot_vol_barrage","tot_vol_passe","tot_vol_siphon","tot_vol_volet","tot_vol_ecluse",
 #' niveaux :                   
 #' "niveauvilaine"(passe),"niveaumer"(passe),"niveauvilaineb","niveaumerb",

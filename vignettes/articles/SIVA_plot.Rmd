@@ -1,9 +1,25 @@
 ---
 title: "SIVAplot"
+output:
+  html_document:
+    keep_md: yes
+    code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
 params: 
-  debut: !r Sys.Date()-10
+  debut: !r Sys.Date()-30
   fin: !r Sys.Date()
+  work_with_db: TRUE
 ---
+
+
+Ce document prends comme paramètre la date du jour et la date du jour - 30 
+C'est une version de démo des fonctionnalités du package, et une exploration
+du code possible avant de faire le shiny
+
+
 
 ```{r init, include = FALSE}
 knitr::opts_chunk$set(
@@ -30,9 +46,7 @@ load_library('stacomirtools') # fonctions de requetage odbc
 load_library('lubridate')
 #install.packages('RMySQL',type='source')
 #library(RMySQL)
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
-load_library('RPostgreSQL') # one can use RODBC, here I'm using direct connection load_library('ggplot2')# join fuction
-load_library('lubridate')
+#load_library('RPostgreSQL') # one can use RODBC, here I'm using direct connection load_library('ggplot2')# join fuction
 load_library('reshape2')
 load_library('tidyverse')	
 
@@ -67,12 +81,11 @@ library(SIVA)
 
 Les données seront chargées de `r debut` à `r fin`
 
-
 # Plot des données de débit
 
 ```{r loaddebit}
 
-#if (interactive()){
+if (params$work_with_db){
 if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
 if (!exists("hostmysql")) {
   hostmysql. <- getPass::getPass(msg = "Saisir host")
@@ -108,25 +121,31 @@ pool <- pool::dbPool(
 
 system.time(debit_barrage <-
               load_debit_barrage (debut = as.POSIXct(
-                strptime("2018-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+                strptime(debut, format = "%Y-%m-%d")
               ),
               fin = as.POSIXct(
-                strptime("2018-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+                strptime(fin, format = "%Y-%m-%d")
               ),
               con=pool))# 37-70 s maison # 10.5 EPTB
-#} # end if interactive
+} # end if params$work_with_db
 
 debit_barrage <-traitement_siva(debit_barrage)
 
-pool:poolClose(pool)
+#pool:poolClose(pool)
+#save(debit_barrage, file=str_c("C:/temp/debit_barrage.Rdata"))
 ```
+
 ```{r calcul_plot_debit_journalier}
 # chargement des paramètres du barrage
-load(system.file("param2012_2014.Rdata", package = "SIVA"))
+if (!params$work_with_db){
+load(file=str_c("C:/temp/debit_barrage.Rdata"))
+}
+
 Q12345 <- debit_total(param, param0 = param, debit_barrage)
 Q12345$tot_vol <- debit_barrage$tot_vol # volume total au barrage d'Arzal
+
 Q12345$volet_vanne <-
-  debit_barrage$tot_vol_barrage + debit_barrage$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
+  rowSums(debit_barrage[,c("tot_vol_barrage","tot_vol_volet")], na.rm=TRUE) # volume total toutes les dix minutes sur volets et vannes
 mQ <-
   reshape2::melt(
     Q12345[, c("horodate",
@@ -163,8 +182,7 @@ print(g)
 # Calcul du débit journalier
 Qj <-
   as.data.frame(
-    dplyr::select(
-      Q12345,
+    Q12345 %>%dplyr::select(
       Q,
       date,
       volvoletcalcule,
@@ -172,35 +190,214 @@ Qj <-
       tot_vol,
       volet_vanne,
       tot_vol_siphon,
-      tot_vol_passe
+      tot_vol_passe,
+      tot_vol_ecluse
     ) %>%
       dplyr::group_by(date) %>%
       dplyr::summarize(
-        volumevilainecalcule = 
-          sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon, na.rm =TRUE),
-        tot_vol = sum(tot_vol, na.rm = TRUE),
-        volet_vanne = sum(volet_vanne),
-        debit_moyen_cran = mean(debit_moyen_cran)
+        vol_recalc = 
+          sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon,
+              tot_vol_ecluse, na.rm =TRUE),
+        vol_bar = sum(tot_vol, na.rm = TRUE),
+        vol_passe = sum(tot_vol_passe, na.rm = TRUE),
+        vol_ecluse = sum(tot_vol_ecluse, na.rm = TRUE),
+        vol_siphon = sum(tot_vol_siphon, na.rm = TRUE),
+        vol_volet_vanne_bar = sum(volet_vanne),
+        debit_moyen_cran = mean(debit_moyen_cran),
+        debit_moyen_recalcule = mean(Q, na.rm=TRUE)
+        
       ) %>%
       dplyr::mutate(
-        debitvilainecalcule = volumevilainecalcule / (24 * 60 * 60),
-        tot_bar = tot_vol / (24 * 60 * 60),
-        tot_volvan_bar = volet_vanne / (24 * 60 * 60)
+        debit_moyen_vol_recalc = vol_recalc / (24 * 60 * 60),
+        debit_moyen_vol_bar = vol_bar / (24 * 60 * 60),
+        debit_moyen_volet_vanne_bar = vol_volet_vanne_bar / (24 * 60 * 60)
       )
   )
+Qj <- Qj %>% 
+  mutate(across(starts_with("vol"), round)) %>%
+  mutate(across(starts_with("debit"),  ~ round(.x,digits=3))) %>%
+  arrange(date) %>%
+  slice(-1)
+
+knitr::kable(Qj)
+
+
+```
+
+Le barrage renvoit des volumes vannes, volet, écluse, passe et siphons. Les volumes sont recalculés par les fonctions de calcul `debit_total`. On a dans l'ordre :
+
+Les recalculs qui sont OK :
+
+* debit_moyen_cran Le débit moyen à Cran 
+
+* Débit_moyen_recalculé = Débit recaculé vannes et volets + volumes :
+
+$$ Q = \sum_{t}(vol/86400)=\sum_t \frac{\sum_{i=1}^5 \beta Q_{va}(t,i)+\sum_{i=1}^5 \beta
+Q_{vo}(t,i)+V_{s}(t)+V_{p}(t)+V_{e}(t)}{86400} $$
+
+Avec
+
+$V_s$= volume siphon 
+
+$V_p$=volume passe  
+
+$V_e$=volume écluse
+
+$\beta$=600
+
+* Debit_moy_vol_recalc : presque identique au précédent, au lieu de la moyenne des débits, on calcule la somme du volume et on ramène à 86400
+
+* Débit moyen vol_bar : en partant des totaliseurs de volume au barrage, qui sont pourris, on calcule un débit journalier.
+
+* Débit moyen vanne_bar : Somme des totaliseurs de volumes volets et vannes sur le barrage, qui sont ramenés à des débits. C'est de là que le problème vient. 
+
+
+```{r graphe analyse debit barrage}
 
 
 Qj %>% select(date|  starts_with("debit")) %>% 
-  rename(debit_vilaine_calcule=debitvilainecalcule) %>%
   pivot_longer(cols=starts_with("debit"),names_to = "source",values_to = "Q") %>%
   ggplot() + geom_point(aes(x=date,y=Q, col=source)) +
   geom_line(aes(x=date,y=Q, col=source))
 
 ```
+# comparaison des valeurs extraites de SIVA pour le débit du barrage avec les valeurs recalculées
 
+
+```{r debit_vanne volet}
+stopifnot(nrow(Q12345) == nrow(debit_barrage))
+
+
+
+date <-   debit_barrage %>% 
+  select(horodate) %>%
+  mutate(date=as.Date(horodate)) 
+
+volets <- debit_barrage %>% 
+  select(starts_with("debit_volet")) %>%
+  mutate(sdebit_volet_barQ = rowSums(., na.rm= TRUE),
+         volume_volet_barQ = sdebit_volet_barQ * 600) 
+
+vannes <- debit_barrage %>%
+  select(starts_with("debit_vanne")) %>%
+  mutate(sdebit_vanne_barQ = rowSums(., na.rm= TRUE),
+         volume_vanne_barQ = sdebit_vanne_barQ * 600)
+
+Q2j <- bind_cols(date,bind_cols(volets, vannes))
+
+
+# Comparaison des débits vannes et volets - et recalculés
+comp_vannes <-  inner_join(
+Q12345 %>% select("horodate",starts_with("qvanne")) %>% 
+  pivot_longer(
+    cols = starts_with("qvanne"),
+    names_to = "vanne",
+    names_prefix = "qvanne",
+    values_to = "Qrecalcul"),
+bind_cols(date, vannes)  %>% select("horodate",starts_with("debit_vanne")) %>% 
+  pivot_longer(
+    cols = starts_with("debit_vanne"),
+    names_to = "vanne",
+    names_prefix = "debit_vanne",
+    values_to = "QSIVA"),
+)
+
+
+ggplot(comp_vannes) + geom_point(aes(x=QSIVA, y=Qrecalcul, col=vanne)) + viridis::scale_colour_viridis(discrete = T)
+
+Q2j%>%
+  seel
+  dplyr::group_by(date) %>%
+  dplyr::summarize(
+    vol_recalc = 
+      sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon,
+          tot_vol_ecluse, na.rm =TRUE),
+    vol_bar = sum(tot_vol, na.rm = TRUE),
+    vol_passe = sum(tot_vol_passe, na.rm = TRUE),
+    vol_ecluse = sum(tot_vol_ecluse, na.rm = TRUE),
+    vol_siphon = sum(tot_vol_siphon, na.rm = TRUE),
+    vol_volet_vanne_bar = sum(volet_vanne),
+    debit_moyen_cran = mean(debit_moyen_cran),
+    debit_moyen_recalcule = mean(Q, na.rm=TRUE)
+    
+  ) %>%
+  dplyr::mutate(
+    debit_moyen_vol_recalc = vol_recalc / (24 * 60 * 60),
+    debit_moyen_vol_bar = vol_bar / (24 * 60 * 60),
+    debit_moyen_volet_vanne_bar = vol_volet_vanne_bar / (24 * 60 * 60)
+  )
+
+```
+
+
+# Graphiques de niveaux
+
+
+Il s'agit juste de tester les fonctions ggplotly utilisées plus tard dans le shiny.
 
 
 ```{r graphes niveaux}
+niveaux <- debit_barrage %>% select(horodate, niveauvilaineb,
+                                    niveaumerb) %>%
+  rename(horodate = horodate) %>% # todo get rid of horodate in code
+  pivot_longer(
+    cols = c("niveauvilaineb", "niveaumerb"),
+    names_to = "source",
+    names_prefix = "niveau",
+    values_to = "niveau"
+  )
+debits_vannes <-
+  Q12345 %>% select(horodate, starts_with("qvanne")) %>%
+  pivot_longer(
+    cols = starts_with("qvanne"),
+    names_to = "vanne",
+    names_prefix = "qvanne",
+    values_to = "Q"
+  )
+debits_volets <-
+  Q12345 %>% select(horodate, starts_with("qvolet")) %>%
+  pivot_longer(
+    cols = starts_with("qvolet"),
+    names_to = "volet",
+    names_prefix = "qvolet",
+    values_to = "Q"
+  )
+
+
+g1 <- ggplot()+ geom_line(aes(x=horodate, y=niveau, col=source), data=niveaux) 
+g2 <- ggplot()+  geom_line(aes(x=horodate, y=Q, col=vanne), data=debits_vannes)+ 
+  geom_line(aes(x=horodate, y=Q, col=volet), data=debits_volets)
+plotly::ggplotly(g1)
+plotly::ggplotly(g2)
+
+
+niveaux%>% plotly::plot_ly(
+  x= ~horodate,
+  y= ~niveau) %>%
+  plotly:: add_lines( color = ~source, colors = "Set1") %>%
+  plotly:: add_markers( color = ~source, colors = "Set1")
+
+
+
+
+```
+
+## graphes crosstalk
+
+
+Le crosstalk ne marche pas sur les gros jeux de données  => éviter dans le shiny
+
+```{r crosstalk, eval=FALSE}
+library(crosstalk)
+niveaux <- debit_barrage %>% select(horodate, niveauvilaineb,
+                                    niveaumerb) %>%
+  rename(horodate = horodate) %>% # todo get rid of horodate in code
+  pivot_longer(
+    cols = c("niveauvilaineb", "niveaumerb"),
+    names_to = "source",
+    names_prefix = "niveau",
+    values_to = "valeur"
+  )
 niveaux <- debit_barrage %>% select(horodate, niveauvilaineb,
                                     niveaumerb) %>%
   rename(horodate = horodate) %>% # todo get rid of horodate in code
@@ -219,24 +416,28 @@ debits_vannes <-
     values_to = "Q"
   )
 debits_volets <-
-  Q12345 %>% select(horodate, starts_with("Qvolet")) %>%
+  Q12345 %>% select(horodate, starts_with("qvolet")) %>%
   pivot_longer(
-    cols = starts_with("Qvolet"),
+    cols = starts_with("qvolet"),
     names_to = "volet",
-    names_prefix = "Qvolet",
+    names_prefix = "qvolet",
     values_to = "Q"
   )
-
-
-g1 <- ggplot()+ geom_line(aes(x=horodate, y=niveau, col=source), data=niveaux) 
-g2 <- ggplot()+  geom_line(aes(x=horodate, y=Q, col=vanne), data=debits_vannes)+ geom_line(aes(x=horodate, y=Q, col=volet), data=debits_volets)
-plotly::ggplotly(g1)
-plotly::ggplotly(g2)
-
+total <- dplyr::inner_join(niveaux, dplyr::inner_join(debits_vannes, debits_volets))
+shared_total <- SharedData$new(total)
+g1 <- ggplot()+ geom_point(aes(x=horodate, y=niveau, col=source), data=shared_total) 
+g2 <- ggplot()+  geom_point(aes(x=horodate, y=Q, col=vanne), data=shared_total)+ 
+  geom_point(aes(x=horodate, y=Q, col=volet), data=shared_total)
+bscols(
+  plotly::ggplotly(g1),
+  plotly::ggplotly(g2))
 
 
 ```
 
+# graphes RmaChart
+
+C'est ce qui est utilisé dans le SIVA actuel.
 
 ```{r graphes debitniveau armchart}
 #install.packages("rAmCharts")
@@ -268,6 +469,8 @@ debit_barrage %>%
 
 # traitement des données de niveau
 
+
+Ici on a un exemple, il suffit de passer les `tag` pour utiliser la fonction.
 
 ```{r loadniveaux}
 
@@ -320,13 +523,14 @@ niveaux2 <-
 poolClose(pool)
 
 ```
+
 ```{r graphes niveau armchart}
 #install.packages("rAmCharts")
 
 
 library("rAmCharts")
 niveaux2 %>%
-  amTimeSeries(
+  rAmCharts::amTimeSeries(
     'horodate',
     c("vilaine_barrage",
       "mer_barrage",

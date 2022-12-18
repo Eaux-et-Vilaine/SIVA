@@ -7,15 +7,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
-```{r setup}
+
+
+```r
 library(SIVA)
+#> Le chargement a nécessité le package : stacomirtools
+#> Le chargement a nécessité le package : RODBC
+#> Le chargement a nécessité le package : DBI
+#> Le chargement a nécessité le package : pool
 ```
 
 
@@ -27,7 +27,8 @@ aller la chercher à l'aide de la méthode RequeteODBCwhere du package
 stacomirtools.  Elle possède aussi les méthodes décrites ci-dessous.
 
 
-```{r example-tablesiva}
+
+```r
 tablesiva <-
   new(
     "tablesiva",
@@ -36,7 +37,6 @@ tablesiva <-
     table = "b_barrage_volet4_hauteur",
     nom = "volet4"
   )
-
 ```
 
 # loaddb-method
@@ -45,7 +45,8 @@ Il faut configurer le rprofile.site comme suit dans R/R_version/etc/Rprofile.sit
 pour stocker les user et password lors des tests
 
 
-```{r exempleRprofile, echo = TRUE, eval = FALSE}
+
+```r
  local({
  library(safer)
  mainpass <- "xxxxx"
@@ -62,7 +63,8 @@ La méthode loaddb fonctionne d'abord table par table, ici tablesiva, la classe 
 va chercher des données pour une table : b_barrage_volet4_hauteur.
 Si un tag est nécessaire pour la table il peut être passé également.
 
-```{r example-loaddb-tablesiva-method}
+
+```r
 # sur mon ordi j'ai des mots de passe chargés au démarrage à partir de Rprofile.site
 # Ici test si existent et si oui il faut le main password pour les decrypter, sinon il
 # faut les entrer après un prompt du programme. 
@@ -89,7 +91,6 @@ if (!exists("umysql")) {
   umysql. <- decrypt_string(string = umysql, key = mainpass)
 }
 
-
      # attention il faut avaoir définit mainpass <- "xxxxx"
       pool <- pool::dbPool(
           drv = RMariaDB::MariaDB(),
@@ -112,13 +113,26 @@ if (!exists("umysql")) {
       poolClose(pool)
       knitr::kable(head(tablesiva@rawdata ))
 }
+#> Table volet4(b_barrage_volet4_hauteur:NA), chargement de 5300 lignes
 ```
+
+
+
+|horodate            | volet4|
+|:-------------------|------:|
+|2021-10-25 02:10:00 |   4.03|
+|2021-10-25 02:20:00 |   4.03|
+|2021-10-25 02:30:00 |   4.03|
+|2021-10-25 02:40:00 |   4.03|
+|2021-10-25 02:50:00 |   4.03|
+|2021-10-25 03:00:00 |   4.03|
 ## loaddb-method - bilansiva
 
 La méthode loaddb fonctionne ensuite pour un ensemble de tables, il s'agit alors d'un objet bilan (bilansiva)
 
 
-```{r example-loaddb-bilansiva-method}
+
+```r
 
 if (interactive()){
 
@@ -150,4 +164,17 @@ if (interactive()){
       res <- loaddb(bil, con = pool)
 
 }
+#> Table debit_vilaine_estime(b_barrage_debit:NA), chargement de 211787 lignes
+```
+
+![plot of chunk example-loaddb-bilansiva-method](figure/example-loaddb-bilansiva-method-1.png)
+
+```
+#> Table debit_moyen_cran(b_pont_de_cran_debit:1900), chargement de 17640 lignes
+```
+
+![plot of chunk example-loaddb-bilansiva-method](figure/example-loaddb-bilansiva-method-2.png)
+
+```
+#> fin des calculs
 ```

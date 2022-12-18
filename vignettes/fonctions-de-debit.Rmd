@@ -266,13 +266,16 @@ legend(
 Les données de SIVA étant enregistrées au pas de temps de dix minutes,
 le débit instantanné au barrage $Q_{ba}$ s'écrit : $$
 Q_{ba}(t)=\frac{\sum_{i=1}^5 \beta Q_{va}(t,i)+\sum_{i=1}^5 \beta
-Q_{vo}(t,i)+V_{s}+V_{p}}{\beta}
+Q_{vo}(t,i)+V_{s}+V_{p}+V_{e}}{\beta}
 $$
 Avec : 
 
 $V_s$= volume siphon 
 
 $V_p$=volume passe  
+
+$V_e$=volume écluse
+
 
 $\beta$=600
 

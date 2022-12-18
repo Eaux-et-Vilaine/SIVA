@@ -7,14 +7,22 @@
 traitement_siva(dat)
 }
 \arguments{
-\item{dat}{Un tableau de données cont}
+\item{dat}{Un tableau de données contenant des données totalisées
+par exemple chargées par la fonction \code{load_debit_barrage}}
 }
 \value{
-Un tableau de données propres
+Un tableau de données avec diff pour les totaux,
+tot_vol_barrage, tot_vol_passe, tot_vol_siphon, tot_vol_volet, les débits
+de siphon corrigés, et une colonne tot_vol= volume total journalier
+au barrage.
 }
 \description{
 recalcule des données des compteurs, enlève les valeurs abérrantes des débits
-des siphons
+des siphons. Les données doivent avoir 'tot_....' en entête, toutes, les colonnes
+contenant 'tot' font l'objet d'une différence entre les valeurs des lignes 2:n et les
+lignes 1:n-1, les données de la première ligne sont NA
+Pour les données des Siphons debit_siphon_1, et debit_siphon_2 les débits > 3.8
+sont ramenés à 3.8
 }
 \examples{
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA

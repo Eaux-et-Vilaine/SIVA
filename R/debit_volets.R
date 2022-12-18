@@ -16,7 +16,7 @@
 #' @param hmer Le niveau mer.
 #' @param Cvo Le coefficient de calcul de débit sur les volets, défaut 0.627.
 #'
-#' @return Un data frame avec les colonnes Qvolet1 ... Qvolet5.
+#' @return Un data frame avec les colonnes qvolet1 ... qvolet5.
 #' 
 #' @export
 debit_volets <-
@@ -40,11 +40,11 @@ debit_volets <-
     Qv5 <- debit_volet(hvolet5, hvilaine, hvanne5, hmer, Cvo)
     return(
       data.frame(
-        "Qvolet1" = Qv1,
-        "Qvolet2" = Qv2,
-        "Qvolet3" = Qv3,
-        "Qvolet4" = Qv4,
-        "Qvolet5" = Qv5
+        "qvolet1" = Qv1,
+        "qvolet2" = Qv2,
+        "qvolet3" = Qv3,
+        "qvolet4" = Qv4,
+        "qvolet5" = Qv5
       )
     )
   }
