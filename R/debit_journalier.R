@@ -151,7 +151,7 @@ debit_journalier <- function(debit_barrage, type = c("recalcule","barrage_volume
         vol_vanne_barQ = sum(volume_vanne_barQ, na.rm = TRUE),
         vol_volet_barQ = sum(volume_volet_barQ, na.rm = TRUE)
       ) %>%
-      inner_join(
+      dplyr::inner_join(
         debit_barrage %>% 
           dplyr::select(c("horodate","tot_vol_passe","tot_vol_siphon","tot_vol_ecluse")) %>%
           dplyr::mutate(date = as.Date(horodate)) %>%
@@ -162,9 +162,9 @@ debit_journalier <- function(debit_barrage, type = c("recalcule","barrage_volume
             vol_siphon = sum(tot_vol_siphon, na.rm = TRUE),
             vol_ecluse = sum(tot_vol_ecluse, na.rm = TRUE)),
         by = "date") %>% 
-      inner_join(Qdj, by="date") %>% 
-      mutate(
-        volume_total_barQ = select(., dplyr::contains(c("vol_vanne_barQ", "vol_volet_barQ",  "vol_passe", "vol_siphon",
+      dplyr::inner_join(Qdj, by="date") %>% 
+      dplyr::mutate(
+        volume_total_barQ = dplyr::select(., dplyr::contains(c("vol_vanne_barQ", "vol_volet_barQ",  "vol_passe", "vol_siphon",
                                                         "vol_ecluse"))) %>% rowSums(na.rm =TRUE),
         debit_barQ = volume_total_barQ/ (24 * 60 * 60),
         debit_vanne_barQ = vol_vanne_barQ/ (24 * 60 * 60),

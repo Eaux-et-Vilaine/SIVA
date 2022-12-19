@@ -283,15 +283,20 @@ Les écoulements passe $V_p$ et siphon $V_s$, qui sont faible, ne sont
 pas recalculés et viennent directement de SIVA. Les Volumes écluse ne
 sont pas inclus dans la formule. 
 
-<!-- TODO voir avec Aldo.-->
+
 
 ```{r example-debit_total}
 param <- SIVA::param
 dat <- SIVA::dat2019
+# dat <- traitement_siva(dat) already run
 Q12345 <- debit_total(param, param0 = param, dat2019)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
-Q12345$volet_vanne <-
-  dat$tot_vol_vanne + dat$tot_vol_volet # volume total toutes les dix minutes sur volets et vannes
+Qj <- debit_journalier(debit_barrage=dat2019, type = "recalcule")
+Q2j <- debit_journalier(debit_barrage=dat2019, type = "barrage_volume")
+Q3j <- debit_journalier(debit_barrage=dat2019, type = "barrage_debit")
+
+
+
 mQ <-
   reshape2::melt(
     Q12345[, c("horodate",
@@ -325,33 +330,8 @@ g <-ggplot2::ggplot(mQ12345, ggplot2::aes(
 
 print(g)
 
-# Calcul du débit journalier
-Qj <-
-  as.data.frame(
-    dplyr::select(
-      Q12345,
-      Q,
-      date,
-      volvoletcalcule,
-      debit_moyen_cran,
-      tot_vol,
-      volet_vanne,
-      tot_vol_siphon,
-      tot_vol_passe
-    ) %>%
-      dplyr::group_by(date) %>%
-      dplyr::summarize(
-        volumevilainecalcule = sum(Q * 600, volvoletcalcule, tot_vol_passe, tot_vol_siphon, na.rm =TRUE),
-        tot_vol = sum(tot_vol, na.rm = TRUE),
-        volet_vanne = sum(volet_vanne),
-        debit_moyen_cran = mean(debit_moyen_cran)
-      ) %>%
-      dplyr::mutate(
-        debitvilainecalcule = volumevilainecalcule / (24 * 60 * 60),
-        tot_bar = tot_vol / (24 * 60 * 60),
-        tot_volvan_bar = volet_vanne / (24 * 60 * 60)
-      )
-  )
+
+  
 ```
 
 # Extraction des données à l'aide des fonctions SIVA : bilansiva-debit
@@ -404,7 +384,7 @@ Sys.setenv(TZ='GMT')
      con=pool)
  knitr::kable(dat)
  rawdata2020 <- dat
- save(rawdata2020, file="../inst/rawdata2020.Rdata")
+ save(rawdata2020, file="./inst/rawdata2020.Rdata")
  }
 ```
 
@@ -423,8 +403,8 @@ Le débit du barrage est stocké dans des totaliseurs, le traitement SIVA
 
 ```{r example-traitement_siva}
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
-load(system.file("rawdata2020.Rdata", package="SIVA"))
-plot(rawdata2020$tot_vol_vanne)
+
+plot(SIVA::rawdata2020$tot_vol_vanne)
 # les totaliseurs sont remis à plat
 cordata2020 <- traitement_siva(dat=rawdata2020)
 plot(cordata2020$tot_vol_vanne)

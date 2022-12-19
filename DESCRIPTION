@@ -14,13 +14,13 @@ Imports:
     lubridate,
     RMariaDB,
     pool,
-    RODBC
+    RODBC,
+    dplyr
 Suggests: 
     getPass,
     knitr,
     rmarkdown,
     testthat,
-    dplyr,
     ggplot2,
     reshape2
 VignetteBuilder: 

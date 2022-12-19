@@ -9,5 +9,5 @@
 ^LICENSE\.md$
 ^vignettes/articles$
 ^data-raw$
-^Scripts^$
+^Scripts$
 ^SQL$
