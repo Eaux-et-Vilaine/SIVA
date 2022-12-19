@@ -17,7 +17,6 @@
 #' @examples
 #' #TODO
 #' @importFrom RODBC odbcCloseAll
-#' @importFrom utils winProgressBar
 insert_into <- function(data,columns,tabledest,baseODBC,...) {
   insert_into_sub=function(){
     cat("ecriture dans la base\n")
