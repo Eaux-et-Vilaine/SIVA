@@ -74,7 +74,7 @@ usethis::use_data(variable, overwrite = TRUE)
 # niveaux ---------------------
 
 library(readxl)
-niveau <- read_excel("data-raw/variables.xlsx")
+niveau <- read_excel("data-raw/variables.xlsx", sheet="niveau")
 #Encoding(niveau$Libelle) <- "latin1"
 #niveau$Libelle <- iconv(
 #    niveau$Libelle, 
@@ -84,6 +84,12 @@ niveau <- read_excel("data-raw/variables.xlsx")
 colnames(niveau) <- tolower(colnames(niveau))
 usethis::use_data(niveau, overwrite = TRUE)
 
+
+# debit --------------------------------------
+library(readxl)
+debit <- read_excel("data-raw/variables.xlsx",sheet= "debit" )
+colnames(debit) <- tolower(colnames(debit))
+usethis::use_data(debit, overwrite = TRUE)
 
 # Isac
 

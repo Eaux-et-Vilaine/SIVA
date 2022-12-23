@@ -574,3 +574,24 @@ niveaux2 %>%
 
 
 ```
+
+```{r graphes plotlyQj}
+
+plotly_volume_jour (QV=QV)
+# (fig <- plot_ly(QV2, x = ~date, y = ~vol, type = 'bar', text = ~Q, color=~color,
+#         marker = list(text = ~Q,
+#                       color = ~color,
+#                       line = list(color = I("black"),
+#                                   width = 1.5))) %>%
+#   layout(yaxis = list(title = 'Volume million m3'), barmode = 'stack',legend = list(orientation = 'h', y = -0.3)))
+
+
+
+```
+```{r plotly_journalier_vanne_volet}
+#date <- "2018-01-01"
+
+plotly_journalier_vanne_volet(date = "2018-01-01", debit_traite=Q12345)
+
+```
+
