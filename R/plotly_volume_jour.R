@@ -1,7 +1,7 @@
 #' graphique des volumes journaliers
 #'
-#' @param QV Un dataset des volumes journaliers (voir vignette plot) 
-#'
+#' @param QV Un dataset des volumes journaliers (voir vignette plot).
+#' @param is_plotly Défaut TRUE, l'objet est transformé en graphique plotly.
 #' @return Un graphique plotly
 #' @importFrom tidyr pivot_longer
 #' @importFrom plotly ggplotly
@@ -16,9 +16,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' plotly_volume_jour(QV=QV)
+#' plotly_volume_jour(QV=QV, is_plotly=TRUE)
 #' }
-plotly_volume_jour <- function(QV){
+plotly_volume_jour <- function(QV,is_plotly=TRUE){
   bleu_EV <- "#00218f"
   turquoise_EV <- "#00C9C4"
   orange_EV <- "#ff7557"
@@ -81,6 +81,10 @@ plotly_volume_jour <- function(QV){
               "siphon"= bleu_clair_EV)) +
       ggplot2::geom_text(ggplot2::aes(x=date,y=vol,label=Qtxt),size=1.8,col="turquoise")+
       ggplot2::theme_light()
+  if (is_plotly){
   y <- plotly::ggplotly(g, source = "volume_jour")
   return(y)
+} else{
+  return(g)
+}
 }

@@ -2,8 +2,9 @@
 #'
 #' @param date La date selectionnée pour le graphique de la journée.
 #' @param debit_traite Un data frame avec les débits traités par`debit total`.
+#' @param is_plotly : défaut TRUE l'objet est transformé en graphique plotly.
 #'
-#' @return Un graphique ggplotly du débit journalier au barrage d'Arzal
+#' @return Un graphique ggplotly du débit journalier au barrage d'Arzal.
 #' @importFrom plotly ggplotly
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom ggplot2 ggplot
@@ -17,7 +18,7 @@
 #' \dontrun{
 #' plotly_journalier_vanne_volet(date = "2018-01-01", debit_traite=Q12345)
 #' }
-plotly_journalier_vanne_volet <- function(date, debit_traite){
+plotly_journalier_vanne_volet <- function(date, debit_traite, is_plotly=TRUE){
   if (is.character(date)) date <- as.Date(date)
   if (! date %in% debit_traite$date) stop(sprintf("Date %s n\'est pas dans la p\u00e9riode %s ", 
                                                   date,paste(range(debit_traite$date),collapse=" : ")))
@@ -41,6 +42,6 @@ plotly_journalier_vanne_volet <- function(date, debit_traite){
                                                             "vanne5", "volet5"))
   g <- ggplot2::ggplot(Qd) +  ggplot2::geom_tile(ggplot2::aes(x=fonctionnement,y=horodate,fill=Q)) + viridis::scale_fill_viridis() +
     ggplot2::theme_minimal()
-  return(plotly::ggplotly(g))
+  if (is_plotly)  return(plotly::ggplotly(g)) else return(g)
   
 }

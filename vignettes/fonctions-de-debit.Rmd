@@ -286,10 +286,9 @@ sont pas inclus dans la formule.
 
 
 ```{r example-debit_total}
-param <- SIVA::param
-dat <- SIVA::dat2019
+
 # dat <- traitement_siva(dat) already run
-Q12345 <- debit_total(param, param0 = param, dat2019)
+Q12345 <- debit_total(SIVA::param, param0 = SIVA::param, SIVA::dat2019)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
 Qj <- debit_journalier(debit_barrage=dat2019, type = "recalcule")
 Q2j <- debit_journalier(debit_barrage=dat2019, type = "barrage_volume")
