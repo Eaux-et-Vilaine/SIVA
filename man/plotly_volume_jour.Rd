@@ -4,10 +4,12 @@
 \alias{plotly_volume_jour}
 \title{graphique des volumes journaliers}
 \usage{
-plotly_volume_jour(QV)
+plotly_volume_jour(QV, is_plotly = TRUE)
 }
 \arguments{
-\item{QV}{Un dataset des volumes journaliers (voir vignette plot)}
+\item{QV}{Un dataset des volumes journaliers (voir vignette plot).}
+
+\item{is_plotly}{Défaut TRUE, l'objet est transformé en graphique plotly.}
 }
 \value{
 Un graphique plotly
@@ -17,6 +19,6 @@ graphique des volumes journaliers
 }
 \examples{
 \dontrun{
-plotly_volume_jour(QV=QV)
+plotly_volume_jour(QV=QV, is_plotly=TRUE)
 }
 }

@@ -34,7 +34,7 @@ devtools::install_github("https://github.com/Eaux-et-Vilaine/SIVA")
 Attention pour l'instant le statut de SIVA est private. Contacter Cédric pour
 les droits. 
 
-## Example
+## Exemple de calcul des débits
 
 Exemple d'utilisation de SIVA :
 
@@ -80,7 +80,8 @@ plotly_volume_jour(QV=QV, is_plotly=FALSE)
 
 ```
 
-##
+## Chargement des données depuis la base
+
 Pour le bon fonctionnement de SIVA, il faut avoir définit les variables,
 `mainpass`, `hostmysql`,`pwdmysql`,`umysql` dans Rprofile.site, soit les charger
 à partir d'un .yml.
@@ -172,6 +173,7 @@ if (interactive()){
 
 ```
 
+Pour plus d'exemples sur le chargement des données tapper
 
 
 

@@ -4,15 +4,17 @@
 \alias{plotly_journalier_vanne_volet}
 \title{Graphique du débit journalier vannes volets}
 \usage{
-plotly_journalier_vanne_volet(date, debit_traite)
+plotly_journalier_vanne_volet(date, debit_traite, is_plotly = TRUE)
 }
 \arguments{
 \item{date}{La date selectionnée pour le graphique de la journée.}
 
 \item{debit_traite}{Un data frame avec les débits traités par\verb{debit total}.}
+
+\item{is_plotly}{: défaut TRUE l'objet est transformé en graphique plotly.}
 }
 \value{
-Un graphique ggplotly du débit journalier au barrage d'Arzal
+Un graphique ggplotly du débit journalier au barrage d'Arzal.
 }
 \description{
 Graphique du débit journalier vannes volets
