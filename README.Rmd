@@ -173,9 +173,17 @@ if (interactive()){
 
 ```
 
-Pour plus d'exemples sur le chargement des données tapper
+Pour plus d'exemples sur le chargement des données télécharger
+https://github.com/Eaux-et-Vilaine/SIVA/raw/main/vignettes/articles/SIVA_plot.html
 
+```r
+vignette("fonctions-de-debit",package="SIVA")
+vignette("database-tools",package="SIVA")
+```
 
+## Pour aller plus loin
+
+https://github.com/Eaux-et-Vilaine/SIVAshiny
 
 ## Code de conduite
 

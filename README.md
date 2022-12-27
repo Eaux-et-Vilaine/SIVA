@@ -25,7 +25,7 @@ devtools::install_github("https://github.com/Eaux-et-Vilaine/SIVA")
 Attention pour l’instant le statut de SIVA est private. Contacter Cédric
 pour les droits.
 
-## Example
+## Exemple de calcul des débits
 
 Exemple d’utilisation de SIVA :
 
@@ -127,7 +127,7 @@ plotly_volume_jour(QV=QV, is_plotly=FALSE)
 
 <img src="man/figures/README-example-2.png" width="100%" />
 
-## 
+## Chargement des données depuis la base
 
 Pour le bon fonctionnement de SIVA, il faut avoir définit les variables,
 `mainpass`, `hostmysql`,`pwdmysql`,`umysql` dans Rprofile.site, soit les
@@ -184,47 +184,52 @@ if (interactive()){
                   strptime("2018-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")
               ),
               con=pool))
-# Table volet1(b_barrage_volet1_hauteur:2555), chargement de 1290 lignes 
-# Table volet2(b_barrage_volet2_hauteur:2556), chargement de 1290 lignes 
-# Table volet3(b_barrage_volet3_hauteur:2557), chargement de 1290 lignes 
-# Table volet4(b_barrage_volet4_hauteur:2558), chargement de 1290 lignes 
-# Table volet5(b_barrage_volet5_hauteur:2559), chargement de 1290 lignes 
-# Table vanne1(b_barrage_vanne1_hauteur:2509), chargement de 1290 lignes 
-# Table vanne2(b_barrage_vanne2_hauteur:2510), chargement de 1290 lignes 
-# Table vanne3(b_barrage_vanne3_hauteur:2511), chargement de 1290 lignes 
-# Table vanne4(b_barrage_vanne4_hauteur:2512), chargement de 1290 lignes 
-# Table vanne5(b_barrage_vanne5_hauteur:2513), chargement de 1290 lignes 
-# Table debit_vilaine_estime(b_barrage_debit:2515), chargement de 1290 lignes 
-# Table debit_passe(b_barrage_debit:2523), chargement de 1290 lignes 
-# Table debit_moyen_cran(b_pont_de_cran_debit:1900), chargement de 1290 lignes 
-# Table tot_vol_vanne(b_barrage_volume:2550), chargement de 1290 lignes 
-# Table tot_vol_passe(b_barrage_volume:2551), chargement de 1290 lignes 
-# Table tot_vol_siphon(b_barrage_volume:2552), chargement de 1290 lignes 
-# Table tot_vol_volet(b_barrage_volume:2553), chargement de 1290 lignes 
-# Table tot_vol_ecluse(b_barrage_volume:2554), chargement de 1290 lignes 
-# Table niveauvilaine(b_passeapoisson_niveauvilaine:2519), chargement de 1290 lignes 
-# Table niveaumer(b_passeapoisson_niveaumer:2520), chargement de 1290 lignes 
-# Table niveauvilaineb(b_barrage_niveau:2507), chargement de 1290 lignes 
-# Table niveaumerb(b_barrage_niveau:2508), chargement de 1290 lignes 
-# Table debit_siphon_1(b_siphon_debit:1528), chargement de 1290 lignes 
-# Table debit_siphon_2(b_siphon_debit:1565), chargement de 1290 lignes 
-# Table debit_vanne1(b_barrage_debit:2571), chargement de 1290 lignes 
-# Table debit_vanne2(b_barrage_debit:2572), chargement de 1290 lignes 
-# Table debit_vanne3(b_barrage_debit:2573), chargement de 1290 lignes 
-# Table debit_vanne4(b_barrage_debit:2574), chargement de 1290 lignes 
-# Table debit_vanne5(b_barrage_debit:2575), chargement de 1289 lignes 
-# Table debit_volet1(b_barrage_debit:2581), chargement de 1290 lignes 
-# Table debit_volet2(b_barrage_debit:2582), chargement de 1290 lignes 
-# Table debit_volet3(b_barrage_debit:2583), chargement de 1290 lignes 
-# Table debit_volet4(b_barrage_debit:2584), chargement de 1290 lignes 
-# Table debit_volet5(b_barrage_debit:2585), chargement de 1290 lignes 
-# fin des calculs 
-# utilisateur     système      écoulé 
-#        0.39        0.10       46.14 
+#> Table volet1(b_barrage_volet1_hauteur:2555), chargement de 1288 lignes 
+#> Table volet2(b_barrage_volet2_hauteur:2556), chargement de 1288 lignes 
+#> Table volet3(b_barrage_volet3_hauteur:2557), chargement de 1288 lignes 
+#> Table volet4(b_barrage_volet4_hauteur:2558), chargement de 1288 lignes 
+#> Table volet5(b_barrage_volet5_hauteur:2559), chargement de 1288 lignes 
+#> Table vanne1(b_barrage_vanne1_hauteur:2509), chargement de 1288 lignes 
+#> Table vanne2(b_barrage_vanne2_hauteur:2510), chargement de 1288 lignes 
+#> Table vanne3(b_barrage_vanne3_hauteur:2511), chargement de 1288 lignes 
+#> Table vanne4(b_barrage_vanne4_hauteur:2512), chargement de 1288 lignes 
+#> Table vanne5(b_barrage_vanne5_hauteur:2513), chargement de 1288 lignes 
+#> Table debit_vilaine_estime(b_barrage_debit:2515), chargement de 1288 lignes 
+#> Table debit_passe(b_barrage_debit:2523), chargement de 1288 lignes 
+#> Table debit_moyen_cran(b_pont_de_cran_debit:1900), chargement de 1288 lignes 
+#> Table tot_vol_barrage(b_barrage_volume:2550), chargement de 1288 lignes 
+#> Table tot_vol_passe(b_barrage_volume:2551), chargement de 1288 lignes 
+#> Table tot_vol_siphon(b_barrage_volume:2552), chargement de 1288 lignes 
+#> Table tot_vol_volet(b_barrage_volume:2553), chargement de 1288 lignes 
+#> Table tot_vol_ecluse(b_barrage_volume:2554), chargement de 1288 lignes 
+#> Table niveauvilaine(b_passeapoisson_niveauvilaine:2519), chargement de 1288 lignes 
+#> Table niveaumer(b_passeapoisson_niveaumer:2520), chargement de 1288 lignes 
+#> Table niveauvilaineb(b_barrage_niveau:2507), chargement de 1288 lignes 
+#> Table niveaumerb(b_barrage_niveau:2508), chargement de 1288 lignes 
+#> Table debit_siphon_1(b_siphon_debit:1528), chargement de 1288 lignes 
+#> Table debit_siphon_2(b_siphon_debit:1565), chargement de 1288 lignes 
+#> Table debit_vanne1(b_barrage_debit:2571), chargement de 1288 lignes 
+#> Table debit_vanne2(b_barrage_debit:2572), chargement de 1288 lignes 
+#> Table debit_vanne3(b_barrage_debit:2573), chargement de 1288 lignes 
+#> Table debit_vanne4(b_barrage_debit:2574), chargement de 1288 lignes 
+#> Table debit_vanne5(b_barrage_debit:2575), chargement de 1287 lignes 
+#>   3.41
 
 
 } # end if interactive
 ```
+
+Pour plus d’exemples sur le chargement des données télécharger
+<https://github.com/Eaux-et-Vilaine/SIVA/raw/main/vignettes/articles/SIVA_plot.html>
+
+``` r
+vignette("fonctions-de-debit",package="SIVA")
+vignette("database-tools",package="SIVA")
+```
+
+## Pour aller plus loin
+
+<https://github.com/Eaux-et-Vilaine/SIVAshiny>
 
 ## Code de conduite
 
