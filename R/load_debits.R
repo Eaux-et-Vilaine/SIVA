@@ -8,9 +8,8 @@
 #' @param fin La fin format POSIXct ou character "%Y-%m-%d %H:%M:%S
 #' @param tags les tags des données à charger
 #' @param con Une connexion pool
-#' @return Une liste, avec le tableau de données des débits chargés directement par loaddb, si
-#' certaines variables doivent être recalculées, les tableaux Q12345 (debit instantanné) et QV (journalier)
-#' attention QV ne comporte pas les volumes, Q12345 et QV sont nuls si il n'y a pas de variables sans recalcul.
+#' @return Ub tableau de données des débits chargés directement par loaddb, si
+#' certaines variables doivent être recalculées, et les variables debit_recalcule et debit_barQ.
 #' @export
 #'
 #' @examples
@@ -43,8 +42,11 @@ load_debits <- function(debut,
   else
     is_calcule_debit <- FALSE
   debit_sel_sscalc <- debit_sel[!is.na(debit_sel$tablehisto), ]
+  
   # chargement sans calcul ---------------------------------------
+
   if (nrow(debit_sel_sscalc) > 0) {
+    cat("Chargement depuis base\n")
     bil <- new(
       "bilansiva",
       tables = tolower(debit_sel_sscalc$tablehisto),
@@ -57,7 +59,6 @@ load_debits <- function(debut,
     # jeu de données sans calcul
     dat_sscalc <- loaddb(bil, plot = FALSE, con = con)@bilandata
     
-    
     attributes(dat_sscalc)$libelle <-
       c("horodate", debit_sel_sscalc$libelle)
     # convertit les litres/s en m3/s
@@ -68,23 +69,29 @@ load_debits <- function(debut,
   } else {
     dat_sscalc <- NULL
   }
+  
   # chargement avec calcul de débit ---------------------------------------
   
   if (is_calcule_debit) {
+    cat("Chargement des variables recalculées\n")
     debit_sel_calc <- debit[is.null(debit_sel$tablehisto), ]
+    # chargement en plus de 10 minutes avant
+    # debit_10_min va lancer debit_total qui enlève la première ligne
     debit_barrage <- load_debit_barrage (debut = debut,
                                          fin = fin,
                                          con = con)
-
-    Q10 <- debit_10_min(debit_barrage)    
+ 
+    Q10 <- debit_10_min(debit_barrage)   
+    attributes(Q10)$libelle <-
+      c("horodate", "Débit recalculé SIVA package")
   } else {
-    Q12345 <- NULL
     Q10 <- NULL
   }
-  # TODO merge output
-  return(list(
-    "dat_sscalc" = dat_sscalc,
-    "Q12345" = Q12345,
-    "Q10" = Q10
-  ))
+  
+  stopifnot(dat_sscalc$horodate[1]==Q10$horodate[1])
+  stopifnot(nrow(dat_sscalc)==nrow(Q10))
+  res <- dplyr::bind_cols(Q10, dat_sscalc %>% dplyr::select(-1))
+  return(
+    res
+  )
 }

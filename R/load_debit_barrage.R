@@ -32,7 +32,7 @@
 #'    con= con)
 #'    }
 load_debit_barrage <- function(debut, fin, con){
-  if (!is.POSIXct(debut)) debut <- as.POSIXct(strptime(debut, format = "%Y-%m-%d %H:%M:%S"))
+  if (!is.POSIXct(debut)) debut <- as.POSIXct(strptime(debut, format = "%Y-%m-%d %H:%M:%S"))-as.difftime(10,units = "mins")
   if (!is.POSIXct(fin)) fin <-as.POSIXct(strptime(fin, format = "%Y-%m-%d %H:%M:%S"))
   Sys.setenv(TZ='GMT')		
   bil<-new("bilansiva",

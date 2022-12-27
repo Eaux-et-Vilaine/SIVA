@@ -39,16 +39,17 @@ debit_10_min <- function(debit_barrage){
         tot_vol_ecluse
       ) %>%
       dplyr::mutate(
-        Q= Q *600) %>%
+        volvannescalcule= Q *600) %>%
       dplyr::mutate(
         vol_recalcule = 
-          rowSums(select(., Q , volvoletcalcule, tot_vol_passe, tot_vol_siphon,
+          rowSums(select(., volvannescalcule , volvoletcalcule, tot_vol_passe, tot_vol_siphon,
               tot_vol_ecluse), na.rm =TRUE)
       ) %>%
       dplyr::mutate(
         debit_recalcule = vol_recalcule/600
-      )
-    
+      ) %>%
+      select(horodate,debit_recalcule)
+   
     volets <- debit_barrage %>%
       dplyr::select(starts_with("debit_volet")) %>%
       dplyr::mutate(debit_volet_barQ = rowSums(., na.rm = TRUE),
@@ -68,16 +69,15 @@ debit_10_min <- function(debit_barrage){
         debit_barrage %>% 
           dplyr::select(c("tot_vol_passe","tot_vol_siphon","tot_vol_ecluse"))) %>%
       dplyr::mutate(
-        volume_total_barQ = dplyr::select(., dplyr::contains(c("vol_vanne_barQ", "vol_volet_barQ",  "vol_passe", "vol_siphon",
-                                                               "vol_ecluse"))) %>% rowSums(na.rm =TRUE),
-        debit_barQ = volume_total_barQ/ (600)
+        volume_total_barQ = dplyr::select(., dplyr::contains(c("volume_vanne_barQ", "volume_volet_barQ",  "tot_vol_passe", "tot_vol_siphon",
+                                                               "tot_vol_ecluse"))) %>% rowSums(na.rm =TRUE),
+        debit_barQ = volume_total_barQ/ 600
       ) %>% dplyr::select (debit_barQ)
-    
+  
     
     Q10 <-bind_cols(Q10_1,Q10_2) %>%
       dplyr::mutate(across(starts_with("debit"),  ~ round(.x,digits=3))) %>%
-      dplyr::arrange(horodate) %>%
-      dplyr::slice(-1)
+      dplyr::arrange(horodate)
     return(Q10)
   
 }
