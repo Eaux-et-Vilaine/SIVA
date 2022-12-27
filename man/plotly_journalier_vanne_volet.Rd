@@ -7,9 +7,9 @@
 plotly_journalier_vanne_volet(date, debit_traite)
 }
 \arguments{
-\item{date}{}
+\item{date}{La date selectionnée pour le graphique de la journée.}
 
-\item{debit_traite}{Un data frame avec les débits traités par\verb{debit total}}
+\item{debit_traite}{Un data frame avec les débits traités par\verb{debit total}.}
 }
 \value{
 Un graphique ggplotly du débit journalier au barrage d'Arzal
@@ -18,5 +18,7 @@ Un graphique ggplotly du débit journalier au barrage d'Arzal
 Graphique du débit journalier vannes volets
 }
 \examples{
+\dontrun{
 plotly_journalier_vanne_volet(date = "2018-01-01", debit_traite=Q12345)
+}
 }

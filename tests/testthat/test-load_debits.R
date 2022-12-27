@@ -42,7 +42,7 @@ test_that("load_debits fonctionne (variables sans recalcul)", {
       tags = c(2515, 1900, 3000, 3100),
       con = pool
     )
-  expect_length(res, 4)
+  expect_length(res, 5)
   expect_equal(nrow(res), 1293)
   poolClose(pool)
   
@@ -94,6 +94,6 @@ test_that("load_debits fonctionne (variables nécessitant un recalcul des débit
     )
   poolClose(pool)
   expect_length(res, 4)
-  expect_equal(nrow(res), 1293)
+  expect_equal(nrow(res), 1296)
  
 })

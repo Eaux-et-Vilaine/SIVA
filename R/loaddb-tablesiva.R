@@ -30,9 +30,9 @@ setMethod(
     if (!is.na(objet@tag)) {
       wheresiva <-
         stringr::str_c(
-          " WHERE horodate>'",
+          " WHERE horodate>='",
           objet@debut,
-          "' AND horodate<'",
+          "' AND horodate<='",
           objet@fin,
           "' AND tag=",
           objet@tag

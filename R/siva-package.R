@@ -12,4 +12,6 @@ utils::globalVariables(c("loess_gamma_bazin", "Q",".","debit_moyen_cran","debit_
                        "tot_vol_siphon","tot_vol_vanne","tot_vol_volet","vol_bar","vol_ecluse",
                        "vol_passe","vol_recalcule","vol_siphon","vol_vanne","vol_vanne_barQ","vol_volet",
                        "vol_volet_barQ","volume_total_barQ","volume_vanne_barQ","volume_volet_barQ",
-                       "volvoletcalcule"))
+                       "volvoletcalcule", "volvannescalcule","debit_recalcule", "debit_barQ", "fonctionnement", "Q",
+                       "debit_moyen_vol_passe","debit_moyen_vol_siphon","vol","Qtxt","debit_moyen_vol_ecluse"
+                       ))

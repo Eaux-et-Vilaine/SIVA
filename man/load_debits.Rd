@@ -16,14 +16,14 @@ load_debits(debut, fin, tags, con)
 \item{con}{Une connexion pool}
 }
 \value{
-Une liste, avec le tableau de données des débits chargés directement par loaddb, si
-certaines variables doivent être recalculées, les tableaux Q12345 (debit instantanné) et QV (journalier)
-attention QV ne comporte pas les volumes, Q12345 et QV sont nuls si il n'y a pas de variables sans recalcul.
+Ub tableau de données des débits chargés directement par loaddb, si
+certaines variables doivent être recalculées, et les variables debit_recalcule et debit_barQ.
 }
 \description{
 Il faut avoir configuré la connexion à la base, les données de debit peuvent être mise à jour
 dans debit voir variable.R. Si certains débits ne sont pas accessibles directement, il faut lancer
-les calculs de débits
+les calculs de débits. Le programme charge 10 minutes avant la date de début car il doit supprimer
+la première ligne ou il y a des NA générés par traitement_SIVA
 }
 \examples{
 \dontrun{

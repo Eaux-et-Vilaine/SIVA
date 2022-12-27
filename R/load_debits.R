@@ -2,7 +2,8 @@
 #'
 #' Il faut avoir configuré la connexion à la base, les données de debit peuvent être mise à jour
 #'  dans debit voir variable.R. Si certains débits ne sont pas accessibles directement, il faut lancer
-#' les calculs de débits
+#' les calculs de débits. Le programme charge 10 minutes avant la date de début car il doit supprimer
+#' la première ligne ou il y a des NA générés par traitement_SIVA
 #'
 #' @param debut La date de début format POSIXct ou character "%Y-%m-%d %H:%M:%S
 #' @param fin La fin format POSIXct ou character "%Y-%m-%d %H:%M:%S
@@ -25,7 +26,8 @@ load_debits <- function(debut,
                         tags,
                         con) {
   if (!is.POSIXct(debut))
-    debut <- as.POSIXct(strptime(debut, format = "%Y-%m-%d %H:%M:%S"))
+    debut <-
+      as.POSIXct(strptime(debut, format = "%Y-%m-%d %H:%M:%S"))
   if (!is.POSIXct(fin))
     fin <- as.POSIXct(strptime(fin, format = "%Y-%m-%d %H:%M:%S"))
   missing <- setdiff(tags, debit$tag)
@@ -35,13 +37,13 @@ load_debits <- function(debut,
       paste(missing, collapse = ", ")
     ))
   debit <- SIVA::debit
-  debit_sel <- debit[debit$tag %in% tags, ]
+  debit_sel <- debit[debit$tag %in% tags,]
   # si la variable n'est pas présente, il faut lancer le calcul des débits
   if (any(is.na(debit_sel$tablehisto)))
     is_calcule_debit <- TRUE
   else
     is_calcule_debit <- FALSE
-  debit_sel_sscalc <- debit_sel[!is.na(debit_sel$tablehisto), ]
+  debit_sel_sscalc <- debit_sel[!is.na(debit_sel$tablehisto),]
   
   # chargement sans calcul ---------------------------------------
 
@@ -53,7 +55,7 @@ load_debits <- function(debut,
       noms = debit_sel_sscalc$code,
       tags = as.integer(debit_sel_sscalc$tag),
       daterondes = rep("constant", nrow(debit_sel_sscalc)),
-      debut = debut,
+      debut = debut-as.difftime(10,units = "mins"),
       fin = fin
     )
     # jeu de données sans calcul
@@ -64,8 +66,10 @@ load_debits <- function(debut,
     # convertit les litres/s en m3/s
     if (any(debit_sel_sscalc$unite == "l/s")) {
       var <- debit_sel_sscalc[debit_sel_sscalc$unite == "l/s", "code"]
-      dat_sscalc <- dat_sscalc %>% mutate(accross(var, ~ .x * 1000))
+      dat_sscalc <-
+        dat_sscalc %>% dplyr::mutate(dplyr::across(var, ~ .x * 1000))
     }
+    
   } else {
     dat_sscalc <- NULL
   }
@@ -73,25 +77,31 @@ load_debits <- function(debut,
   # chargement avec calcul de débit ---------------------------------------
   
   if (is_calcule_debit) {
-    cat("Chargement des variables recalculées\n")
-    debit_sel_calc <- debit[is.null(debit_sel$tablehisto), ]
+    cat("Chargement des variables recalcul\u00e9es\n")
+    debit_sel_calc <- debit[is.null(debit_sel$tablehisto),]
     # chargement en plus de 10 minutes avant
     # debit_10_min va lancer debit_total qui enlève la première ligne
-    debit_barrage <- load_debit_barrage (debut = debut,
+    debit_barrage <- load_debit_barrage (debut = debut-as.difftime(10, units = "mins"),
                                          fin = fin,
                                          con = con)
- 
-    Q10 <- debit_10_min(debit_barrage)   
+    
+    Q10 <- debit_10_min(debit_barrage)
     attributes(Q10)$libelle <-
-      c("horodate", "Débit recalculé SIVA package")
+      c("horodate", "D\u00e9bit recalcul\u00e9 SIVA package")
   } else {
     Q10 <- NULL
   }
   
-  stopifnot(dat_sscalc$horodate[1]==Q10$horodate[1])
-  stopifnot(nrow(dat_sscalc)==nrow(Q10))
-  res <- dplyr::bind_cols(Q10, dat_sscalc %>% dplyr::select(-1))
-  return(
-    res
-  )
+  if (is.null(dat_sscalc) & (is.null(Q10))) {
+    res <- NULL
+  } else if (is.null(dat_sscalc)) {
+    res <- Q10
+  } else if (is.null(Q10))  {
+    res <- dat_sscalc
+  } else {
+    stopifnot(dat_sscalc$horodate[1] == Q10$horodate[1])
+    stopifnot(nrow(dat_sscalc) == nrow(Q10))
+    res <- dplyr::inner_join(Q10, dat_sscalc) %>% dplyr::slice(-1)
+  }
+  return(res)
 }

@@ -15,13 +15,16 @@ Imports:
     RMariaDB,
     pool,
     RODBC,
-    dplyr
+    dplyr,
+    plotly,
+    tidyr,
+    viridis,
+    ggplot2
 Suggests: 
     getPass,
     knitr,
     rmarkdown,
     testthat,
-    ggplot2,
     reshape2
 VignetteBuilder: 
     knitr

@@ -16,5 +16,7 @@ Un graphique plotly
 graphique des volumes journaliers
 }
 \examples{
+\dontrun{
 plotly_volume_jour(QV=QV)
+}
 }
