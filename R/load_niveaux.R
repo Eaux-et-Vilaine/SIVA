@@ -8,7 +8,7 @@
 #' @param con Une connexion pool
 #' @return Le tableau de données de niveaux
 #' @export
-#'
+#' @importFrom lubridate is.POSIXct
 #' @examples
 #' \dontrun{
 #' load_niveaux(debut = as.POSIXct(strptime("2010-01-01 00:00:00", 

@@ -30,7 +30,7 @@ et réinjectée à la place de tot_vol_siphon.
 \examples{
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 rawdata2020 <- SIVA::rawdata2020
-plot(SIVArawdata2020$tot_vol_vanne)
+plot(rawdata2020$tot_vol_vanne)
 # les totaliseurs sont remis à plat
 cordata2020 <- traitement_siva(dat=rawdata2020)
 plot(cordata2020$tot_vol_vanne)

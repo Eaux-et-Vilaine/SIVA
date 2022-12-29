@@ -21,7 +21,7 @@
 #' @examples
 #' # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 #' rawdata2020 <- SIVA::rawdata2020
-#' plot(SIVArawdata2020$tot_vol_vanne)
+#' plot(rawdata2020$tot_vol_vanne)
 #' # les totaliseurs sont remis à plat
 #' cordata2020 <- traitement_siva(dat=rawdata2020)
 #' plot(cordata2020$tot_vol_vanne)
@@ -58,7 +58,7 @@ traitement_siva <- function(dat) {
   ct_passe <- sum(test_passe)
   if (ct_passe >0) {
   dat[ct_passe, "debit_passe"] <- NA
-  warning(sprintf("Débit passe, %s valeurs au dessus de 5 m3/s) transform\u00e9es en NA",ct_passe))
+  warning(sprintf("D\u00e9bit passe, %s valeurs au dessus de 5 m3/s) transform\u00e9es en NA",ct_passe))
   }
   dat$tot_vol_passe <- dat$debit_passe*600
   

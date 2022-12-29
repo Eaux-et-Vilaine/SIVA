@@ -4,7 +4,7 @@
 setGeneric("sivaplot",def=function(objet,...) standardGeneric("sivaplot"))
 #' Methode sivaplot
 #' 
-#' La méthode sivaplot permet d'aller chercher les données après avoir installé le driver odbc et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace)
+#' La méthode sivaplot affiche les données corrigées et les données brutes (avec un décalage de date)
 #' @param objet, un objet de classe tablesiva
 #' @importFrom stringr str_c
 #' @return Un object de classe tablesiva

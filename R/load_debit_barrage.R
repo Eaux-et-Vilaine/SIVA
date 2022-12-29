@@ -23,6 +23,7 @@
 #' "debit_siphon_1","debit_siphon_2",
 #' "debit_vanne1","debit_vanne2","debit_vanne3","debit_vanne4","debit_vanne5",
 #' "debit_volet1","debit_volet2","debit_volet3","debit_volet4","debit_volet5"
+#' @importFrom lubridate is.POSIXct
 #' @export
 #'
 #' @examples

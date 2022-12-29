@@ -13,5 +13,5 @@
 Un object de classe tablesiva
 }
 \description{
-La méthode sivaplot permet d'aller chercher les données après avoir installé le driver odbc et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace)
+La méthode sivaplot affiche les données corrigées et les données brutes (avec un décalage de date)
 }

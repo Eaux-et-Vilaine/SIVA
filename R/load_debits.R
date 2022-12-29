@@ -12,6 +12,7 @@
 #' @return Ub tableau de données des débits chargés directement par loaddb, si
 #' certaines variables doivent être recalculées, et les variables debit_recalcule et debit_barQ.
 #' @export
+#' @importFrom lubridate is.POSIXct
 #'
 #' @examples
 #' \dontrun{

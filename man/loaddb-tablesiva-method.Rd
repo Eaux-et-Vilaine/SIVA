@@ -17,5 +17,5 @@
 Un object de classe tablesiva
 }
 \description{
-La méthode loaddb permet d'aller chercher les données après avoir installé le driver odbc et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace)
+La méthode loaddb permet d'aller chercher les données
 }
