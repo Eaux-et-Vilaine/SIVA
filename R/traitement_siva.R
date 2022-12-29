@@ -47,7 +47,7 @@ traitement_siva <- function(dat) {
     !is.na(dat$tot_vol_vanne)
   ct_vanne <- sum(test_vanne)
   if (ct_vanne >0) {
-    warning(sprintf("Volume vanne, %s valeurs au dessus de 480000 m3 par 10 min (800 m3/s), pas de traitement mais ça vaut le coup de regarder ",ct_vanne))
+    warning(sprintf("Volume vanne, %s valeurs au dessus de 480000 m3 par 10 min (800 m3/s), pas de traitement mais \u00e7a vaut le coup de regarder ",ct_vanne))
   }
   
   # passe ----------------------------------------
@@ -57,7 +57,7 @@ traitement_siva <- function(dat) {
   ct_passe <- sum(test_passe)
   if (ct_passe >0) {
   dat[ct_passe, "tot_vol_passe"] <- NA
-  warning(sprintf("Volume passe, %s valeurs au dessus de 1500 m3 par 10 min (2.5 m3/s) transformées en NA",ct_passe))
+  warning(sprintf("Volume passe, %s valeurs au dessus de 1500 m3 par 10 min (2.5 m3/s) transform\u00e9es en NA",ct_passe))
   }
   
   # volets ----------------------------------------
@@ -67,7 +67,7 @@ traitement_siva <- function(dat) {
   ct_volet <- sum(test_volet)
   if (ct_volet >0) {
     dat[ct_volet, "tot_vol_passe"] <- NA
-    warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min transformées en NA (133 m3/s)",ct_volet))
+    warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min transform\u00e9es en NA (133 m3/s)",ct_volet))
   }
   
   # Sipon ----------------------------------------
@@ -80,7 +80,7 @@ traitement_siva <- function(dat) {
   ct_siphon1 <- sum(test_siphon1)
   if (ct_siphon1 >0) {
     dat$debit_siphon_1[dat$debit_siphon_1 > 3.8] <- NA
-    warning(sprintf("Débit siphon1, %s valeurs au dessus de 3.8 m3/s transformées en NA ",ct_siphon1))
+    warning(sprintf("D\u00e9bit siphon1, %s valeurs au dessus de 3.8 m3/s transform\u00e9es en NA ",ct_siphon1))
   }
   
   test_siphon2 <- dat$debit_siphon_2 > 3.8 &
@@ -88,7 +88,7 @@ traitement_siva <- function(dat) {
   ct_siphon2 <- sum(test_siphon2)
   if (ct_siphon2 >0) {
     dat$debit_siphon_2[dat$debit_siphon_2 > 3.8] <- NA
-    warning(sprintf("Débit siphon2, %s valeurs au dessus de 3.8 m3/s transformées en NA ",ct_siphon2))
+    warning(sprintf("D\u00e9bit siphon2, %s valeurs au dessus de 3.8 m3/s transform\u00e9es en NA ",ct_siphon2))
   }
  
   dat$tot_vol_siphon <- rowSums(dat[,c("debit_siphon_1","debit_siphon_2")]*600,na.rm=TRUE)
