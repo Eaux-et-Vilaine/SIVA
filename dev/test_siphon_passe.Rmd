@@ -71,14 +71,18 @@ pool <- pool::dbPool(
   username = umysql.,
   password = pwdmysql.
 )
-res<-load_debit_barrage(debut = as.POSIXct(strptime("2020-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
-                        fin = as.POSIXct(strptime("2020-12-31 23:50:00", format = "%Y-%m-%d %H:%M:%S")),
+res<-load_debit_barrage(debut = as.POSIXct(strptime("2020-06-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
+                        fin = as.POSIXct(strptime("2020-08-31 23:50:00", format = "%Y-%m-%d %H:%M:%S")),
                         con= pool)
 
 plot(res$tot_vol_passe) # OK
 plot(res$tot_vol_siphon) # OK
 plot(res$tot_vol_vanne) # OK
 plot(res$tot_vol_volet) # OK
+
+# les volumes passe sont n'importe quoi je regarde à partir des débits
+
+plot(res$debit_passe)
 # Pas de pb
 
 res1 <- traitement_siva(res)
@@ -146,4 +150,8 @@ poolClose(pool)
 # 
 
 ```
+
+Les débits de la passe issus des volumes sont tout aussi pourris que les
+volumes des siphons.
+Je regarde si je peux repasser depuis les débits.
 

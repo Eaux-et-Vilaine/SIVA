@@ -18,15 +18,17 @@ Le tableau de données pour le calcul des debits du barrage
 hauteur :
 "volet1","volet2","volet3","volet4","volet5",
 "vanne1","vanne2","vanne3","vanne4","vanne5",
-debits :
+débits :
 "debit_vilaine_estime (b_barrage_debit(2515))",
 "debit_passe",
 "debit_moyen_cran",
 totaliseurs volumes :
-"tot_vol_vanne","tot_vol_passe","tot_vol_siphon","tot_vol_volet","tot_vol_ecluse",
+"tot_vol_vanne","tot_vol_volet","tot_vol_ecluse",
+les variables tot_vol_passe et tot_vol_siphon ne sont plus chargées
+car fausses. Elles seront recalculées par traitement_siva
 niveaux :
 "niveauvilaine"(passe),"niveaumer"(passe),"niveauvilaineb","niveaumerb",
-débits
+débits barrage :
 "debit_siphon_1","debit_siphon_2",
 "debit_vanne1","debit_vanne2","debit_vanne3","debit_vanne4","debit_vanne5",
 "debit_volet1","debit_volet2","debit_volet3","debit_volet4","debit_volet5"

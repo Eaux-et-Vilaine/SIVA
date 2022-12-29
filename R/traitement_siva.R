@@ -52,12 +52,14 @@ traitement_siva <- function(dat) {
   
   # passe ----------------------------------------
   
-  test_passe <- dat$tot_vol_passe > 1500 &
-    !is.na(dat$tot_vol_passe)
+  # les volumes sont pourris
+  test_passe <- dat$debit_passe > 5 &
+    !is.na(dat$debit_passe)
   ct_passe <- sum(test_passe)
   if (ct_passe >0) {
-  dat[ct_passe, "tot_vol_passe"] <- NA
-  warning(sprintf("Volume passe, %s valeurs au dessus de 1500 m3 par 10 min (2.5 m3/s) transform\u00e9es en NA",ct_passe))
+  dat[ct_passe, "debit_passe"] <- NA
+  warning(sprintf("Débit passe, %s valeurs au dessus de 5 m3/s) transform\u00e9es en NA",ct_passe))
+  dat$tot_vol_passe <- dat$debit_passe*600
   }
   
   # volets ----------------------------------------
@@ -92,6 +94,7 @@ traitement_siva <- function(dat) {
   }
  
   dat$tot_vol_siphon <- rowSums(dat[,c("debit_siphon_1","debit_siphon_2")]*600,na.rm=TRUE)
+
   dat$tot_vol = rowSums(dat[, totcol],na.rm = TRUE)
   return(dat)
 }
