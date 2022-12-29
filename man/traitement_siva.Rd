@@ -20,14 +20,17 @@ au barrage.
 recalcule des données des compteurs, enlève les valeurs abérrantes des débits
 des siphons. Les données doivent avoir 'tot_....' en entête, toutes, les colonnes
 contenant 'tot' font l'objet d'une différence entre les valeurs des lignes 2:n et les
-lignes 1:n-1, les données de la première ligne sont NA
+lignes 1:n-1, les données de la première ligne sont NA.
+Les volumes passe > 1500
 Pour les données des Siphons debit_siphon_1, et debit_siphon_2 les débits > 3.8
-sont ramenés à 3.8
+sont ramenés à 3.8. Les volumes du siphon sont des valeurs .... journalières,
+pour plus de cohérence elles sont recalculées à partir des débits des siphons,
+et réinjectée à la place de tot_vol_siphon.
 }
 \examples{
 # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
-load(system.file("rawdata2020.Rdata", package="SIVA"))
-plot(rawdata2020$tot_vol_vanne)
+rawdata2020 <- SIVA::rawdata2020
+plot(SIVArawdata2020$tot_vol_vanne)
 # les totaliseurs sont remis à plat
 cordata2020 <- traitement_siva(dat=rawdata2020)
 plot(cordata2020$tot_vol_vanne)

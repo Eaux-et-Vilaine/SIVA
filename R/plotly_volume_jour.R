@@ -38,7 +38,9 @@ plotly_volume_jour <- function(QV,is_plotly=TRUE){
           names_prefix = "vol_",
           values_to = "vol"
       ) %>%
-      dplyr::mutate(vol=dplyr::case_when(vol/10^6 < 0.01 ~ round(vol/10^6,3),
+      dplyr::mutate(vol=dplyr::case_when(
+              vol/10^6 < 10^-3 ~ round(vol/10^6,5),
+              vol/10^6 < 10^-1 ~ round(vol/10^6,3),
               vol/10^6 < 10 ~ round(vol/10^6,1),
               TRUE ~ round(vol/10^6)),
           source=gsub("_barQ","",.$source))
