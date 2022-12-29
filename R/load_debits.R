@@ -63,12 +63,7 @@ load_debits <- function(debut,
     
     attributes(dat_sscalc)$libelle <-
       c("horodate", debit_sel_sscalc$libelle)
-    # convertit les litres/s en m3/s
-    if (any(debit_sel_sscalc$unite == "l/s")) {
-      var <- debit_sel_sscalc[debit_sel_sscalc$unite == "l/s", "code"]
-      dat_sscalc <-
-        dat_sscalc %>% dplyr::mutate(dplyr::across(var, ~ .x * 1000))
-    }
+
     
   } else {
     dat_sscalc <- NULL
