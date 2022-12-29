@@ -36,7 +36,7 @@ test_that("load_debit_barrage works", {
                 load_debit_barrage (
                   debut = as.POSIXct(strptime("2017-01-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
                   fin = as.POSIXct(strptime("2017-01-10 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
-                  con = con
+                  con = pool
                 ))# 23 s maison
   expect_is(debit_barrage, "data.frame")
   poolClose(pool)

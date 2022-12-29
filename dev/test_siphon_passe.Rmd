@@ -1,0 +1,157 @@
+---
+title: "test pb passe et siphon"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+Cette vignette répond à https://github.com/Eaux-et-Vilaine/SIVA/issues/10
+Les volumes écluse et siphon sont faux, mais aussi les volumes des vannes,
+il s'agit de savoir si c'est une erreur en base ou dans les traitements.
+
+```{r}
+library(SIVA)
+if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+if (!exists("hostmysql")) {
+  hostmysql. <- getPass::getPass(msg = "Saisir host")
+  # ci dessous pour ne pas redemander au prochain tour
+  hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+} else {
+  hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+}
+if (!exists("pwdmysql")) {
+  pwdmysql. <- getPass::getPass(msg = "Saisir password")
+  pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+}  else {
+  # pass should be loaded
+  pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+}
+if (!exists("umysql")) {
+  umysql. <- getPass::getPass(msg = "Saisir user")
+  umysql <- encrypt_string(string = umysql., key = mainpass)
+} else {
+  umysql. <- decrypt_string(string = umysql, key = mainpass)
+}
+pool <- pool::dbPool(
+  drv = RMariaDB::MariaDB(),
+  dbname = "archive_IAV",
+  host = hostmysql.,
+  username = umysql.,
+  password = pwdmysql.
+)
+# il n'y a pas de problème sur les valeurs de base....
+bil <-
+  new(
+    "bilansiva",
+    debut = as.POSIXct(as.Date("2019-01-01")),
+    fin =  as.POSIXct(as.Date("2022-12-31")),
+    tables = rep("b_barrage_volume",2),
+    tags =  as.integer(c(2551,2552)),
+    noms = c("tot_vol_passe", "tot_vol_siphon"),
+    daterondes=rep("constant",2)
+  )
+res <- loaddb(bil, con = pool)
+poolClose(pool)
+```
+```{r}
+
+rawdata2020 <- SIVA::rawdata2020
+plot(rawdata2020$tot_vol_siphon)
+plot(rawdata2020$tot_vol_passe)
+# le problème vient de là. Mais pourquoi est ce que les données de rawdata2020 sont
+# applaties ? 
+
+# test avec load_debit_barrage
+
+pool <- pool::dbPool(
+  drv = RMariaDB::MariaDB(),
+  dbname = "archive_IAV",
+  host = hostmysql.,
+  username = umysql.,
+  password = pwdmysql.
+)
+res<-load_debit_barrage(debut = as.POSIXct(strptime("2020-06-01 00:00:00", format = "%Y-%m-%d %H:%M:%S")),
+                        fin = as.POSIXct(strptime("2020-08-31 23:50:00", format = "%Y-%m-%d %H:%M:%S")),
+                        con= pool)
+
+plot(res$tot_vol_passe) # OK
+plot(res$tot_vol_siphon) # OK
+plot(res$tot_vol_vanne) # OK
+plot(res$tot_vol_volet) # OK
+
+# les volumes passe sont n'importe quoi je regarde à partir des débits
+
+plot(res$debit_passe)
+# Pas de pb
+
+res1 <- traitement_siva(res)
+
+plot(res1$tot_vol_passe)
+plot(res1$tot_vol_siphon)
+plot(res1$tot_vol_vanne)
+plot(res1$tot_vol_volet)
+
+# ci dessous le traitement dans traitement SIVA...
+dat <- res
+totcol <- grep("tot", colnames(dat))
+volumes <- dat[, totcol]
+volumes[2:nrow(volumes), ] <-
+  volumes[2:nrow(volumes), ] - volumes[1:(nrow(volumes) - 1), ]
+volumes <- volumes[-1, ]
+volumes[volumes < 0] <- NA
+dat[2:nrow(dat), totcol] <- volumes
+dat[1, totcol] <- NA
+
+plot(dat$tot_vol_vanne)
+plot(dat$tot_vol_vanne, ylim=c(0, 1e6)) #=> il y a des problèmes je suggère pas de lim
+plot(dat$tot_vol_volet)
+plot(dat$tot_vol_passe)
+plot(dat$tot_vol_siphon) 
+# clairement il y a une erreur
+# Il y clairement des valeurs en dessus de 10^5 et ça explique aussi pourquoi
+# les données venant du volume des vannes sont fausses, au moins dans mes calculs.
+
+
+
+plot(dat$tot_vol_passe/600) # 1 à deux m3/s
+plot(dat$tot_vol_siphon  / 600)
+plot(dat$tot_vol_siphon[14000:15000]  / 600)
+# le problème c'est que c'est des volumes journaliers....
+
+plot(dat$tot_vol_ecluse[30000:35000])
+# c'est très probablement des volumes à chaque sas
+
+
+plot(dat$debit_siphon_1) # c'est des m3/s
+plot(dat$debit_siphon_2)
+
+dat$tot_vol_siphon <- rowSums(dat[,c("debit_siphon_1","debit_siphon_2")]*600,na.rm=TRUE)
+plot(dat$tot_vol_siphon) #OK
+
+# ré-écriture des volumes... Il va falloir trouver qqc
+# proposition de nouvelles valeurs limites
+# dat[dat$tot_vol_vanne > 1e5 &
+#       !is.na(dat$tot_vol_vanne), "tot_vol_vanne"] <- NA
+dat[dat$tot_vol_passe > 1500 &
+      !is.na(dat$tot_vol_passe), "tot_vol_passe"] <- NA
+
+dat[dat$tot_vol_siphon > 5e5 &
+      !is.na(dat$tot_vol_siphon), "tot_vol_siphon"] <- NA
+dat[dat$tot_vol_volet > 80000 &
+      !is.na(dat$tot_vol_volet), "tot_vol_volet"] <- NA
+# les volumes du siphon sont aggrégés, le test ci dessous doit être viré.
+# dat$tot_vol_siphon[(dat$tot_vol_siphon / 600*1000) > 2 * 3.8 &
+#                      !is.na(dat$tot_vol_siphon)] <- NA
+
+poolClose(pool)
+
+
+# 
+
+```
+
+Les débits de la passe issus des volumes sont tout aussi pourris que les
+volumes des siphons.
+Je regarde si je peux repasser depuis les débits.
+

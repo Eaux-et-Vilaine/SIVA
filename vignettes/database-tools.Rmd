@@ -23,8 +23,9 @@ library(SIVA)
 # tablesiva
 
 La classe tablesiva contient toutes les données pour identifier la table, 
-aller la chercher à l'aide de la méthode RequeteODBCwhere du package
-stacomirtools.  Elle possède aussi les méthodes décrites ci-dessous.
+aller la chercher à l'aide des outils DBI et pool qui permet de laisser la
+connexion ouverte et gère les connexions. Elle possède aussi les méthodes
+décrites ci-dessous.
 
 
 ```{r example-tablesiva}

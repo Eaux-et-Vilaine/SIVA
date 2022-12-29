@@ -1,5 +1,4 @@
 #' @import methods
-#' @import stacomirtools
 #' @keywords internal
 "_PACKAGE"
 

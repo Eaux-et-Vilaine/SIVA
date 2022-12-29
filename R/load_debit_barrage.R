@@ -9,18 +9,21 @@
 #' hauteur :
 #'    "volet1","volet2","volet3","volet4","volet5",
 #'          "vanne1","vanne2","vanne3","vanne4","vanne5",
-#' debits :
+#' débits :
 #'         "debit_vilaine_estime (b_barrage_debit(2515))",
 #'         "debit_passe",
 #'         "debit_moyen_cran",
 #' totaliseurs volumes :
-#'         "tot_vol_vanne","tot_vol_passe","tot_vol_siphon","tot_vol_volet","tot_vol_ecluse",
+#'         "tot_vol_vanne","tot_vol_volet","tot_vol_ecluse", 
+#'         les variables tot_vol_passe et tot_vol_siphon ne sont plus chargées
+#'         car fausses. Elles seront recalculées par traitement_siva
 #' niveaux :                   
 #' "niveauvilaine"(passe),"niveaumer"(passe),"niveauvilaineb","niveaumerb",
-#' débits
+#' débits barrage :
 #' "debit_siphon_1","debit_siphon_2",
 #' "debit_vanne1","debit_vanne2","debit_vanne3","debit_vanne4","debit_vanne5",
 #' "debit_volet1","debit_volet2","debit_volet3","debit_volet4","debit_volet5"
+#' @importFrom lubridate is.POSIXct
 #' @export
 #'
 #' @examples
@@ -49,7 +52,7 @@ load_debit_barrage <- function(debut, fin, con){
                     "b_barrage_debit", # Débit Vilaine estimé
                     "b_barrage_debit", #débit passe
                     "b_pont_de_cran_debit",
-                    rep("b_barrage_volume",5),
+                    rep("b_barrage_volume",3),
                     "b_passeapoisson_niveauvilaine",
                     "b_passeapoisson_niveaumer",
                     rep("b_barrage_niveau",2),
@@ -69,9 +72,9 @@ load_debit_barrage <- function(debut, fin, con){
                   "debit_vilaine_estime",
                   "debit_passe",
                   "debit_moyen_cran",
-                  "tot_vol_vanne",
-                  "tot_vol_passe",
-                  "tot_vol_siphon",
+                  "tot_vol_vanne", 
+                  #"tot_vol_passe", pas bon
+                  #"tot_vol_siphon", pas bon
                   "tot_vol_volet",
                   "tot_vol_ecluse",
                   "niveauvilaine",
@@ -95,7 +98,7 @@ load_debit_barrage <- function(debut, fin, con){
                                2509:2513,
                                 2515,2523,
                                1900, # pont de cran
-                               2550:2554, # tot_vol
+                               2550,2553,2554, # tot_vol (2551 passe et 2552 siphon plus chargés)
                                2519,2520,2507,2508, # niveaux barrage
                                1528, #siphon debit
                                1565,  #siphon debit 2
@@ -111,7 +114,7 @@ load_debit_barrage <- function(debut, fin, con){
                                2585
                                
                   ))),
-           daterondes=c(rep("constant",10),rep("linear",24)),
+           daterondes=c(rep("constant",10),rep("linear",22)),
            debut=debut,
            fin=fin
            )

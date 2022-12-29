@@ -1,3 +1,16 @@
-# SIVA 0.0.0.9000
 
-* Added a `NEWS.md` file to track changes to the package.
+
+# SIVA 0.1.0.1 
+
+* fix problems with siphon and passe.
+* remove depencies RODBC stacomirtools
+* fix problem with volume vanne
+
+# SIVA 0.1.0.0 First release tag 0.1.0
+
+* connexions
+* debit functions
+* plot function
+* first shiny ok in SIVAshiny
+
+

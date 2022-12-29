@@ -41,12 +41,7 @@ load_library=function(necessary) {
     library(necessary[i], character.only = TRUE)
 }
 load_library('stringr') # text handling
-load_library('RODBC')
-load_library('stacomirtools') # fonctions de requetage odbc 
 load_library('lubridate')
-#install.packages('RMySQL',type='source')
-#library(RMySQL)
-#load_library('RPostgreSQL') # one can use RODBC, here I'm using direct connection load_library('ggplot2')# join fuction
 load_library('reshape2')
 load_library('tidyverse')	
 

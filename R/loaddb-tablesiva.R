@@ -5,7 +5,7 @@ setGeneric("loaddb",def=function(objet,...) standardGeneric("loaddb"))
 
 #' Methode loaddb
 #' 
-#' La méthode loaddb permet d'aller chercher les données après avoir installé le driver odbc et avoir appellé la bonne chaine de connection (il doit y avoir une variable nommée sivacon dans le workspace)
+#' La méthode loaddb permet d'aller chercher les données 
 #' @param objet, un objet de classe tablesiva
 #' @param con, une connexion pool
 #' @param checktag, faut il faire un check de l'existence d'un tag dans la table ?
