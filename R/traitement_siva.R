@@ -59,8 +59,8 @@ traitement_siva <- function(dat) {
   if (ct_passe >0) {
   dat[ct_passe, "debit_passe"] <- NA
   warning(sprintf("Débit passe, %s valeurs au dessus de 5 m3/s) transform\u00e9es en NA",ct_passe))
-  dat$tot_vol_passe <- dat$debit_passe*600
   }
+  dat$tot_vol_passe <- dat$debit_passe*600
   
   # volets ----------------------------------------
   
@@ -68,7 +68,7 @@ traitement_siva <- function(dat) {
     !is.na(dat$tot_vol_volet)
   ct_volet <- sum(test_volet)
   if (ct_volet >0) {
-    dat[ct_volet, "tot_vol_passe"] <- NA
+    dat[ct_volet, "tot_vol_volet"] <- NA
     warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min transform\u00e9es en NA (133 m3/s)",ct_volet))
   }
   
