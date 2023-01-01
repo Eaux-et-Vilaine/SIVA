@@ -1,0 +1,303 @@
+---
+title: "SIVApasse"
+output:
+  html_document:
+    keep_md: yes
+    code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+params: 
+  debut: !r Sys.Date()-30
+  fin: !r Sys.Date()
+  work_with_db: TRUE
+---
+
+
+Ce document prends comme paramètre la date du jour et la date du jour - 30 
+C'est une version de démo des fonctionnalités du package, et une exploration
+du code possible avant de faire le shiny
+
+
+
+```{r init, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+list=ls(all=TRUE)
+library(safer)
+library(getPass)
+if (!exists("mainpass")) mainpass <- getPass(msg="Main password")
+list<-list[-match(c("passworddistant","passwordlocal","umysql","pwdmysql"),list)  ]
+rm(list) # nettoyage complet
+debut<-as.character(params$debut)
+fin<-as.character(params$fin)
+load_library=function(necessary) {
+  if(!all(necessary %in% installed.packages()[, 'Package']))
+    install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+  for(i in 1:length(necessary))
+    library(necessary[i], character.only = TRUE)
+}
+load_library('stringr') # text handling
+load_library('lubridate')
+load_library('reshape2')
+load_library('tidyverse')	
+devtools::load_all(".")
+
+#'==========================================================
+#' Définition du nom des couleurs
+#'==========================================================
+
+bleu_EV <- "#00218f"
+turquoise_EV <- "#00C9C4"
+orange_EV <- "#ff7557"
+jaune_EV <- "#ffb428"
+bleu_EVf <- "#001350"
+jaune_EVf <- "#AD7000"
+orange_EVf <- "#b2513c"
+bleu_clair_EV <- "#33b5ff"
+turquoise_EVf <- "#007873"
+
+library(SIVA)
+
+
+```
+
+Les données seront chargées de `r debut` à `r fin`
+
+# chargement des données
+
+```{r loadpasse}
+
+if (params$work_with_db){
+  if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+  if (!exists("hostmysql")) {
+    hostmysql. <- getPass::getPass(msg = "Saisir host")
+    # ci dessous pour ne pas redemander au prochain tour
+    hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+  } else {
+    hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+  }
+  if (!exists("pwdmysql")) {
+    pwdmysql. <- getPass::getPass(msg = "Saisir password")
+    pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+  }  else {
+    # pass should be loaded
+    pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+  }
+  if (!exists("umysql")) {
+    umysql. <- getPass::getPass(msg = "Saisir user")
+    umysql <- encrypt_string(string = umysql., key = mainpass)
+  } else {
+    umysql. <- decrypt_string(string = umysql, key = mainpass)
+  }
+  # attention il faut avaoir définit mainpass <- "xxxxx"
+  
+  pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = hostmysql.,
+    username = umysql.,
+    password = pwdmysql.,
+    port=3306
+  )
+  
+  
+  system.time(passe <-
+                load_passe (debut = as.POSIXct(
+                  strptime(debut, format = "%Y-%m-%d")
+                ),
+                fin = as.POSIXct(
+                  strptime(fin, format = "%Y-%m-%d")
+                ),
+                con=pool))# 37-70 s maison # 10.5 EPTB
+} # end if params$work_with_db
+
+
+
+pool:poolClose(pool)
+save(passe, file=str_c("C:/temp/passe.Rdata"))
+```
+
+# Traitement des données
+
+Ci dessous calcul du fonctionnement de la passe
+
+
+```{r calcul_fonctionnement_passe}
+# chargement des paramètres du barrage
+if (!params$work_with_db){
+  load(file=str_c("C:/temp/passe.Rdata"))
+}
+
+
+# problèmes de codeur sur vanne aval ou le sas (pas possibel d'avoir 2.8 m de charge sur vanne aval)
+
+ll <- calcul_fonct_pass(dat = passe)
+data_DF <- ll$dat
+# SIVA 2023 (I deleted the vvv parm)
+vvv <- list()
+vvv$coeff_noyage_sup_0.9 <- ll$coeff_noyage_sup_0.9
+
+plot(data_DF$horodate,
+		data_DF$niveau_mer_passe,
+		type="n", 
+		col=turquoise_EV,
+		cex=0.2,
+		ylab="Niveau NGF (m)",
+		xlab="mois")
+points(data_DF$horodate,
+		data_DF$hauteur_vanne_mer,pch=18,
+		col=jaune_EV,
+		cex=0.5) 
+points(data_DF$horodate,
+		data_DF$niveau_mer_passe,
+		col=turquoise_EV,
+		cex=0.2) 
+points(data_DF$horodate,
+		data_DF$niveau_sas_passe,
+		col=orange_EV,
+		cex=0.1)
+points(data_DF$horodate,
+		data_DF$niveau_vilaine_barrage,
+		type="l",
+		col=orange_EVf) 
+legend("bottomleft",		
+		legend=c("niveau mer","niveau sas","niveau Vilaine","niveau vanne mer"),
+		col=c(turquoise_EV,orange_EV,orange_EVf,jaune_EV),
+		pch=16)
+
+save(ll, file=str_c("C:/temp/ll.Rdata"))
+
+
+```
+
+```{r calcul_debit_passe}
+
+#	liste ll avec dat, le dataframe des données corrigées, et t_periodefonctionnementdispositif_dis,
+#   le fichier des périodes de fonctionnement
+load(file=str_c("C:/temp/ll.Rdata"))	# ll
+
+ll <- calcul_debit_passe(ll)
+data_DF <- ll$dat
+# 2021 pb de codeur pour la vanne aval
+
+
+
+plot_passe_detail(data_DF, debut="01/12/2022")
+
+
+plot_passe_detail(data_DF=data_DF, debut="05-12-2022", fin="10-12-2022")
+
+
+
+# Graph des temps de fonctionnement ----------------------
+
+
+annee <- strftime(as.POSIXlt(data_DF$horodate[1]),"%Y")
+data_DF$tpsnum <- as.vector(unclass(data_DF$horodate))
+data_DF$mois <- strftime(as.POSIXlt(data_DF$horodate),"%m")
+data_DF$jour <- strftime(as.POSIXlt(data_DF$horodate), "%j") 
+ledebut <- min(data_DF$horodate,na.rm=TRUE)
+lafin <- max(data_DF$horodate,na.rm=TRUE)
+
+lm1 <- lm(data_DF$debit_passe_recalcule~data_DF$delta_sas_vanne)
+resdeb <- lm1$residuals
+index <- !(is.na(data_DF$debit_passe_recalcule)|is.na(data_DF$delta_sas_vanne) )
+data_DF$resdeb <- NA
+data_DF$resdeb[index] <- resdeb 
+
+plot(data_DF$horodate,
+		data_DF$debit_passe_recalcule,
+		xlab="mois",
+		ylab="m3 par seconde",
+		type="p",
+		pch="*",
+		#main=paste(
+		#		iconv("Débit instantané de la passe à bassins recalculé en","UTF-8"),annee),
+		cex=3/4)
+
+
+
+
+plot(data_DF$horodate,
+		data_DF$debit_passe,
+		xlab="mois",
+		ylab="m3 par seconde",
+		type="p",
+		pch="*",
+		cex=3/4)
+
+
+
+plot_debit_passe(ll)
+
+
+
+#Calcul du debit instantane journalier --------------------------------
+# 1 debit m3/s toutes les dix minutes * 600s (60*10) =debit en m3
+
+
+#jour de l'annee
+debit_jour_recalcul <-
+  tapply(data_DF$debit_passe_recalcule * 600,
+         list(as.factor(data_DF$jour)),
+         sum,
+         na.rm = TRUE)
+debit_jour_automate <-
+  tapply(data_DF$debit_passe * 600, list(as.factor(data_DF$jour)), sum, na.rm = TRUE)
+debit_mois_recalcul <-
+  tapply(data_DF$debit_passe_recalcule * 600,
+         list(as.factor(data_DF$mois)),
+         sum,
+         na.rm = TRUE)
+
+barplot(debit_mois_recalcul)
+barplot(debit_jour_recalcul)
+
+#seqdate=strftime(as.POSIXlt(seq(from=ledebut,to=lafin,by="day")),"%d-%m")
+seqdate <- seq(from = ledebut, to = lafin, by = "day")
+#seqdate=seqdate[1:366]
+table_jour  <- data.frame("seqdate" = seqdate)
+index_jour_recalcul <- match(strftime(as.POSIXlt(seqdate), "%j"), rownames(debit_jour_recalcul))
+index_jour_automate <- match(rownames(debit_jour_automate), strftime(as.POSIXlt(seqdate), "%j"))
+table_jour$debit_jour_recalcul[index_jour_recalcul] <-
+  debit_jour_recalcul
+table_jour$debit_jour_automate[index_jour_automate] <-
+  debit_jour_automate
+# "graphique de synthese des deux debits sur l'annee
+
+plot(table_jour$seqdate,table_jour$debit_jour_automate,
+		type="o",
+		lty=1,
+		col=c(turquoise_EVf),
+		pch=1,
+		ylab="débit journaliers (m3)",
+		xlab="date",
+		ylim=c(min(cbind(table_jour$debit_jour_recalcul,table_jour$debit_jour_automate)),
+				max(cbind(table_jour$debit_jour_recalcul,table_jour$debit_jour_automate))),
+		main=paste("Débits de la passe en ", annee))
+points(table_jour$seqdate,table_jour$debit_jour_recalcul,
+		lty=1,
+		type="o",
+		pch=1,
+		col=c(bleu_EV))
+legend(x=seqdate[100],
+		y=max(cbind(table_jour$debit_jour_recalcul,table_jour$debit_jour_automate)),
+		legend= c("débit automate","débit recalcule","débit mini. biol.",
+						"battardage"),
+		lty=1,
+		col=c(turquoise_EVf,bleu_EV,"red",orange_EV),
+		cex = 1,
+		lwd = 0.9)
+abline(h=28000,col="red")
+abline(h=145000,col=orange_EV)
+abline(h=0,col="black")
+
+
+
+```
+
+

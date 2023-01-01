@@ -1,6 +1,6 @@
 Package: SIVA
 Title: Systeme D'information Sur La Vilaine Aval
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Cédric", "Briand", , "cedric.briand@eaux-et-vilaine.bzh", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7721-5195")),
@@ -67,4 +67,9 @@ Collate:
     'debit_10_min.R'
     'plotly_journalier_vanne_volet.R'
     'plotly_volume_jour.R'
+    'calcul_fonct_passe.R'
+    'calcul_debit_passe.R'
+    'load_passe.R'
+    'plot_passe_detail.R'
+    'plot_debit_passe.R'
 LazyData: true
