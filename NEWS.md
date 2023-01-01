@@ -1,12 +1,14 @@
+# SIVA 0.1.2
 
+* add passe 
 
-# SIVA 0.1.0.1 
+# SIVA 0.1.1 
 
 * fix problems with siphon and passe.
 * remove depencies RODBC stacomirtools
 * fix problem with volume vanne
 
-# SIVA 0.1.0.0 First release tag 0.1.0
+# SIVA 0.1.0 First release tag 0.1.0
 
 * connexions
 * debit functions
