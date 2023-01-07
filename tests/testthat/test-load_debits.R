@@ -92,8 +92,8 @@ test_that("load_debits fonctionne (variables nécessitant un recalcul des débit
       tags = c(2515, 40001,40002),
       con = pool
     )
-  poolClose(pool)
+  pool::poolClose(pool)
   expect_length(res, 4)
-  expect_equal(nrow(res), 1296)
+  expect_equal(nrow(res), 1294)
  
 })

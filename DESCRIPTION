@@ -1,6 +1,6 @@
 Package: SIVA
 Title: Systeme D'information Sur La Vilaine Aval
-Version: 0.1.2.9000
+Version: 0.1.3
 Authors@R: c(
     person("Cédric", "Briand", , "cedric.briand@eaux-et-vilaine.bzh", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7721-5195")),

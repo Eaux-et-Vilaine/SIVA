@@ -4,7 +4,7 @@
 
 #' Débit du barrage.
 #' 
-#' Attention la valeur du jour 1 est enlevée à cause des totaliseurs.
+#' Attention la valeur du jour 1 est NA à cause des totaliseurs.
 #'
 #' @param debit_barrage Le jeu de données issu du chargement `load_debit_barrage`.
 #'
