@@ -18,5 +18,5 @@ debit_recalculé Le débit recalculé y compris à partir des volumes écluse,
 passe, siphon
 }
 \description{
-Attention la valeur du jour 1 est enlevée à cause des totaliseurs.
+Attention la valeur du jour 1 est NA à cause des totaliseurs.
 }
