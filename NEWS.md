@@ -1,3 +1,8 @@
+# SIVA 0.1.3
+
+* fixed https://github.com/Eaux-et-Vilaine/SIVA/issues/13 problem with debit
+
+
 # SIVA 0.1.2
 
 * add passe 

@@ -56,7 +56,7 @@ load_debits <- function(debut,
       noms = debit_sel_sscalc$code,
       tags = as.integer(debit_sel_sscalc$tag),
       daterondes = rep("constant", nrow(debit_sel_sscalc)),
-      debut = debut-as.difftime(10,units = "mins"),
+      debut = debut, #-as.difftime(10,units = "mins")
       fin = fin
     )
     # jeu de données sans calcul
@@ -76,11 +76,11 @@ load_debits <- function(debut,
     cat("Chargement des variables recalcul\u00e9es\n")
     debit_sel_calc <- debit[is.null(debit_sel$tablehisto),]
     # chargement en plus de 10 minutes avant
-    # debit_10_min va lancer debit_total qui enlève la première ligne
-    debit_barrage <- load_debit_barrage (debut = debut-as.difftime(10, units = "mins"),
+    # debit_10_min va lancer debit_total qui enlève la première ligne -as.difftime(10, units = "mins")
+    debit_barrage <- load_debit_barrage (debut = debut,
                                          fin = fin,
                                          con = con)
-    
+
     Q10 <- debit_10_min(debit_barrage)
     attributes(Q10)$libelle <-
       c("horodate", "D\u00e9bit recalcul\u00e9 SIVA package")
