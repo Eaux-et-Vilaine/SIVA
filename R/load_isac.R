@@ -25,6 +25,7 @@ load_isac <- function(debut,
     fin,
     tags,
     con) {
+  isac <- SIVA::isac
   if (!is.POSIXct(debut))
     debut <-
         as.POSIXct(strptime(debut, format = "%Y-%m-%d %H:%M:%S"))
@@ -37,7 +38,8 @@ load_isac <- function(debut,
             "Element(s) %s non presents, verifier tags",
             paste(missing, collapse = ", ")
         ))
-  # get full description from tags 
+  # get full description from tags
+
   isac_sel <- isac[isac$tag %in% tags,]
   
   bil <- new("bilansiva",
