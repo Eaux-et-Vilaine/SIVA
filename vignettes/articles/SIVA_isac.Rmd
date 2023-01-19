@@ -9,7 +9,7 @@ output:
     toc_depth: 3
     toc_float: yes
 params: 
-  debut: !r Sys.Date()-30
+  debut: !r Sys.Date()-365*3
   fin: !r Sys.Date()
   work_with_db: TRUE
 ---
@@ -65,9 +65,35 @@ library(SIVA)
 
 ```
 
-Les données seront chargées de `r debut` à `r fin`
-
 # chargement des données
+
+Les données seront chargées de `r debut` à `r fin`
+Dans le programme de chargement `tags = isac$tag[isac$isac]` va chercher les données isac
+où `isac$isac` correspond à `r isac$isac`.
+C'est une réindexation. Pour aller chercher d'autres valeurs on peut changer les valeurs,
+par rapport au tableau ci-dessous.
+
+```{r dataisac, echo = FALSE}
+knitr::kable(SIVA::isac)
+```
+Il faut aussi demander à Cédric les valeurs à mettre pour la connexion et les
+passer à la main comme ci-dessous
+
+
+```{r dataisac, echo = TRUE, eval = FALSE }
+  pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = "demande à Cédric",
+    username = "demande à Cédric le nom en lecture",
+    password = "demande à Cédric le mot de passe hyper - secret",
+    port=3306
+  )
+```
+
+
+
+
 
 ```{r loadisac}
 
@@ -105,20 +131,24 @@ if (params$work_with_db){
   )
   
   
-  system.time(passe <-
-                load_isac(debut = as.POSIXct(
+  system.time(isac_dat <-
+          load_isac(
+              debut = as.POSIXct(
                   strptime(debut, format = "%Y-%m-%d")
                 ),
                 fin = as.POSIXct(
                   strptime(fin, format = "%Y-%m-%d")
                 ),
-                con=pool))# 37-70 s maison # 10.5 EPTB
+              tags = isac$tag[isac$isac],
+              con = pool
+          ))
 } # end if params$work_with_db
 
 
 
-pool:poolClose(pool)
-save(passe, file=str_c("C:/temp/isac.Rdata"))
+pool::poolClose(pool)
+save(isac_dat, file=str_c("C:/temp/isac.Rdata"))
+
 ```
 
 # Traitement des données
@@ -129,10 +159,19 @@ Ci dessous calcul du fonctionnement de la passe
 ```{r calcul_isac}
 # chargement des paramètres du barrage
 if (!params$work_with_db){
-  load(file=str_c("C:/temp/isac.Rdata"))
+  load(file=str_c("C:/temp/isac.Rdata")) # nommé isac_dat
 }
+# petite analyse des données pour tenter de comprendre ...
+plot(isac_dat$horodate, isac_dat$pontdecran)
+plot(isac_dat$horodate, isac_dat$guenrouet)
+plot(isac_dat$horodate,isac_dat$vilaine_barrage)
+plot(isac_dat$horodate, isac_dat$isac_amont2)
 
-
+plot(isac_dat$horodate,isac_dat$isac_fonctionnement_cumul_p1)
+plot(isac_dat$horodate,isac_dat$isac_fonctionnement_cumul_p3)
+plot(isac_dat$horodate,isac_dat$isac_position_vanne_1)
+plot(isac_dat$horodate,isac_dat$isac_position_vanne_2)
+```
 
 
 
