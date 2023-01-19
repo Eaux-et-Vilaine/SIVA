@@ -74,4 +74,5 @@ Collate:
     'plot_debit_passe.R'
     'isac.R'
     'load_isac.R'
+    'traitement_cumul.R'
 LazyData: true
