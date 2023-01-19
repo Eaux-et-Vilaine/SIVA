@@ -72,4 +72,6 @@ Collate:
     'load_passe.R'
     'plot_passe_detail.R'
     'plot_debit_passe.R'
+    'isac.R'
+    'load_isac.R'
 LazyData: true
