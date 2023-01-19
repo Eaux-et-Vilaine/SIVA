@@ -18,6 +18,8 @@
 #' au barrage.
 #' 
 #' @export
+#' @seealso traitement_cumul pour les données chargées par une autre fonction
+#' que load_debit_barrage
 #' @examples
 #' # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 #' rawdata2020 <- SIVA::rawdata2020
@@ -31,15 +33,8 @@ traitement_siva <- function(dat) {
     dat <- dat[, -grep("Tag", colnames(dat))]
   }
   # colonnes contenant les cumuls
-  totcol <- grep("tot", colnames(dat))
-  volumes <- dat[, totcol]
-  volumes[2:nrow(volumes), ] <-
-    volumes[2:nrow(volumes), ] - volumes[1:(nrow(volumes) - 1), ]
-  volumes <- volumes[-1, ]
-  volumes[volumes < 0] <- NA
-  dat[2:nrow(dat), totcol] <- volumes
-  dat[1, totcol] <- NA
   
+  dat <- traitement_cumul(dat, pattern = "tot")
 
   # vanne ----------------------------------------
   
