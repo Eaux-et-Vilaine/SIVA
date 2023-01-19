@@ -129,7 +129,7 @@ usethis::use_data(debit, overwrite = TRUE)
 library(readxl)
 isac <- read_excel("data-raw/variables.xlsx", sheet= "isac")
 isac$isac <- as.logical(isac$isac)
-isac$pluvi <- as.logical(isac$pluvio)
+isac$pluvio <- as.logical(isac$pluvio)
 str(isac)
 usethis::use_data(isac, overwrite = TRUE)
 
