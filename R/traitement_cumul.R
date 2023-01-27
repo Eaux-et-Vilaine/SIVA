@@ -16,7 +16,7 @@ traitement_cumul <- function(dat, pattern="cumul") {
   
   totcol <- grep(pattern, colnames(dat))
   if (length(totcol)==0) stop("Pas de colonne selectionnees, mauvais pattern ?")
-  volumes <- dat[, totcol]
+  volumes <- dat[, totcol, drop=FALSE]
   volumes[2:nrow(volumes), ] <-
     volumes[2:nrow(volumes), ] - volumes[1:(nrow(volumes) - 1), ]
   volumes <- volumes[-1, ]

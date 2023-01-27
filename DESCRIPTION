@@ -75,4 +75,6 @@ Collate:
     'isac.R'
     'load_isac.R'
     'traitement_cumul.R'
+    'traitement_isac.R'
+    'trevelo.R'
 LazyData: true

@@ -2,9 +2,9 @@
 % Please edit documentation in R/load_isac.R
 \name{load_isac}
 \alias{load_isac}
-\title{Chargement des donnees de l'ISac}
+\title{Chargement des donnees de pluvio}
 \usage{
-load_isac(debut, fin, tags, con)
+load_isac(debut, fin, tags = c(2532, 2533, 2530, 2531), con)
 }
 \arguments{
 \item{debut}{La date de début format POSIXct ou character "\%Y-\%m-\%d \%H:\%M:\%S}
@@ -20,8 +20,8 @@ Ub tableau de données des débits chargés directement par loaddb, si
 certaines variables doivent être recalculées, et les variables debit_recalcule et debit_barQ.
 }
 \description{
-Il faut avoir configuré la connexion à la base, les données de l'Isac peuvent être mise à jour
-dans le jeu de donnéees isac voir variable.R. Le programme charge 10 minutes avant la date de début car il doit supprimer
+Il faut avoir configuré la connexion à la base, les données pluvio sont
+dans le jeu de données isac voir variable.R. Le programme charge 10 minutes avant la date de début car il doit supprimer
 la première ligne ou il y a des NA générés par traitement_SIVA
 }
 \examples{
