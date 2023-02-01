@@ -6,19 +6,19 @@
 \usage{
 traitement_isac(
   dat,
-  coutelec = 0.174,
+  cout_elec = 0.174,
   puissance_moy_pompe = 50,
-  coutcarbonekwh = 0.1
+  cout_carbone_kwh = 0.1
 )
 }
 \arguments{
 \item{dat}{Un tableau de données de l'isac chargées avec \code{\link{load_isac}}}
 
+\item{cout_elec}{Cout de l'electricité Kwh defaut 0.1740}
+
 \item{puissance_moy_pompe}{Puissance moyenne de la pompe de l'Isac defaut 50 KW}
 
-\item{coutcarbonekwh}{Cout en kg de CO2 du kilowatt here défaut 0.1}
-
-\item{coulelec}{Cout de l'electricité Kwh defaut 0.1740}
+\item{cout_carbone_kwh}{Cout en kg de CO2 du kilowatt here défaut 0.1}
 }
 \value{
 Un tableau de données avec les donnees d'entrée et

@@ -24,16 +24,14 @@ debit_volet1,debit_volet2,debit_volet3,debit_volet4,debit_volet5,tot_vol}
 }
 \value{
 Un data frame avec
-\begin{itemize}
-\item{date} {la date (au format date)},
-\item{Qva12345} {la somme des débits des vannes 1 à 5},
-\item{Qvo12345} {la somme des débits des volets 1 à 5},
-\item{tot_vol_vanne} {Le volume total évacué par les vannes},
-\item{tot_vol_ecluse}{le volume total évacué par l'écluse},
-\item{tot_vol_siphon} {le volume total évacucé par les deux siphons},
-\item{tot_vol_passe} {le volume total évacucé par la passe},
-\item{debit_moyen_cran} {le débit moyen journalier au pont de Cran}
-\end{itemize} ...
+\item{date}{la date (au format date),}
+\item{Qva12345}{la somme des débits des vannes 1 à 5,}
+\item{Qvo12345}{la somme des débits des volets 1 à 5,}
+\item{tot_vol_vanne}{Le volume total évacué par les vannes,}
+\item{tot_vol_ecluse}{le volume total évacué par l'écluse,}
+\item{tot_vol_siphon}{le volume total évacucé par les deux siphons,}
+\item{tot_vol_passe}{le volume total évacucé par la passe,}
+\item{debit_moyen_cran}{le débit moyen journalier au pont de Cran}
 }
 \description{
 Débit total (cette fonction retourne le débit total journalier et la valeur moyenne

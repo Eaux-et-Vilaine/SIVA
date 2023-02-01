@@ -77,4 +77,8 @@ Collate:
     'traitement_cumul.R'
     'traitement_isac.R'
     'trevelo.R'
+    'debit_vannes_isac.R'
+    'isac_dat.R'
+    'indicateur_avifaune_isac.R'
+    'indicateur_brochet_isac.R'
 LazyData: true

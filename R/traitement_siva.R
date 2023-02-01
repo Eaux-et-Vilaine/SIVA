@@ -35,7 +35,7 @@ traitement_siva <- function(dat) {
   # colonnes contenant les cumuls
   
   dat <- traitement_cumul(dat, pattern = "tot")
-
+  totcol <- grep("tot", colnames(dat))
   # vanne ----------------------------------------
   
   test_vanne <- dat$tot_vol_vanne > 480000 &
@@ -67,7 +67,7 @@ traitement_siva <- function(dat) {
     warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min transform\u00e9es en NA (133 m3/s)",ct_volet))
   }
   
-  # Sipon ----------------------------------------
+  # Siphon ----------------------------------------
 
   # les volumes du siphon sont des volumes à la journée
   # je les remplace à partir du calcul des débits du siphon

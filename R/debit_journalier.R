@@ -49,7 +49,7 @@
 #'  
 debit_journalier <- function(debit_barrage, type = c("recalcule","barrage_volume","barrage_debit")){
   type <- match.arg(type)
-  debit_barrage <- traitement_siva(debit_barrage)
+  debit_barrage <- traitement_siva(dat=debit_barrage)
   Q12345 <- debit_total(param, param0 = param, debit_barrage)
   Q12345$tot_vol <- debit_barrage$tot_vol
   

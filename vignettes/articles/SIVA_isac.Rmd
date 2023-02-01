@@ -9,10 +9,11 @@ output:
     toc_depth: 3
     toc_float: yes
 params: 
+  work_with_db: TRUE   
   debut: !r Sys.Date()-365*3
   fin: !r Sys.Date()
-  work_with_db: TRUE
 ---
+
 
 
 Ce document prends comme paramètre la date du jour et la date du jour - 30 C'est
@@ -23,8 +24,8 @@ possible avant de faire le shiny
 
 ```{r init, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 list=ls(all=TRUE)
 library(safer)
@@ -44,6 +45,7 @@ load_library('stringr') # text handling
 load_library('lubridate')
 load_library('reshape2')
 load_library('tidyverse')	
+load_library('ggplot2')
 devtools::load_all(".")
 
 #'==========================================================
@@ -51,44 +53,44 @@ devtools::load_all(".")
 #'==========================================================
 
 bleu_EV <- "#00218f"
-  turquoise_EV <- "#00C9C4"
-    orange_EV <- "#ff7557"
-      jaune_EV <- "#ffb428"
-        bleu_EVf <- "#001350"
-          jaune_EVf <- "#AD7000"
-            orange_EVf <- "#b2513c"
-              bleu_clair_EV <- "#33b5ff"
-                turquoise_EVf <- "#007873"
-                  
-                library(SIVA)
+turquoise_EV <- "#00C9C4"
+orange_EV <- "#ff7557"
+jaune_EV <- "#ffb428"
+bleu_EVf <- "#001350"
+jaune_EVf <- "#AD7000"
+orange_EVf <- "#b2513c"
+bleu_clair_EV <- "#33b5ff"
+turquoise_EVf <- "#007873"
+
+library(SIVA)
+
+
+```
+                
+# chargement des données
+                
+Les données seront chargées de `r debut` à `r fin`
+Dans le programme de chargement `tags = isac$tag[isac$isac]` va chercher les données isac
+où `isac$isac` correspond à `r isac$isac`.
+C'est une réindexation. Pour aller chercher d'autres valeurs on peut changer les valeurs,
+par rapport au tableau ci-dessous.
+                
+```{r table, echo = FALSE}
+knitr::kable(SIVA::isac)
+```
+Il faut aussi demander à Cédric les valeurs à mettre pour la connexion et les
+passer à la main comme ci-dessous
                 
                 
-                ```
-                
-                # chargement des données
-                
-                Les données seront chargées de `r debut` à `r fin`
-                Dans le programme de chargement `tags = isac$tag[isac$isac]` va chercher les données isac
-                où `isac$isac` correspond à `r isac$isac`.
-                C'est une réindexation. Pour aller chercher d'autres valeurs on peut changer les valeurs,
-                par rapport au tableau ci-dessous.
-                
-                ```{r table, echo = FALSE}
-                knitr::kable(SIVA::isac)
-                ```
-                Il faut aussi demander à Cédric les valeurs à mettre pour la connexion et les
-                passer à la main comme ci-dessous
-                
-                
-                ```{r data_isac, echo = TRUE, eval = FALSE }
-                pool <- pool::dbPool(
-                  drv = RMariaDB::MariaDB(),
-                  dbname = "archive_IAV",
-                  host = "demande à Cédric",
-                  username = "demande à Cédric le nom en lecture",
-                  password = "demande à Cédric le mot de passe hyper - secret",
-                  port=3306
-                )
+```{r data_isac, echo = TRUE, eval = FALSE }
+pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = "demande à Cédric",
+    username = "demande à Cédric le nom en lecture",
+    password = "demande à Cédric le mot de passe hyper - secret",
+    port=3306
+)
 ```
                 
                 
@@ -96,7 +98,7 @@ bleu_EV <- "#00218f"
                 
                 
 ```{r load_isac}
-                
+
 if (params$work_with_db){
   if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
   if (!exists("hostmysql")) {
@@ -122,48 +124,56 @@ if (params$work_with_db){
   # attention il faut avaoir définit mainpass <- "xxxxx"
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
-    dbname = "archive_IAV",
-    host = hostmysql.,
-    username = umysql.,
-    password = pwdmysql.,
-    port=3306
+      drv = RMariaDB::MariaDB(),
+      dbname = "archive_IAV",
+      host = hostmysql.,
+      username = umysql.,
+      password = pwdmysql.,
+      port=3306
   )
   
   
   system.time(isac_dat <-
-                load_isac(
-                  debut = as.POSIXct(
-                    strptime(debut, format = "%Y-%m-%d")
-                  ),
-                  fin = as.POSIXct(
-                    strptime(fin, format = "%Y-%m-%d")
-                  ),
-                  tags = isac$tag[isac$isac],
-                  con = pool
-                ))
+          load_isac(
+              debut = as.POSIXct(
+                  strptime(debut, format = "%Y-%m-%d")
+              ),
+              fin = as.POSIXct(
+                  strptime(fin, format = "%Y-%m-%d")
+              ),
+              tags = isac$tag[isac$isac],
+              con = pool
+          ))
 } # end if params$work_with_db
 
 
 
 pool::poolClose(pool)
 save(isac_dat, file=str_c("C:/temp/isac.Rdata"))
+# voir aussi isac_dat le jeu de données 
 
 ```
-
+                
 # Traitement des données
-
+                
 Ci dessous calcul du fonctionnement dees pompes,les valeurs sont des fonctionnement horaires rapportés 
 toutes les dix minutes, voir 
-
-
-
+                
+                
+                
 ```{r calcul_isac, echo = TRUE}
 # chargement des paramètres du barrage
 if (!params$work_with_db){
   load(file=str_c("C:/temp/isac.Rdata")) # nommé isac_dat
 }
-isac_dat <- traitement_cumul(isac_dat)
+
+isac_dat <- traitement_isac(isac_dat)
+debit <-  debit_vannes_isac(
+    hamont = isac_dat$isac_amont2,
+    haval = isac_dat$pontdecran,
+    hvanne1 = isac_dat$isac_position_vanne_1,
+    hvanne2 = isac_dat$isac_position_vanne_2
+)
 # petite analyse des données pour tenter de comprendre ...
 plot(isac_dat$horodate, isac_dat$pontdecran)
 plot(isac_dat$horodate, isac_dat$guenrouet)
@@ -179,14 +189,14 @@ isac_dat$isac_fonctionnement_cumul_p1_min <- isac_dat$isac_fonctionnement_cumul_
 uk <- unique(isac_dat$isac_fonctionnement_cumul_p1_min)[order(unique(isac_dat$isac_fonctionnement_cumul_p1_min))]
 # les valeurs toutes les dix minutes ne devraient pas dépasse 10 minutes.
 hist(isac_dat$isac_fonctionnement_cumul_p1_min[
-  isac_dat$isac_fonctionnement_cumul_p1_min > 0 &
-    isac_dat$isac_fonctionnement_cumul_p1_min < 10  
-])
+        isac_dat$isac_fonctionnement_cumul_p1_min > 0 &
+            isac_dat$isac_fonctionnement_cumul_p1_min < 10  
+    ])
 uk[which(uk>10)]
 plot(isac_dat$horodate,isac_dat$isac_position_vanne_1)
 plot(isac_dat$horodate,isac_dat$isac_position_vanne_2)
 
-
+#travail sur les valeurs aberrantes des cumuls de fonctionnement pompes
 dd <- isac_dat$isac_fonctionnement_cumul_p1_min
 unique(dd)[order(unique(dd))]
 dd[(which.max(dd)-50):which.max(dd)]
@@ -197,33 +207,35 @@ dd[is.na(dd)]<-0
 id <- which(dd==2638.26)
 dd[(id-50):id]
 isac_dat[(id-50):(id+10),c("horodate","isac_fonctionnement_cumul_p1_min",
-                           "isac_fonctionnement_cumul_p3",
-                           "isac_position_vanne_1")]
+        "isac_fonctionnement_cumul_p3",
+        "isac_position_vanne_1")]
 
 id <- which(dd==30.0)[1]
 dd[(id-50):id]
 isac_dat[(id-10):(id+5),c("horodate","isac_fonctionnement_cumul_p1_min",
-                          "isac_fonctionnement_cumul_p3",
-                          "isac_position_vanne_1")]
+        "isac_fonctionnement_cumul_p3",
+        "isac_position_vanne_1")]
 
 (id <- which(round(dd)==57))
 dd[(id-50):id]
 isac_dat[(id-10):(id+5),c("horodate","isac_fonctionnement_cumul_p1_min",
-                          "isac_fonctionnement_cumul_p3",
-                          "isac_position_vanne_1")]
+        "isac_fonctionnement_cumul_p3",
+        "isac_position_vanne_1")]
 
 
 (id <- which(round(dd,2)==21.48))
 dd[(id-50):id]
 isac_dat[(id-10):(id+5),c("horodate","isac_fonctionnement_cumul_p1_min",
-                          "isac_fonctionnement_cumul_p3",
-                          "isac_position_vanne_1")]
+        "isac_fonctionnement_cumul_p3",
+        "isac_position_vanne_1")]
+
 ```
-   
-   
+                
+                
 Les données de cumul ne sont dispo qu'après 2016, il n'y a pas de relation entre le temps de fonctionnement
 et les coûts.
-```{r load_cout_debit, echo = TRUE}
+
+```{r analyse_cout_debit, echo = TRUE}
 if (params$work_with_db){
   if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
   if (!exists("hostmysql")) {
@@ -249,40 +261,42 @@ if (params$work_with_db){
   # attention il faut avaoir définit mainpass <- "xxxxx"
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
-    dbname = "archive_IAV",
-    host = hostmysql.,
-    username = umysql.,
-    password = pwdmysql.,
-    port=3306
+      drv = RMariaDB::MariaDB(),
+      dbname = "archive_IAV",
+      host = hostmysql.,
+      username = umysql.,
+      password = pwdmysql.,
+      port=3306
   )
   debut <- "2008-01-01"
   fin <- "2019-01-01"
   system.time(isac_datc <-
-                load_isac(
-                  debut = as.POSIXct(
-                    strptime(debut, format = "%Y-%m-%d")
-                  ),
-                  fin = as.POSIXct(
-                    strptime(fin, format = "%Y-%m-%d")
-                  ),
-```
-
-
-```{r analyse_cout, echo = TRUE}
-tags = c(380,381),
-                  con = pool
-            ))      
-                
+          load_isac(
+              debut = as.POSIXct(
+                  strptime(debut, format = "%Y-%m-%d")
+              ),
+              fin = as.POSIXct(
+                  strptime(fin, format = "%Y-%m-%d")
+              ),
+              tags = c(380,381),
+              con = pool
+          ))      
+  
 } # end if params$work_with_db
-
 pool::poolClose(pool)
 save(isac_datc, file=str_c("C:/temp/isac_datc.Rdata"))
+```
+                
+                
+```{r analyse_cout, echo = TRUE}
+
+
+
 plot(isac_datc$isac_fonctionnement_cumul_p1)
 depenses <- tibble::tribble(
-~"2008",~"2009",~"2010",~"2011",~"2012",~"2013",~"2014",~"2015",~"2016",~"2017",~"2018",
-4243,4269,4881,	7601,	6209,	7923,5472,4300,4979,4165,4858) %>%
-  pivot_longer(everything(),names_to = "Y", values_to="c")
+        ~"2008",~"2009",~"2010",~"2011",~"2012",~"2013",~"2014",~"2015",~"2016",~"2017",~"2018",
+        4243,4269,4881,	7601,	6209,	7923,5472,4300,4979,4165,4858) %>%
+    pivot_longer(everything(),names_to = "Y", values_to="c")
 plot(depenses$Y,depenses$c, type="b")
 
 
@@ -290,29 +304,29 @@ isac_dat <- traitement_isac(isac_datc)
 
 
 cc <- isac_dat %>%
-  mutate(Y=as.numeric(strftime(isac_dat$horodate,"%Y"))) %>%
-  group_by(Y) %>%
-  summarize(cp1=sum(isac_fonctionnement_cumul_p1, na.rm=T),
-                  cp3=sum(isac_fonctionnement_cumul_p3, na.rm=T)) %>%
-  filter(Y>2015 & Y<2019) %>%
-  inner_join(depenses %>% mutate(Y=as.numeric(Y)), by ="Y")
+    mutate(Y=as.numeric(strftime(isac_dat$horodate,"%Y"))) %>%
+    group_by(Y) %>%
+    summarize(cp1=sum(isac_fonctionnement_cumul_p1, na.rm=T),
+        cp3=sum(isac_fonctionnement_cumul_p3, na.rm=T)) %>%
+    filter(Y>2015 & Y<2019) %>%
+    inner_join(depenses %>% mutate(Y=as.numeric(Y)), by ="Y")
 
 # Pompe flyght P 7076, courbe de tarage de Johann
 pompe <- tribble(~h_m,~Q_l_s,
-0.8,1200,
-1.2,1150,
-1.6,1110,
-2,1080,
-2.4,1010,
-2.8,960,
-3.2,900,
-3.6,820)
+    0.8,1200,
+    1.2,1150,
+    1.6,1110,
+    2,1080,
+    2.4,1010,
+    2.8,960,
+    3.2,900,
+    3.6,820)
 
 lm(Q_l_s ~ h_m, data=pompe)
 #Coefficients:
 #(Intercept)          h_m  
 #     1318.8       -131.8 
-debit = function(h){Q=(1318 - 131.8*h)/1000}
+debit = function(h){Q=1318 - 131.8*h}
 cout = function(t, v=0.1740, P=50){cout=t*v*P }
 with(pompe, plot(Q_l_s ~ h_m))
 with(pompe, points(debit(h_m) ~ h_m, col="red"))
@@ -334,12 +348,215 @@ plot(delta)
 
 
 ```
-   
-   
+
+```{r niveauisac}
+which_niveau <- grep("Niveau", attributes(isac_dat)$libelle)+1
+isac_dat_niveau <- isac_dat %>%  
+  select("horodate",all_of(which_niveau)) 
+
+
+  rAmCharts::amTimeSeries(
+    isac_dat_niveau, 
+    'horodate',
+    colnames(isac_dat_niveau)[2:ncol(isac_dat_niveau)],
+    bullet = "round",
+    color =   randomcoloR::distinctColorPalette(ncol(isac_dat_niveau)-1),
+    #backgroundColor = "#40555E",
+    #backgroundAlpha = 0.4,
+    bulletSize =  4,
+    aggregation = "Average",
+    fillAlphas = 0.2,
+    groupToPeriods = c('10mm', '30mm', 'hh', 'DD', 'MAX'),
+    #  c('hh', 'DD', '10DD','MM','MAX'),
+    linewidth = 0.2,
+    legend = TRUE           
+  ) %>%
+    rAmCharts::setExport(enabled = TRUE)  
+
+
+```
+
+                
+```{r debitisac, fig.height=6, fig.width=6}
+data(isac_dat)
+isac_dat <- traitement_isac(isac_dat)
+debit <-  debit_vannes_isac(
+    hamont = isac_dat$isac_amont2,
+    haval = isac_dat$pontdecran,
+    hvanne1 = isac_dat$isac_position_vanne_1,
+    hvanne2 = isac_dat$isac_position_vanne_2
+)
+isac_dat1 <- cbind(isac_dat, debit)
+# hamont Vecteur de données des niveaux amont.
+# haval Vecteur de données des niveaux aval.
+# hvanne1 Vecteur de données des hauteurs de vanne 1.
+# hvanne2 Vecteur de données des hauteurs de vanne 2.
+# lvanne2 Largeur de la vanne2 en rive, 4.98
+# lvanne1 Larguer de la vanne1 au centre de l'ouvrage 4.81
+# g 9.81.
+# canal Loi de débit "manning".
+# Cma Coefficient canal pour Manning défaut 0.65.
+# Le débit de la vanne peut prendre d'autres valeurs
+# il faut utiliser Cma 0.60 à 0.65
+# pour ajuster les valeurs
+
+with(isac_dat1, plot(horodate, Q))
+with(isac_dat1, plot(horodate, pontdecran, type="l"))
+with(isac_dat1, points(horodate, isac_amont2, col = "red", type="l"))
+
+
+# transparence migratoire -----------------------
+
+transp <- isac_dat1 %>% group_by(mig) %>%
+  summarize(N=n()) %>% 
+  ungroup() %>%
+  mutate(perc=N/sum(N)) 
+transptxt <- sprintf("transparent %s %% (difficile %s %%)", round(transp$perc[transp$mig=="transparente"]*100), 
+                     round(transp$perc[transp$mig=="difficile"]*100)) 
+cat(transptxt) 
+
+
+# indicateur brochet -------------------
+
+indicateur_brochet_isac <- function(dat,
+                                h_favorable = 2.30,
+                                h_moyen = 2.10,
+                                mois_debut = "2",
+                                mois_fin = "4",  
+                                niveau_marais="isac_niveau_marais"
+                                ){
+  niveau_marais <- dat[,niveau_marais]
+  # repro en janvier - février
+  periode_repro <- lubridate::month(dat$horodate)<=as.numeric(mois_debut)
+  niveau_ponte <- mean(niveau_marais[
+           lubridate::month(dat$horodate)<=as.numeric(mois_debut)], na.rm=T)
+  #init
+  brochet <- rep("6-inconnu/ hors période", length(niveau_marais))
+  # periode de repro
+  brochet[periode_repro] <- case_when(
+    niveau_marais[periode_repro]<h_moyen ~ "2-repro-mauvais",
+    niveau_marais[periode_repro]>=h_moyen & 
+      niveau_marais[periode_repro]<h_favorable  ~ "1-repro-moyen",
+    niveau_marais[periode_repro]>=h_favorable ~ "0-repro-bon",
+    is.na(niveau_marais[periode_repro]) ~ "6-inconnu/ hors période")
+
+  # periode alevinage
+  periode_alevins <- lubridate::month(dat$horodate)>as.numeric(mois_debut) &
+    lubridate::month(dat$horodate)<=as.numeric(mois_fin)
+  brochet[periode_alevins] <- case_when(
+    niveau_marais[periode_alevins]>=niveau_ponte ~ "3-emergence-bon",
+    niveau_marais[periode_alevins]<niveau_ponte & niveau_marais[periode_alevins]>=niveau_ponte -10 ~ "4-emergence-moyen",
+    niveau_marais[periode_alevins]<niveau_ponte -10 ~ "5-emergence-mauvais",
+    is.na(niveau_marais[periode_alevins]) ~ "6-inconnu/ hors période")
+  return(as.factor(brochet))
+}
+isac_dat1$avifaune <- indicateur_avifaune_isac(isac_dat1,  niveau_marais="isac_amont2")
+isac_dat1$brochet <- indicateur_brochet_isac(isac_dat1,  niveau_marais="isac_amont2")
+
+
+
+# use #ggnewscale::new_scale_color() to add to same plot
+
+
+g0 <- ggplot(isac_dat1) + 
+  geom_line(aes(x=horodate, y= Q, colour="Q-vannes")) +
+  geom_line(aes(x=horodate, y = Q_pompes, colour="Q-pompes")) +
+  scale_colour_manual("Débit", values=c("Q-vannes"=bleu_EV,"Q-pompes"=orange_EV)) +
+  theme_bw()
+
+
+
+g1 <-   ggplot(isac_dat1) +
+  geom_rect(
+    aes(
+      xmin = horodate,
+      xmax = horodate + as.difftime(10, units = "mins"),
+      ymin = -30,
+      ymax = -35,
+      fill = mig
+    )) +
+  scale_fill_manual("Transparence migratoire", values = c("1-transparente"="blue",
+                                                          "2-difficile"="orange",
+                                                          "3-bloquee"="red",
+                                                          "4-inf5cm"="purple"))+
+    theme_minimal() +
+    clean_theme() +
+    theme(legend.position="bottom",
+          legend.title = element_text(size=6),
+          legend.text = element_text(size=6),
+          legend.key.height =unit(0.4, 'cm'),
+          legend.key.width =unit(0.4, 'cm'),
+          legend.direction = "horizontal",
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+  
+
+g2 <-  ggplot(isac_dat1) +
+    geom_rect(
+      aes(
+        xmin = horodate,
+        xmax = horodate + as.difftime(10, units = "mins"),
+        ymin = -40,
+        ymax = -45,
+        fill = avifaune
+      )) +
+    scale_fill_manual("Accueil avifaune", values = c("0-bon"="blue",
+                                                     "1-moyen"="orange",
+                                                     "2-mauvais"="red",
+                                                     "3-hors période"="white",
+                                                     "4-inconnu"="grey"))+
+    theme_minimal() +
+    clean_theme() +
+    theme(legend.position="bottom",
+          legend.title = element_text(size=6),
+          legend.text = element_text(size=6),
+          legend.key.height =unit(0.4, 'cm'),
+          legend.key.width =unit(0.4, 'cm'),
+          legend.direction = "horizontal",
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+  
+  #ggnewscale::new_scale_fill() +
+g3 <-  ggplot(isac_dat1) +
+    geom_rect(
+      aes(
+        xmin = horodate,
+        xmax = horodate + as.difftime(10, units = "mins"),
+        ymin = -50,
+        ymax = -55,
+        fill = brochet
+      )) +
+    scale_fill_manual("Repro brochet", values = c("0-repro-bon"="blue",
+                                                  "1-repro-moyen"="orange",
+                                                  "2-repro-mauvais"="red",
+                                                  "3-emergence-bon"="cyan",
+                                                  "4-emergence-moyen"="gold",
+                                                  "5-emergence-mauvais"="firebrick",
+                                                  "6-inconnu/ hors période"="white")) +
+    
+    
+    theme_minimal() +
+    clean_theme() +
+    theme(legend.position="bottom",
+          legend.title = element_text(size=6),
+          legend.text = element_text(size=6),
+          legend.key.height =unit(0.4, 'cm'),
+          legend.key.width =unit(0.4, 'cm'),
+          legend.direction = "horizontal",
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+  
+  
+  cowplot::plot_grid(g0, g1, g2, g3, 
+          ncol = 1, nrow = 4,  align = "v", axis = 'lr', 
+          rel_heights  = c(4,1,1,1))
+
+```
+                
                 
                 
 ```{r load_pluvio_isac}
-                
+
 if (params$work_with_db){
   if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
   if (!exists("hostmysql")) {
@@ -365,24 +582,24 @@ if (params$work_with_db){
   # attention il faut avaoir définit mainpass <- "xxxxx"
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
-    dbname = "archive_IAV",
-    host = hostmysql.,
-    username = umysql.,
-    password = pwdmysql.,
-    port=3306
+      drv = RMariaDB::MariaDB(),
+      dbname = "archive_IAV",
+      host = hostmysql.,
+      username = umysql.,
+      password = pwdmysql.,
+      port=3306
   )
   
   
   system.time(      pluvio_dat <-
-                      load_isac(
-                        debut = as.POSIXct(strptime("2020-01-01 00:00:00",
-                                                    format = "%Y-%m-%d %H:%M:%S")),
-                        fin = as.POSIXct(strptime("2022-01-10 00:00:00",
-                                                  format = "%Y-%m-%d %H:%M:%S")),
-                        tags = x(2532,2533,2530,2531), #isac$tag[isac$pluvio],
-                        con  = pool
-                      ))
+          load_isac(
+              debut = as.POSIXct(strptime("2020-01-01 00:00:00",
+                      format = "%Y-%m-%d %H:%M:%S")),
+              fin = as.POSIXct(strptime("2022-01-10 00:00:00",
+                      format = "%Y-%m-%d %H:%M:%S")),
+              tags = x(2532,2533,2530,2531), #isac$tag[isac$pluvio],
+              con  = pool
+          ))
   # utilisateur     système      écoulé 
   #      1.22        0.04       23.03 
 } # end if params$work_with_db
@@ -391,12 +608,12 @@ if (params$work_with_db){
 
 pool::poolClose(pool)
 save(pluvio_dat, file=str_c("C:/temp/pluvio_dat.Rdata"))
-```
+                ```
                 
-Les données pluvio_barrage_veille sont rapportées à 4:00, les données pluvio_isac_veille sont rapportées à 3:50. Les cumuls de pluvio de l''ISAC veille ne correspondent pas exactement au cumul des pluvio.
-Je choisis de ne pas utiliser les données cumul                
+                Les données pluvio_barrage_veille sont rapportées à 4:00, les données pluvio_isac_veille sont rapportées à 3:50. Les cumuls de pluvio de l''ISAC veille ne correspondent pas exactement au cumul des pluvio.
+                Je choisis de ne pas utiliser les données cumul                
                 
-```{r calcul_pluvio}
+                ```{r calcul_pluvio}
 load(file=str_c("C:/temp/pluvio_dat.Rdata"))
 pluvio_dat$date <- as.Date(pluvio_dat$horodate)
 pluvio_dat <- pluvio_dat[pluvio_dat$date>as.Date('2021-12-01'),]
@@ -408,23 +625,23 @@ plot(pluvio_dat$horodate, pluvio_dat$pluvio_isac_veille)
 
 # vérification des cumuls
 pluvio_dat_group <- 
-  inner_join(
-    pluvio_dat %>% group_by(date) %>%
-      summarize(pluvio_barrage_veille_recalc=sum(pluvio_barrage_10min, na.rm=TRUE),
-                pluvio_isac_veille_recalc=sum(pluvio_isac_10min, na.rm=TRUE)),
     inner_join(
-      pluvio_dat %>% select(horodate, date, pluvio_barrage_veille) %>%
-        mutate(pluvio_barrage_veille_lead= lead(pluvio_barrage_veille,24*6*2+1)) %>%
-        mutate(time=strftime(horodate,format="%H:%M")) %>%
-        filter(time == "04:10") %>%
-        select(date, pluvio_barrage_veille_lead),
-      
-      pluvio_dat %>% select(horodate, date, pluvio_isac_veille) %>%
-        mutate(pluvio_isac_veille_lead= lead(pluvio_isac_veille,24*6+1)) %>%
-        filter(!is.na(pluvio_isac_veille_lead)) %>%
-        select(date, pluvio_isac_veille_lead)
+        pluvio_dat %>% group_by(date) %>%
+            summarize(pluvio_barrage_veille_recalc=sum(pluvio_barrage_10min, na.rm=TRUE),
+                pluvio_isac_veille_recalc=sum(pluvio_isac_10min, na.rm=TRUE)),
+        inner_join(
+            pluvio_dat %>% select(horodate, date, pluvio_barrage_veille) %>%
+                mutate(pluvio_barrage_veille_lead= lead(pluvio_barrage_veille,24*6*2+1)) %>%
+                mutate(time=strftime(horodate,format="%H:%M")) %>%
+                filter(time == "04:10") %>%
+                select(date, pluvio_barrage_veille_lead),
+            
+            pluvio_dat %>% select(horodate, date, pluvio_isac_veille) %>%
+                mutate(pluvio_isac_veille_lead= lead(pluvio_isac_veille,24*6+1)) %>%
+                filter(!is.na(pluvio_isac_veille_lead)) %>%
+                select(date, pluvio_isac_veille_lead)
+        )
     )
-  )
 pluvio_dat[50000:50550,]
 
 plot(pluvio_dat_group$pluvio_barrage_veille_recalc,pluvio_dat_group$pluvio_barrage_veille_lead)
@@ -432,68 +649,68 @@ plot(pluvio_dat_group$pluvio_isac_veille_recalc,pluvio_dat_group$pluvio_isac_vei
 abline(a=0, b=1,col="red")
 # la valeur change à 4:00
 ```
-```{r plot pluvio}
+
+```{r plot_pluvio }
 load(file=str_c("C:/temp/pluvio_dat.Rdata"))
 # les cumuls sont pourris, je m'en débarasse
 pluvio_dat <- pluvio_dat %>%
-  select(horodate, pluvio_isac_10min,pluvio_barrage_10min ) 
+    select(horodate, pluvio_isac_10min,pluvio_barrage_10min ) 
 pluvio_dat$pluvio_isac_10min[is.na(pluvio_dat$pluvio_isac_10min)] <- 0
 pluvio_dat$pluvio_barrage_10min[is.na(pluvio_dat$pluvio_barrage_10min)] <- 0
 pluvio_dat <- pluvio_dat %>%
-  mutate(p_isac = cumsum(pluvio_isac_10min),
-         p_barrage = cumsum(pluvio_barrage_10min))
+    mutate(p_isac = cumsum(pluvio_isac_10min),
+        p_barrage = cumsum(pluvio_barrage_10min))
 library(rAmCharts)
 library(summaryBox)
 
 summaryBox("Pluvio totale isac", 
-           sprintf("%s mm",sum(pluvio_dat$pluvio_isac_10min, na.rm=TRUE)), 
-           width = 6, 
-           icon = "fa-solid fa-cloud-rain", 
-           style = "info")
+    sprintf("%s mm",sum(pluvio_dat$pluvio_isac_10min, na.rm=TRUE)), 
+    width = 6, 
+    icon = "fa-solid fa-cloud-rain", 
+    style = "info")
 
 summaryBox2("Pluvio totale isac", 
-           sprintf("%s mm",sum(pluvio_dat$pluvio_isac_10min, na.rm=TRUE)), 
-           width = 6, 
-           icon = "fa-solid fa-cloud-rain", 
-           style = "info")
+    sprintf("%s mm",sum(pluvio_dat$pluvio_isac_10min, na.rm=TRUE)), 
+    width = 6, 
+    icon = "fa-solid fa-cloud-rain", 
+    style = "info")
 pluvio_dat %>%
-amTimeSeries(
-    'horodate',
-    c("pluvio_isac_10min", "pluvio_barrage_10min"),
-    bullet = c("round", "square"),
-    color = col <-
-      c("orange", "limegreen"),
-    #"yellow","#39CCCC")
-    backgroundColor = "#40555E",
-    backgroundAlpha = 0.4,
-    bulletSize = c(6, 4),
-    aggregation = "Average",
-    fillAlphas = c(0.1, 0.1),
-    groupToPeriods = c('DD', 'MM', 'MAX'),
-    #  c('hh', 'DD', '10DD','MM','MAX'),
-    linewidth = c(0.2, 0.2),
-    legend = TRUE,
-    # maxSeries = 200,
-    categoryAxesSettings.minPeriod = "30mm"
-  ) %>%
-  setExport(enabled = TRUE)  
+    amTimeSeries(
+        'horodate',
+        c("pluvio_isac_10min", "pluvio_barrage_10min"),
+        bullet = c("round", "square"),
+        color = col <-
+            c("orange", "limegreen"),
+        #"yellow","#39CCCC")
+        backgroundColor = "#40555E",
+        backgroundAlpha = 0.4,
+        bulletSize = c(6, 4),
+        aggregation = "Average",
+        fillAlphas = c(0.1, 0.1),
+        groupToPeriods = c('DD', 'MM', 'MAX'),
+        #  c('hh', 'DD', '10DD','MM','MAX'),
+        linewidth = c(0.2, 0.2),
+        legend = TRUE,
+        # maxSeries = 200,
+        categoryAxesSettings.minPeriod = "30mm"
+    ) %>%
+    setExport(enabled = TRUE)  
 
 
 pluvio_dat %>%
- select(horodate, p_isac, p_barrage) %>%
-  pivot_longer(cols=c("p_isac", "p_barrage"),
-               names_to= "site", 
-               names_prefix = "p_", 
-               values_to="pluvio") %>%
-  
-ggplot() + geom_point(aes(x = horodate, y=pluvio, color=site)) + 
-                    
+    select(horodate, p_isac, p_barrage) %>%
+    pivot_longer(cols=c("p_isac", "p_barrage"),
+        names_to= "site", 
+        names_prefix = "p_", 
+        values_to="pluvio") %>%    
+    ggplot() + geom_point(aes(x = horodate, y=pluvio, color=site))  
+
 ```
-
-A partir de la courble de tarage de la pompe
+                
+ A partir de la courble de tarage de la pompe
 Puissance 30-70 => 50 kw
 En 2023 le prix est de 0.1740 € TTC par kWh au tarif réglementé de vente 
-
-
-               
+                
+                
+                
                 
