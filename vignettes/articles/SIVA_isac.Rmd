@@ -1,0 +1,483 @@
+---
+title: "SIVAisac"
+output:
+  html_document:
+    keep_md: yes
+    code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+params: 
+  work_with_db: FALSE   
+  debut: !r Sys.Date()-30
+  fin: !r Sys.Date()
+---
+
+
+
+Ce document prends comme paramètre la date du jour et la date du jour - 30 C'est
+une version de démo des fonctionnalités du package, et une exploration du code
+possible avant de faire le shiny
+
+
+
+```{r init, eval=TRUE, echo=TRUE, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+list=ls(all=TRUE)
+library(safer)
+library(getPass)
+if (!exists("mainpass")) mainpass <- getPass(msg="Main password")
+list<-list[-match(c("passworddistant","passwordlocal","umysql","pwdmysql"),list)  ]
+rm(list) # nettoyage complet
+debut<-as.character(params$debut)
+fin<-as.character(params$fin)
+load_library=function(necessary) {
+  if(!all(necessary %in% installed.packages()[, 'Package']))
+    install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+  for(i in 1:length(necessary))
+    library(necessary[i], character.only = TRUE)
+}
+load_library('stringr') # text handling
+load_library('lubridate')
+load_library('reshape2')
+load_library('tidyverse')	
+load_library('ggplot2')
+load_library('kableExtra')
+load_library('dplyr')
+devtools::load_all(".")
+
+#'==========================================================
+#' Définition du nom des couleurs
+#'==========================================================
+
+bleu_EV <- "#00218f"
+turquoise_EV <- "#00C9C4"
+orange_EV <- "#ff7557"
+jaune_EV <- "#ffb428"
+bleu_EVf <- "#001350"
+jaune_EVf <- "#AD7000"
+orange_EVf <- "#b2513c"
+bleu_clair_EV <- "#33b5ff"
+turquoise_EVf <- "#007873"
+
+library(SIVA)
+
+
+```
+                
+# chargement des données
+                
+Les données seront chargées de `r debut` à `r fin`
+
+
+                
+```{r table, echo = FALSE}
+knitr::kable(SIVA::isac) %>% kable_styling(bootstrap_options=c("hover","striped","condensed","responsive", "full_width"=FALSE)) %>%
+  row_spec(row=which(isac$isac),color =  "blue") %>%
+  row_spec(row=which(!isac$isac),color =  "red")
+```
+
+Il faut aussi demander à Cédric ou Benjamin les valeurs à mettre pour la connexion et les
+passer à la main comme ci-dessous.
+                
+                
+```{r data_isac, echo = TRUE, eval = FALSE }
+pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = "demande à Cédric",
+    username = "demande à Cédric le nom en lecture",
+    password = "demande à Cédric le mot de passe hyper - secret",
+    port=3306
+)
+```
+               
+
+Ci dessous un script de chargement, toute la première partie peut être évitée en 
+passant les arguments de connexion comme indiqué dans le code ci-dessus.
+
+Dans le programme de chargement `tags = isac$tag[isac$isac]` va chercher les données isac
+où `isac$isac` correspond aux valeurs en bleu dans le tableau des variables. 
+Un choix peut être effectué en passant un vecteur de tag par exemple 
+`tag= c(1902, 2000,  369, 370, 371,  380,  381,  334,  358,  384)` va rajouter la variable
+du tag 369 aux valeurs par défaut, c'est à dire la variable `isac_amont_1`.
+                
+```{r load_isac, echo=TRUE}
+
+if (params$work_with_db){
+  if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+  if (!exists("hostmysql")) {
+    hostmysql. <- getPass::getPass(msg = "Saisir host")
+    # ci dessous pour ne pas redemander au prochain tour
+    hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+  } else {
+    hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+  }
+  if (!exists("pwdmysql")) {
+    pwdmysql. <- getPass::getPass(msg = "Saisir password")
+    pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+  }  else {
+    # pass should be loaded
+    pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+  }
+  if (!exists("umysql")) {
+    umysql. <- getPass::getPass(msg = "Saisir user")
+    umysql <- encrypt_string(string = umysql., key = mainpass)
+  } else {
+    umysql. <- decrypt_string(string = umysql, key = mainpass)
+  }
+  # attention il faut avaoir définit mainpass <- "xxxxx"
+  
+  pool <- pool::dbPool(
+      drv = RMariaDB::MariaDB(),
+      dbname = "archive_IAV",
+      host = hostmysql.,
+      username = umysql.,
+      password = pwdmysql.,
+      port=3306
+  )
+  
+  
+  system.time(isac_dat <-
+          load_isac(
+              debut = as.POSIXct(
+                  strptime(debut, format = "%Y-%m-%d")
+              ),
+              fin = as.POSIXct(
+                  strptime(fin, format = "%Y-%m-%d")
+              ),
+              tags = isac$tag[isac$isac],
+              con = pool
+          ))
+  pool::poolClose(pool)
+} else {
+  # chargement du jeu de données du package
+  isac_dat <- SIVA::isac_dat
+}# end if params$work_with_db
+
+```
+
+# Niveaux Isac
+
+Graphique des niveaux sur l'Isac.             
+
+
+```{r niveauisac, echo=TRUE}
+which_niveau <- grep("Niveau", attributes(isac_dat)$libelle)+1
+isac_dat_niveau <- isac_dat %>%  
+  dplyr::select(1,all_of(which_niveau)) 
+
+
+  rAmCharts::amTimeSeries(
+    isac_dat_niveau, 
+    'horodate',
+    colnames(isac_dat_niveau)[2:ncol(isac_dat_niveau)],
+    bullet = "round",
+    color =   randomcoloR::distinctColorPalette(ncol(isac_dat_niveau)-1),
+    #backgroundColor = "#40555E",
+    #backgroundAlpha = 0.4,
+    bulletSize =  4,
+    aggregation = "Average",
+    fillAlphas = 0.2,
+    groupToPeriods = c('10mm', '30mm', 'hh', 'DD', 'MAX'),
+    #  c('hh', 'DD', '10DD','MM','MAX'),
+    linewidth = 0.2,
+    legend = TRUE           
+  ) %>%
+    rAmCharts::setExport(enabled = TRUE)  
+
+
+```
+
+                
+# Traitement des données des pompes
+                
+Ci dessous calcul du fonctionnement des pompes,les valeurs sont des fonctionnement horaires rapportés 
+toutes les dix minutes, traitement_isac traite les valeur abérrantes et permet le 
+calcul du débit des pompes
+Les données de cumul ne sont dispo qu'après 2016, il n'y a pas de relation entre le temps de fonctionnement
+et les coûts.   Voir `? traitement_isac`.
+Dans la fonction `traitement_isac` voir les arguments, `cout_elec` en 2022 0.174
+il s'agit du prix de l'electricité hors heures pleines et heures creuses.
+Voir aussi `cout_carbone`.
+La source du code est disponbile à 
+voir aussi les sources :
+https://github.com/Eaux-et-Vilaine/SIVA/blob/main/R/traitement_isac.R
+
+                
+                
+```{r calcul_pompes_isac, echo = TRUE}
+# traitement des données des pompes
+isac_dat <- traitement_isac(isac_dat)
+# Calcul du débit du vannage.
+# noter les arguments hamont et haval qui peuvent être adaptés...
+
+knitr::kable(head(isac_dat)) %>% kable_styling(bootstrap_options=c("hover","striped","condensed","responsive", "full_width"=FALSE))
+```
+
+
+# Calcul du débit des vannes.
+
+Les débits des vannes dépendent de la largeur de chacune des vannes.
+Les vannes ne sont pas fixes.
+La formule de Manning est utilisée pour le vannage, il peut y avoir deux 
+fonctionnements. Par exemple pour la vanne 1 qui est légerement moins large
+et au centre de l'ouvrage : on calcule :
+Le choix des sondes amont et aval a une grande importance pour le calcul de 
+débit, si possible utiliser les sondes proches de l'ouvrage.
+
+
+
+$$\Delta = h_{amont} - h_{aval} \\
+\begin{cases}
+\Delta \geq 0 \implies Q  = C_{ma} h_{vanne} l \sqrt(2 g \Delta) \\
+\Delta < 0 \implies Q  = -C_{ma} h_{vanne} l \sqrt(-2 g \Delta)
+\end{cases}$$
+
+Avec :
+
+* $h_{vanne}$ = hauteur de vanne,
+* $C_{ma}$ = coefficient de manning : 0.62,
+* $l$ = largeur de la vanne i
+
+Voir `? debit_vannes_isac` pour plus de détails.
+voir aussi les sources :
+https://github.com/Eaux-et-Vilaine/SIVA/blob/main/R/debit_vannes_isac.R
+
+# Calcul des indicateurs au niveau du marais.
+
+## Continuité écologique
+
+La fonction `debit_vannes_isac` calcule la continuité piscicole au niveau de la
+vanne à l'aide de la différence de niveau $\Delta$ et de l'ouverture de la 
+vanne. Si la vanne est ouverte de moins de 5 cm la migration est considérée 
+comme impossible, au delà de 5 cm, le $\Delta$ (en valeur absolue car
+il peut être négatif) détermine si les conditions de migration. En dessous de 
+30 cm la migration est considérée comme bonne, entre 30 cm et 50 cm elle
+est considérée comme difficile, au delà de 50 cm la migration est impossible.
+Les valeurs sont "1-transparente", "2-difficile", "3-bloquee" et "4-inf5cm".
+
+## Accueil hivernal des oiseaux d'eau
+
+La fonction `indicateur_avifaune_isac` calcule les conditions d'accueil de 
+l'avifaune dans la période hivernale
+
+Analyse de l'indicateur avifaune sur l'Isac
+
+```r
+indicateur_avifaune_isac(
+  dat,
+  h_favorable = 2.4,
+  h_moyen = 2.2,
+  mois_debut = "11",
+  mois_fin = "4",
+  niveau_marais = "isac_niveau_marais"
+)
+```
+Arguments
+
+dat	
+Un tableau de données, chargé par load_isac et traitement_debit_isac
+
+h_favorable	
+Le niveau favorable à l'accueil d'oiseaux hivernants sur l'Isac
+
+h_moyen	
+Le niveau en dessous duquel l'accueil des oiseaux hivernants devient mauvais
+
+mois_debut	
+Le mois de début de l'accueil de l'avifaune (inclus)
+
+mois_fin	
+Le mois de fin de l'accueil de l'avifaune (inclus)
+
+niveau_marais	
+Le niveau dans les marais, defaut "isac_niveau_marais" voir le jeu de données isac pour les codes possibles
+
+Le programme retourne
+Ub vecteur (factor) des types pour l'avifaune
+
+## Reproduction du brochet
+
+La fonction `indicateur_brochet_isac` calcule les conditions d'accueil de 
+l'avifaune dans la période hivernale
+
+
+
+```r
+indicateur_brochet_isac(
+  dat,
+  h_favorable = 2.3,
+  h_moyen = 2.2,
+  debut_ponte = "25/02",
+  fin_ponte = "15/03",
+  fin_emergence = "01/05",
+  niveau_marais = "isac_niveau_marais"
+)
+```
+Arguments :
+
+dat	
+Un tableau de données, chargé par load_isac et traitement_debit_isac.
+
+h_favorable	
+Le niveau favorable pour la reproduction.
+
+h_moyen	
+Hauteur en dessus de laquelle la reproduction est considérée comme moyenne et et en dessous duquel elle est considérée comme mauvaise.
+
+debut_ponte	
+Date de début de ponte defaut "25/02"
+
+fin_ponte	
+Date de fin de ponte et début de l'émergence defaut "15/03"
+
+fin_emergence	
+La date de fin de l'emergence (exclue) defaut "01/05".
+
+niveau_marais	
+Le niveau dans les marais, defaut "isac_niveau_marais" voir le jeu de données isac pour les codes possibles.
+
+La fonction retourne :
+Ub vecteur (factor) des types pour le brochet
+
+note :si on est pas dans la bonne période, pas de calcul du niveau ponte, on prend 2.30 comme référence....)
+                
+```{r debitisac, fig.height=6, fig.width=6}
+#data(isac_dat)
+
+
+# Calcul du débit et de la continuité au niveau de l'ouvrage
+
+debit <-  debit_vannes_isac(
+    hamont = isac_dat$isac_amont2,
+    haval = isac_dat$pontdecran,
+    hvanne1 = isac_dat$isac_position_vanne_1,
+    hvanne2 = isac_dat$isac_position_vanne_2
+)
+isac_dat1 <- cbind(isac_dat, debit)
+
+# cacul des indicateurs avisfaune et brochet
+# choisir niveau_marais = "isac_niveau_marais" si la variable est disponible
+
+isac_dat1$avifaune <- indicateur_avifaune_isac(isac_dat1,  niveau_marais="guenrouet")
+isac_dat1$brochet <- indicateur_brochet_isac(isac_dat1,  niveau_marais="guenrouet")
+
+
+# Graphique en ggplot, plusieurs graphiques, on notera l'usage de  
+#cowplot::plot_grid(... align = "v", axis = 'lr') pour aligner exactement
+# plusieurs graphiques sur l'axe des x
+# pour tout rassembler en un seul graphique utiliser ggnewscale::new_scale_fill()
+
+g0 <- ggplot(isac_dat1) + 
+  geom_line(aes(x=horodate, y= Q, colour="Q-vannes")) +
+  geom_line(aes(x=horodate, y = Q_pompes, colour="Q-pompes")) +
+  scale_colour_manual("Débit", values=c("Q-vannes"=bleu_EV,"Q-pompes"=orange_EV)) +
+  theme_bw()
+
+
+g1 <-   ggplot(isac_dat1) +
+  geom_rect(
+    aes(
+      xmin = horodate,
+      xmax = horodate + as.difftime(10, units = "mins"),
+      ymin = -30,
+      ymax = -35,
+      fill = mig
+    )) +
+  scale_fill_manual("Transparence migratoire", values = c("1-transparente"="blue",
+                                                          "2-difficile"="orange",
+                                                          "3-bloquee"="red",
+                                                          "4-inf5cm"="purple"))+
+  theme_minimal() +
+  theme(axis.line.x = element_blank(), axis.line.y = element_blank(), 
+        axis.text.x = element_blank(), axis.text.y = element_blank(), 
+        axis.ticks.x = element_blank(), axis.ticks.y = element_blank(), 
+        axis.title.x = element_blank(), axis.title.y = element_blank())+
+    theme(legend.position="bottom",
+          legend.title = element_text(size=6),
+          legend.text = element_text(size=6),
+          legend.key.height =unit(0.4, 'cm'),
+          legend.key.width =unit(0.4, 'cm'),
+          legend.direction = "horizontal",
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+  
+
+g2 <-  ggplot(isac_dat1) +
+  geom_rect(
+    aes(
+      xmin = horodate,
+      xmax = horodate + as.difftime(10, units = "mins"),
+      ymin = -40,
+      ymax = -45,
+      fill = avifaune
+    )) +
+  scale_fill_manual("Accueil avifaune", values = c("0-bon"="blue",
+                                                   "1-moyen"="orange",
+                                                   "2-mauvais"="red",
+                                                   "3-hors periode"="black",
+                                                   "4-inconnu"="grey"))+
+  theme_minimal() +
+  theme(axis.line.x = element_blank(), axis.line.y = element_blank(), 
+        axis.text.x = element_blank(), axis.text.y = element_blank(), 
+        axis.ticks.x = element_blank(), axis.ticks.y = element_blank(), 
+        axis.title.x = element_blank(), axis.title.y = element_blank())+
+  theme(legend.position="bottom",
+        legend.title = element_text(size=6),
+        legend.text = element_text(size=6),
+        legend.key.height =unit(0.4, 'cm'),
+        legend.key.width =unit(0.4, 'cm'),
+        legend.direction = "horizontal",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+
+g3 <-  ggplot(isac_dat1) +
+  geom_rect(
+    aes(
+      xmin = horodate,
+      xmax = horodate + as.difftime(10, units = "mins"),
+      ymin = -50,
+      ymax = -55,
+      fill = brochet
+    )) +
+  scale_fill_manual("Repro brochet", values = c("0-repro-bon"="blue",
+                                                "1-repro-moyen"="orange",
+                                                "2-repro-mauvais"="red",
+                                                "3-emergence-bon"="cyan",
+                                                "4-emergence-moyen"="gold",
+                                                "5-emergence-mauvais"="firebrick",
+                                                "6-inconnu/hors periode"="black")) +
+  
+  
+  theme_minimal() +
+  theme(axis.line.x = element_blank(), axis.line.y = element_blank(), 
+        axis.text.x = element_blank(), axis.text.y = element_blank(), 
+        axis.ticks.x = element_blank(), axis.ticks.y = element_blank(), 
+        axis.title.x = element_blank(), axis.title.y = element_blank())+
+    theme(legend.position="bottom",
+          legend.title = element_text(size=6),
+          legend.text = element_text(size=6),
+          legend.key.height =unit(0.4, 'cm'),
+          legend.key.width =unit(0.4, 'cm'),
+          legend.direction = "horizontal",
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+  
+  
+  cowplot::plot_grid(g0, g1, g2, g3, 
+          ncol = 1, nrow = 4,  align = "v", axis = 'lr', 
+          rel_heights  = c(4,1,1,1.3))
+
+```
+                
+
+                
+                
+                
+                

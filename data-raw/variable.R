@@ -95,8 +95,6 @@ variable$Unite <- iconv(
 colnames(variable) <- tolower(colnames(variable))
 usethis::use_data(variable, overwrite = TRUE)
 
-
-
 # niveaux ---------------------
 
 library(readxl)
@@ -112,15 +110,40 @@ usethis::use_data(niveau, overwrite = TRUE)
 
 
 # debit --------------------------------------
+
 library(readxl)
 debit <- read_excel("data-raw/variables.xlsx",sheet= "debit" )
 colnames(debit) <- tolower(colnames(debit))
 usethis::use_data(debit, overwrite = TRUE)
 
-# Isac
+# Isac -----------------------------------------------------------
 
-variable %>%dplyr::filter(tag %in% 
-            c(2000,233,2532,2533,1902,2100,2530,2531,900,700,2507,380,381,382,383,369,371,370,372)) %>%
-    dplyr::select(tag,  tagstation, libelle, unite, tablehisto) %>%     
-    dplyr::mutate(tablehisto = tolower(tablehisto)) %>% clipr::write_clip(object_type="table")
 
+
+# variable %>%dplyr::filter(tag %in% 
+#             c(2000,233,2532,2533,1902,2100,2530,2531,900,700,2507,380,381,382,383,369,371,370,372)) %>%
+#     dplyr::select(tag,  tagstation, libelle, unite, tablehisto) %>%     
+#     dplyr::mutate(tablehisto = tolower(tablehisto)) %>% clipr::write_clip(object_type="table")
+
+library(readxl)
+isac <- read_excel("data-raw/variables.xlsx", sheet= "isac")
+isac$isac <- as.logical(isac$isac)
+isac$pluvio <- as.logical(isac$pluvio)
+str(isac)
+usethis::use_data(isac, overwrite = TRUE)
+
+
+# Trevelo -----------------------------------------------------------
+
+
+
+# variable %>%dplyr::filter(tag %in% 
+#             c(2000,233,2532,2533,1902,2100,2530,2531,900,700,2507,380,381,382,383,369,371,370,372)) %>%
+#     dplyr::select(tag,  tagstation, libelle, unite, tablehisto) %>%     
+#     dplyr::mutate(tablehisto = tolower(tablehisto)) %>% clipr::write_clip(object_type="table")
+
+library(readxl)
+trevelo <- read_excel("data-raw/variables.xlsx", sheet= "trevelo")
+
+str(trevelo)
+usethis::use_data(trevelo, overwrite = TRUE)

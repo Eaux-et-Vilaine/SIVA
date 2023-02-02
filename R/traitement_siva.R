@@ -18,6 +18,8 @@
 #' au barrage.
 #' 
 #' @export
+#' @seealso traitement_cumul pour les données chargées par une autre fonction
+#' que load_debit_barrage
 #' @examples
 #' # voir example-bilansiva-debit pour le chargement des données de 2020 dans SIVA
 #' rawdata2020 <- SIVA::rawdata2020
@@ -31,16 +33,9 @@ traitement_siva <- function(dat) {
     dat <- dat[, -grep("Tag", colnames(dat))]
   }
   # colonnes contenant les cumuls
-  totcol <- grep("tot", colnames(dat))
-  volumes <- dat[, totcol]
-  volumes[2:nrow(volumes), ] <-
-    volumes[2:nrow(volumes), ] - volumes[1:(nrow(volumes) - 1), ]
-  volumes <- volumes[-1, ]
-  volumes[volumes < 0] <- NA
-  dat[2:nrow(dat), totcol] <- volumes
-  dat[1, totcol] <- NA
   
-
+  dat <- traitement_cumul(dat, pattern = "tot")
+  totcol <- grep("tot", colnames(dat))
   # vanne ----------------------------------------
   
   test_vanne <- dat$tot_vol_vanne > 480000 &
@@ -72,7 +67,7 @@ traitement_siva <- function(dat) {
     warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min transform\u00e9es en NA (133 m3/s)",ct_volet))
   }
   
-  # Sipon ----------------------------------------
+  # Siphon ----------------------------------------
 
   # les volumes du siphon sont des volumes à la journée
   # je les remplace à partir du calcul des débits du siphon

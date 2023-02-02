@@ -35,3 +35,7 @@ plot(rawdata2020$tot_vol_vanne)
 cordata2020 <- traitement_siva(dat=rawdata2020)
 plot(cordata2020$tot_vol_vanne)
 }
+\seealso{
+traitement_cumul pour les données chargées par une autre fonction
+que load_debit_barrage
+}
