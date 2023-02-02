@@ -159,9 +159,8 @@ debit_vanne <- function(hvilaine, # vecteur
 		
     } else if (canal=="manning"){
       # Formule de Manning-Strickler
-      # m coefficient de contraction 0.70
       res$typecalc[loicanal]<-"canal manning"
-      res$Q[loicanal]<-Cma*(h1[loicanal])*l*sqrt(2*g*delta[loicanal])
+      res$Q[loicanal]<-Cma*hvanne*l*sqrt(2*g*delta[loicanal])
       #####################################	
 # I5- formule utilisée dans Briand & Woimant (2015) ce rapport
       #####################################				

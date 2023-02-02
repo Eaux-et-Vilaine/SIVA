@@ -10,7 +10,8 @@
 #' @param lvanne1 Larguer de la vanne1 au centre de l'ouvrage 4.81
 #' @param g 9.81.
 #' @param canal Loi de débit "manning".
-#' @param Cma Coefficient canal pour Manning défaut 0.65.
+#' @param Cma Coefficient canal pour Manning défaut 0.62.
+#' @param hradier Hauteur du radier (fond) de la vanne.
 #'
 #' @return  Un data frame avec "Q1" le débit calculé sur la vanne 1 en m3/s, 
 #' "Q2" le débit calculé sur la vanne 1 en m3/s, Q le débit total typecalc1,
@@ -23,11 +24,12 @@
 
 #' # Calcul du débit d'une vanne
 #' Qva1 <-
+#' debit_isac <-
 #'   debit_vannes_isac(
-#'     hamont = dat$isac_amont2,
-#'     haval = dat$pontdecran,
-#'     hvanne1 = dat$isac_position_vanne_1,
-#'     hvanne2 = dat$isac_position_vanne_2
+#'     hamont = isac_dat$isac_amont2,
+#'     haval = isac_dat$pontdecran,
+#'     hvanne1 = isac_dat$isac_position_vanne_1,
+#'     hvanne2 = isac_dat$isac_position_vanne_2
 #'   )
 #' plot(Qva1[4000:5000,])
 #' 
@@ -40,7 +42,7 @@ debit_vannes_isac <- function(hamont, # vecteur
     lvanne1 = 4.81,
     g = 9.81,
     canal = "manning", # un seul choix pour l'instant
-    Cma = 0.65, #coefficient canal pour manning,
+    Cma = 0.62, #coefficient canal pour manning,
     hradier = 0.28
 
 ){
@@ -51,8 +53,8 @@ debit_vannes_isac <- function(hamont, # vecteur
   res$Q1 <- rep(NA,length(haval)) 
   res$Q2 <- rep(NA,length(haval))
   res$Q <-  rep(NA,length(haval))
-  h1 <- hamont-0.28
-  h2 <- haval-0.28
+  #h1 <- hamont-0.28
+  #h2 <- haval-0.28
   delta <- hamont-haval # y dans la formule
   res$Q1[hvanne1==0] <- 0
   res$Q2[hvanne2==0] <- 0
@@ -62,32 +64,31 @@ debit_vannes_isac <- function(hamont, # vecteur
   res$typecalc2[hvanne2==0] <- "vanne fermee"  	
   res$typecalc1[is.na(delta)] <- "pas de donnee"
   res$typecalc2[is.na(delta)] <- "pas de donnee"
-# I4- formule de Manning ------------------------------------------------------------------
-  
+
   if (canal=="manning"){
     # Calcul de débit  ----------------------
-    # Formule de Manning-Strickler
+    # Formule de Manning
     # Vanne 1 ----------------
-
-    loicanal1 <- !is.na(delta) & hvanne1>0 & delta>0 & !is.na(hvanne1)
-    loicanalinv1 <- !is.na(delta) & hvanne1>0 & delta<0 & !is.na(hvanne1)
+    loicanal1 <- !is.na(delta)  & delta>0 & !is.na(hvanne1)
+    loicanalinv1 <- !is.na(delta) & delta<0 & !is.na(hvanne1)
     res$typecalc1[loicanal1] <- "manning"
     res$typecalc1[loicanalinv1] <- "manning vers marais"
-    res$Q1[loicanal1] <- Cma*(h1[loicanal1])*lvanne1*sqrt(2*g*delta[loicanal1])
-    res$Q1[loicanalinv1] <- -Cma*(h2[loicanalinv1])*lvanne1*sqrt(2*g*-delta[loicanalinv1])
+    res$Q1[loicanal1] <- Cma*(hvanne1[loicanal1])*lvanne1*sqrt(2*g*delta[loicanal1])
+    res$Q1[loicanalinv1] <- -Cma*(hvanne1[loicanalinv1])*lvanne1*sqrt(2*g*-delta[loicanalinv1])
     # Vanne 2 ----------------
-    loicanal2 <- !is.na(delta) & hvanne2>0 & delta>0 & !is.na(hvanne2)
-    loicanalinv2 <- !is.na(delta) & hvanne2>0 & delta<0 & !is.na(hvanne2)
+    loicanal2 <- !is.na(delta)  & delta>0 & !is.na(hvanne2)
+    loicanalinv2 <- !is.na(delta) & delta<0 & !is.na(hvanne2)
     res$typecalc2[loicanal2] <- "manning"
     res$typecalc2[loicanalinv2] <- "manning vers marais"
-    res$Q2[loicanal2] <- Cma*(h1[loicanal2])*lvanne1*sqrt(2*g*delta[loicanal2])
-    res$Q2[loicanalinv2] <- -Cma*(h2[loicanalinv2])*lvanne1*sqrt(2*g*-delta[loicanalinv2])
+    res$Q2[loicanal2] <- Cma*(hvanne2[loicanal2])*lvanne1*sqrt(2*g*delta[loicanal2])
+    res$Q2[loicanalinv2] <- -Cma*(hvanne2[loicanalinv2])*lvanne1*sqrt(2*g*-delta[loicanalinv2])
     # Calcul de débit > Isac ----------------------
-    res$Q = res$Q1+res$Q2
+    res$Q = rowSums(res[,c("Q1","Q2")], na.rm=T)
     res$mig <- "3-bloquee"
-    res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)<0.2 & abs(delta)>0.05 & !is.na(delta)] <- "1-transparente"
-    res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)>=0.2 & abs(delta)<0.5 & !is.na(delta)] <- "2-difficile"
-    res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)<0.05 & !is.na(delta)] <- "4-inf5cm"
+    hvanne <- pmax(hvanne1, hvanne2)
+    res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)<0.30 & abs(hvanne)>0.05 & !is.na(delta)] <- "1-transparente"
+    res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)>=0.30 & abs(delta)<0.5 &  abs(hvanne)>0.05 & !is.na(delta)] <- "2-difficile"
+    res$mig[res$Q!=0 & !is.na(res$Q) & abs(hvanne)<0.05 & !is.na(delta)] <- "4-inf5cm"
     res$mig <- as.factor(res$mig)
   }	else	{			
     stop("canal doit \u00eatre manning")

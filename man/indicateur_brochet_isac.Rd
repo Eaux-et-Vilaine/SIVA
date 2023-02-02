@@ -7,23 +7,29 @@
 indicateur_brochet_isac(
   dat,
   h_favorable = 2.3,
-  h_moyen = 2.1,
-  mois_debut = "2",
-  mois_fin = "4",
+  h_moyen = 2.2,
+  debut_ponte = "25/02",
+  fin_ponte = "15/03",
+  fin_emergence = "01/05",
   niveau_marais = "isac_niveau_marais"
 )
 }
 \arguments{
-\item{dat}{Un tableau de données, chargé par load_isac et traitement_debit_isac}
+\item{dat}{Un tableau de données, chargé par load_isac et traitement_debit_isac.}
 
-\item{h_favorable}{Le niveau favorable pour la reproduction}
+\item{h_favorable}{Le niveau favorable pour la reproduction.}
 
-\item{mois_debut}{Le mois avant lequel la repro s'effectue et après lequel l'émergence commence}
+\item{h_moyen}{Hauteur en dessus de laquelle la reproduction est considérée comme
+moyenne et et en dessous duquel elle est considérée comme mauvaise.}
 
-\item{mois_fin}{Le mois de fin de l'émergence (inclus)}
+\item{debut_ponte}{Date de début de ponte defaut "25/02"}
 
-\item{niveau_marais}{Le niveau dans les marais, defaut "isac_niveau_marais"
-voir le jeu de données isac pour les codes possibles}
+\item{fin_ponte}{Date de fin de ponte et début de l'émergence defaut "15/03"}
+
+\item{fin_emergence}{La date de fin de l'emergence (exclue) defaut "01/05".}
+
+\item{niveau_marais}{Le nom de la variable de niveau dans les marais, defaut "isac_niveau_marais"
+voir le jeu de données isac pour les codes possibles.}
 }
 \value{
 Ub vecteur (factor) des types pour le brochet

@@ -10,7 +10,7 @@
 #' @param niveau_marais Le niveau dans les marais, defaut "isac_niveau_marais"
 #' voir le jeu de données isac pour les codes possibles
 #' @return Ub vecteur (factor) des types pour l'avifaune
-#' 
+#' @importFrom dplyr case_when
 #' @export
 indicateur_avifaune_isac <- function(dat,
                                      h_favorable = 2.40,
@@ -20,13 +20,16 @@ indicateur_avifaune_isac <- function(dat,
                                      niveau_marais="isac_niveau_marais"
 ){
   
-  niveau_marais <- dat[,niveau_marais]
-  avifaune <- case_when(
-    niveau_marais>=h_favorable ~ "0-bon",
-    niveau_marais<h_favorable & niveau_marais>=h_moyen ~ "1-moyen",
-    niveau_marais<h_moyen ~ "2-mauvais",
-    is.na(niveau_marais) ~ "4-inconnu")
+  h_marais <- dat[,niveau_marais]
+  if (all(is.na(h_marais))) warning(paste("Attention, pas de donnees pour",niveau_marais))
+  if (any(is.na(h_marais))) warning(sprintf("Attention, %s donnees manquantes sur %s pour %s",
+                                            sum(is.na(h_marais)),length(h_marais),niveau_marais))
+  avifaune <- dplyr::case_when(
+    h_marais>=h_favorable ~ "0-bon",
+    h_marais<h_favorable & h_marais>=h_moyen ~ "1-moyen",
+    h_marais<h_moyen ~ "2-mauvais",
+    is.na(h_marais) ~ "4-inconnu")
   avifaune[lubridate::month(dat$horodate) > as.numeric(mois_fin) &
-             lubridate::month(dat$horodate) < as.numeric(mois_debut)]<-"3-hors période"
+             lubridate::month(dat$horodate) < as.numeric(mois_debut)]<-"3-hors periode"
   return(as.factor(avifaune))
 }

@@ -22,7 +22,6 @@ traitement_isac(
 }
 \value{
 Un tableau de données avec les donnees d'entrée et
-\begin{itemize}
 \item{h}{le delta amont aval en m (les débits pompe sont calculés avec -h).}
 \item{t}{ le temps de fonctionnement cumulé des pompes ... corrigé en enlevant
 les fonctionnements vannes ouvertes et les valeurs > 40 min par 10 min.}
@@ -30,7 +29,6 @@ les fonctionnements vannes ouvertes et les valeurs > 40 min par 10 min.}
 en compte de le coût de l'abonnement).}
 \item{cout_carbone}{ Le coût carbone de fonctionnement des pompes basé sur le cout carbone
 du KWh en France.}
-\end{itemize}
 }
 \description{
 traitement des cumuls + correction

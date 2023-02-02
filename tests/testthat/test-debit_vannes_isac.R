@@ -6,5 +6,5 @@ test_that("debit_vannes_isac works", {
        hvanne1 = isac_dat$isac_position_vanne_1,
        hvanne2 = isac_dat$isac_position_vanne_2
      )
-   plot(Qva1[4000:5000,])
+   expect_equal(nrow(debit_isac),52588)
 })

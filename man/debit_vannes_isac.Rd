@@ -13,7 +13,7 @@ debit_vannes_isac(
   lvanne1 = 4.81,
   g = 9.81,
   canal = "manning",
-  Cma = 0.65,
+  Cma = 0.62,
   hradier = 0.28
 )
 }
@@ -34,7 +34,9 @@ debit_vannes_isac(
 
 \item{canal}{Loi de débit "manning".}
 
-\item{Cma}{Coefficient canal pour Manning défaut 0.65.}
+\item{Cma}{Coefficient canal pour Manning défaut 0.62.}
+
+\item{hradier}{Hauteur du radier (fond) de la vanne.}
 }
 \value{
 Un data frame avec "Q1" le débit calculé sur la vanne 1 en m3/s,
@@ -49,11 +51,12 @@ Fonction de calcul de débit pour une vanne
 \examples{
 # Calcul du débit d'une vanne
 Qva1 <-
+debit_isac <-
   debit_vannes_isac(
-    hamont = dat$isac_amont2,
-    haval = dat$pontdecran,
-    hvanne1 = dat$isac_position_vanne_1,
-    hvanne2 = dat$isac_position_vanne_2
+    hamont = isac_dat$isac_amont2,
+    haval = isac_dat$pontdecran,
+    hvanne1 = isac_dat$isac_position_vanne_1,
+    hvanne2 = isac_dat$isac_position_vanne_2
   )
 plot(Qva1[4000:5000,])
 
