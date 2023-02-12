@@ -1,3 +1,7 @@
+# SIVA 0.1.4.1
+
+* Ajout des fonctions de connection aux sondes Vega (trévelo et Isac)
+
 # SIVA 0.1.4
 
 * developments Isac.
