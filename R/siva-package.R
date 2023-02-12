@@ -14,5 +14,5 @@ utils::globalVariables(c("loess_gamma_bazin", "Q",".","debit_moyen_cran","debit_
                        "volvoletcalcule", "volvannescalcule","debit_recalcule", "debit_barQ", "fonctionnement", "Q",
                        "debit_moyen_vol_passe","debit_moyen_vol_siphon","vol","Qtxt","debit_moyen_vol_ecluse",
                        "debit_passe", "niveau_mer_barrage","niveau_vilaine_barrage","niveau_sas_passe",
-                       "hauteur_vanne_mer","hauteur_vanne_vilaine","per_tar_code",""
+                       "hauteur_vanne_mer","hauteur_vanne_vilaine","per_tar_code","","Valeur","HoroDate","Tag"
                        ))
