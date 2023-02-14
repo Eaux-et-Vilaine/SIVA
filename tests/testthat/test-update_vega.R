@@ -22,12 +22,6 @@ test_that("updating latest data to the db works", {
       } else {
         umysql. <- decrypt_string(string = umysql, key = mainpass)
       }
-      if (!exists("umysql")) {
-        umysql. <- getPass::getPass(msg = "Saisir user")
-        umysql <- encrypt_string(string = umysql., key = mainpass)
-      } else {
-        umysql. <- decrypt_string(string = umysql, key = mainpass)
-      }
       # attention il faut avaoir définit mainpass <- "xxxxx"
       pool <- pool::dbPool(
           drv = RMariaDB::MariaDB(),
