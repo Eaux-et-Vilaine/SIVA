@@ -47,7 +47,7 @@ update_vega <- function(con,
   DBI::dbWriteTable(con, temptable, dat_vega, row.names = FALSE, append = TRUE)
   DBI::dbExecute(con, paste0("INSERT INTO ",nomtable," SELECT * FROM ",temptable,";"))
   DBI::dbExecute(con,paste0("DROP TABLE IF EXISTS ",temptable,";"))
-  cat(sprintf("%s Valeurs mise(s) \u00e0 jour pour %s depuis %s \u00e0 %s, table %s, tag %s",
+  cat(sprintf("%s Valeurs mise(s) \u00e0 jour pour %s depuis %s \u00e0 %s, table %s, tag %s\n",
           nrow(dat_vega),
           sonde, 
           min(dat_vega$HoroDate), 
@@ -55,7 +55,7 @@ update_vega <- function(con,
           nomtable,
           tag))
 } else {
-  cat(sprintf("%s derni\u00e8re donn\u00e9e dans la table %s pas de nouvelle donn\u00e9es de la sonde",
+  cat(sprintf("%s derni\u00e8re donn\u00e9e dans la table %s pas de nouvelle donn\u00e9es de la sonde\n",
           sonde,
           debut))
 }
