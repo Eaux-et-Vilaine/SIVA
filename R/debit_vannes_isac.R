@@ -85,7 +85,6 @@ debit_vannes_isac <- function(hamont, # vecteur
     # Calcul de débit > Isac ----------------------
     res$Q = rowSums(res[,c("Q1","Q2")], na.rm=T)
     # calcul de la migration ----------------------
-    browser()
     res$mig <- "3-bloquee"
     hvanne <- pmax(hvanne1, hvanne2)
     res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)<0.30 & abs(hvanne)>0.05 & !is.na(delta)] <- "1-transparente"
