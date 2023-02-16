@@ -1,12 +1,9 @@
 #' @title Methode de chargement pour loadb
 #' @param objet Un objet de class bilansiva.
-#' @param datawd Le chemin vers le repertoire où sauver les données.
 #' @param con Une connexion pool
 #' @param checktag Defaut FALSE, faut il vérifier que le tag existe dans la table,
 #' à utiliser lors des tests.
 #' @param plot Boolean, faut il un graphe ?
-#' @param loadrdata Faut il charger un jeu de donnees sauvé dans datawd à la place de la base
-#' @param saverdata Faut il sauvegarder un jeu de donnees dans datawd
 #' @importFrom RMariaDB MariaDB
 #' @importFrom pool dbPool
 #' @importFrom lubridate round_date
@@ -44,29 +41,11 @@ setMethod(
   "loaddb",
   signature = signature("bilansiva"),
   definition = function(objet,
-                        datawd,
                         con,
                         checktag = FALSE,
-                        plot = TRUE,
-                        loadrdata = FALSE,
-                        saverdata = FALSE) {
-    if (loadrdata) {
-      # charge un objet precedemment sauve
-      datapath <- file.path(datawd,
-                            paste0(
-                              "bilansiva",
-                              strftime(objet@debut, "%d%m%y"),
-                              "-",
-                              strftime(objet@fin, "%d%m%y"),
-                              ".Rdata"
-                            ))
-      if (!file.exists(datapath))
-        stop(
-          "L'objet a charger n'existe pas, lancer d'abord un chargement depuis la base
-               avec loaddb(objet = monbilansiva, con=maconnexionpool, loadrdata=FALSE, saverdata=TRUE"
-        )
-      load(file = datapath)
-    } else {
+                        plot = TRUE
+                       ) {
+    
       if (any(!is.integer(objet@tags))) stop("Les tags doivent \u00eatre des entiers, utiliser as.integer()")
       for (i in 1:length(objet@tables)) {
         tab <- new("tablesiva") # création de la classe
@@ -140,21 +119,9 @@ setMethod(
         #poolClose(pool)
         
       }
-    }
-    cat("fin des calculs \n")
-    # sauvegarde de l'objet ------------------
-    if (saverdata) {
-      save(objet, file.path(
-        datawd,
-        paste0(
-          "bilansiva",
-          strftime(objet@debut, "%d%m%y"),
-          "-",
-          strftime(objet@fin, "%d%m%y"),
-          ".Rdata"
-        )
-      ))
-    }
+        cat("fin des calculs \n")
+
+    
     return(objet)
   }
 )
