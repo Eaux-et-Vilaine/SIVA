@@ -1,3 +1,9 @@
+# SIVA 0.1.4.2
+
+* minor fix in comment for flow volet
+* remove saving data option in load_db (not used)
+* package tested with didson 
+
 # SIVA 0.1.4.1
 
 * Ajout des fonctions de connection aux sondes Vega (trévelo et Isac)
@@ -6,11 +12,9 @@
 
 * developments Isac.
 
-
 # SIVA 0.1.3
 
 * fixed https://github.com/Eaux-et-Vilaine/SIVA/issues/13 problem with debit
-
 
 # SIVA 0.1.2
 
