@@ -1,6 +1,6 @@
 Package: SIVA
 Title: Systeme D'information Sur La Vilaine Aval
-Version: 0.1.4.0
+Version: 0.1.4.1
 Authors@R: c(
     person("Cédric", "Briand", , "cedric.briand@eaux-et-vilaine.bzh", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7721-5195")),
@@ -18,7 +18,10 @@ Imports:
     plotly,
     tidyr,
     viridis,
-    ggplot2
+    ggplot2,
+    httr,
+    DBI,
+    jsonlite
 Suggests: 
     getPass,
     knitr,
@@ -81,4 +84,6 @@ Collate:
     'isac_dat.R'
     'indicateur_avifaune_isac.R'
     'indicateur_brochet_isac.R'
+    'load_vega.R'
+    'update_vega.R'
 LazyData: true
