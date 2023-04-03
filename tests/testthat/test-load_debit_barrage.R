@@ -41,3 +41,4 @@ test_that("load_debit_barrage works", {
   expect_is(debit_barrage, "data.frame")
   poolClose(pool)
 })
+

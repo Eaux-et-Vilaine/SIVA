@@ -82,6 +82,11 @@ debit_total <-
       #coefficient ifsw écoulement surface libre (canal)
       loi_orificenoye = "ifws"#"ferrete"
     )
+    # bug #23
+    # no data for tot_vol_passe no data for tot_vol_siphon historically < 2010
+    if (!"tot_vol_passe" %in% colnames(dat)) dat$tot_vol_passe <- dat$debit_passe * 600
+    if (!"tot_vol_siphon" %in% colnames(dat)) dat$tot_vol_siphon <- rowSums(dat[,c("debit_siphon_1", "debit_siphon_2")]) * 600
+    
     Q12345 <-
       cbind(
         Qva12345,
