@@ -84,11 +84,12 @@ debit_vannes_isac <- function(hamont, # vecteur
     res$Q2[loicanalinv2] <- -Cma*(hvanne2[loicanalinv2])*lvanne1*sqrt(2*g*-delta[loicanalinv2])
     # Calcul de débit > Isac ----------------------
     res$Q = rowSums(res[,c("Q1","Q2")], na.rm=T)
+    # calcul de la migration ----------------------
     res$mig <- "3-bloquee"
     hvanne <- pmax(hvanne1, hvanne2)
     res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)<0.30 & abs(hvanne)>0.05 & !is.na(delta)] <- "1-transparente"
     res$mig[res$Q!=0 & !is.na(res$Q) & abs(delta)>=0.30 & abs(delta)<0.5 &  abs(hvanne)>0.05 & !is.na(delta)] <- "2-difficile"
-    res$mig[res$Q!=0 & !is.na(res$Q) & abs(hvanne)<0.05 & !is.na(delta)] <- "4-inf5cm"
+    res$mig[res$Q!=0 & !is.na(res$Q) & abs(hvanne)<=0.05 & !is.na(delta)] <- "4-inf5cm"
     res$mig <- as.factor(res$mig)
   }	else	{			
     stop("canal doit \u00eatre manning")

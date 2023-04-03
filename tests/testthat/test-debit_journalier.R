@@ -12,3 +12,6 @@ test_that("debit_total fonctionne", {
   expect_error(Qj <- 
                  debit_journalier(debit_barrage=dat2019, type = "barbapapa"))
  })
+
+
+

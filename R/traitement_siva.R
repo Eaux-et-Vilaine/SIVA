@@ -64,7 +64,7 @@ traitement_siva <- function(dat) {
   ct_volet <- sum(test_volet)
   if (ct_volet >0) {
     dat[ct_volet, "tot_vol_volet"] <- NA
-    warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min transform\u00e9es en NA (133 m3/s)",ct_volet))
+    warning(sprintf("Volume volet, %s valeurs au dessus de 80 000 m3 par 10 min (133 m3/s, 27 m3/s / volet) transform\u00e9es en NA",ct_volet))
   }
   
   # Siphon ----------------------------------------

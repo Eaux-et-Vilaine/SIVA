@@ -4,20 +4,10 @@
 \alias{loaddb,bilansiva-method}
 \title{Methode de chargement pour loadb}
 \usage{
-\S4method{loaddb}{bilansiva}(
-  objet,
-  datawd,
-  con,
-  checktag = FALSE,
-  plot = TRUE,
-  loadrdata = FALSE,
-  saverdata = FALSE
-)
+\S4method{loaddb}{bilansiva}(objet, con, checktag = FALSE, plot = TRUE)
 }
 \arguments{
 \item{objet}{Un objet de class bilansiva.}
-
-\item{datawd}{Le chemin vers le repertoire où sauver les données.}
 
 \item{con}{Une connexion pool}
 
@@ -25,10 +15,6 @@
 à utiliser lors des tests.}
 
 \item{plot}{Boolean, faut il un graphe ?}
-
-\item{loadrdata}{Faut il charger un jeu de donnees sauvé dans datawd à la place de la base}
-
-\item{saverdata}{Faut il sauvegarder un jeu de donnees dans datawd}
 }
 \value{
 Un objet de classe bilansiva

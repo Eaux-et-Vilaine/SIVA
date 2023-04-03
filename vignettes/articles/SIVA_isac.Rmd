@@ -9,7 +9,7 @@ output:
     toc_depth: 3
     toc_float: yes
 params: 
-  work_with_db: FALSE   
+  work_with_db: TRUE   
   debut: !r Sys.Date()-30
   fin: !r Sys.Date()
 ---
