@@ -1,9 +1,13 @@
-# SIVA 0.1.4.2
+# SIVA 0.1.4.3
 
-* minor fix in comment for flow volet
-* remove saving data option in load_db (not used)
-* package tested with didson 
+* fixed bug #23 missing values for `tot_vol_passe` and `tot_vol_siphon` in the db in 2009
 
+#SIVA 0.1.4.2 
+
+SIVA 0.1.4.2
+minor fix in comment for flow volet
+remove saving data option in load_db (not used)
+package tested with didson
 
 # SIVA 0.1.4.1
 
@@ -13,9 +17,13 @@
 
 * developments Isac.
 
+
+
+
 # SIVA 0.1.3
 
 * fixed https://github.com/Eaux-et-Vilaine/SIVA/issues/13 problem with debit
+
 
 # SIVA 0.1.2
 
