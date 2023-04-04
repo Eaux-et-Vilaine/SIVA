@@ -82,7 +82,6 @@ debit_total <-
       #coefficient ifsw écoulement surface libre (canal)
       loi_orificenoye = "ifws"#"ferrete"
     )
-
     Q12345 <-
       cbind(
         Qva12345,
