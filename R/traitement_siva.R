@@ -29,11 +29,15 @@
 #' plot(cordata2020$tot_vol_vanne)
 traitement_siva <- function(dat) {
   # avant 2016 les variables n'existent pas, pb de "tags"
-  if (min(as.numeric(dat$horodate)) < 1451607000)	{
+  if (min(as.numeric(dat$horodate)) < 1451607000 & "Tags" %in% colnames(dat))	{
     dat <- dat[, -grep("Tag", colnames(dat))]
   }
   # colonnes contenant les cumuls
-  
+  # bug #23
+  # no data for tot_vol_passe no data for tot_vol_siphon historically < 2010
+  if (!"tot_vol_passe" %in% colnames(dat)) dat$tot_vol_passe <- dat$debit_passe * 600
+  if (!"tot_vol_siphon" %in% colnames(dat)) dat$tot_vol_siphon <- rowSums(dat[,c("debit_siphon_1", "debit_siphon_2")]) * 600
+  cat("Attention à cette date les totaliseurs passe et siphon n'existent pas .... recalcul à partir des débits.")
   dat <- traitement_cumul(dat, pattern = "tot")
   totcol <- grep("tot", colnames(dat))
   # vanne ----------------------------------------

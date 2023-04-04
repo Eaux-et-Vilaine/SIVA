@@ -46,7 +46,8 @@ test_that("debit total in 2009 (bug #23)", {
                   con = pool
               ))# 23 s maison
       expect_is(debit_barrage, "data.frame")
-      DT <-debit_total(SIVA::param, param0 = SIVA::param,   dat= debit_barrage)
+      debit_barrage2 <- traitement_siva(dat=debit_barrage)
+      DT <-debit_total(SIVA::param, param0 = SIVA::param,   dat= debit_barrage2)
      
-      poolClose(pool)
+      pool::poolClose(pool)
     })
