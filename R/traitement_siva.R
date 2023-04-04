@@ -37,7 +37,7 @@ traitement_siva <- function(dat) {
   # no data for tot_vol_passe no data for tot_vol_siphon historically < 2010
   if (!"tot_vol_passe" %in% colnames(dat)) dat$tot_vol_passe <- dat$debit_passe * 600
   if (!"tot_vol_siphon" %in% colnames(dat)) dat$tot_vol_siphon <- rowSums(dat[,c("debit_siphon_1", "debit_siphon_2")]) * 600
-  cat("Attention à cette date les totaliseurs passe et siphon n'existent pas .... recalcul à partir des débits.")
+  cat("Attention \u00e0 cette date les totaliseurs passe et siphon n\'existent pas .... recalcul \u00e0 partir des d\u00e9bits.")
   dat <- traitement_cumul(dat, pattern = "tot")
   totcol <- grep("tot", colnames(dat))
   # vanne ----------------------------------------
