@@ -41,10 +41,13 @@ update_vega <- function(con,
       dplyr::mutate(Tag=tag) %>%
       dplyr::rename("HoroDate"="timestamp","Valeur"="value") %>%
       dplyr::select(Tag,HoroDate,Valeur)
+  dat_vega <- dat_vega %>% dplyr::distinct(.keep_all=TRUE)
   dat_vega <- dat_vega[-1,] # la dernière valeur est déjà dans la table
+  # bug 2023 il y a des valeurs répétées dans la table
+
   if (nrow(dat_vega)>0){
   DBI::dbExecute(con,paste0("DROP TABLE IF EXISTS ",temptable,";"))
-  DBI::dbWriteTable(con, temptable, dat_vega, row.names = FALSE, append = TRUE)
+  DBI::dbWriteTable(con, temptable, dat_vega, row.names = FALSE, append = FALSE, overwrite=TRUE)
   DBI::dbExecute(con, paste0("INSERT INTO ",nomtable," SELECT * FROM ",temptable,";"))
   DBI::dbExecute(con,paste0("DROP TABLE IF EXISTS ",temptable,";"))
   cat(sprintf("%s Valeurs mise(s) \u00e0 jour pour %s depuis %s \u00e0 %s, table %s, tag %s\n",

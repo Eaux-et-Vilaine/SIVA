@@ -1,6 +1,7 @@
 # SIVA 0.1.4.3
 
 * fixed bug #23 missing values for `tot_vol_passe` and `tot_vol_siphon` in the db in 2009
+* fixed bug when loading from vega probe
 
 #SIVA 0.1.4.2 
 
