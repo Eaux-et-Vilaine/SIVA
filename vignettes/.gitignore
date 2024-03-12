@@ -1,1 +1,3 @@
 *.R
+/extraction_donnees_barrage_files/
+/extraction_donnees_barrage.rmarkdown

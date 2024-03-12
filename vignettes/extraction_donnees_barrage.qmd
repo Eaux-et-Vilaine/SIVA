@@ -1,0 +1,347 @@
+---
+title: "extraction_barrage"
+format: html
+editor: visual
+params:
+  debut: 2010-01-01
+  fin: 2024-02-01
+---
+
+# Extraction des données du barrage
+
+L'objectif est d'extraire les données à l'aide de ce fichier. Les paramètres en tête de script permettent de définir les dates d'extraction.
+
+```{r init}
+#| echo: false
+#| eval: true
+#| include: false
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+list=ls(all=TRUE)
+library(safer)
+library(getPass)
+if (!exists("mainpass")) mainpass <- getPass(msg="Main password")
+list<-list[-match(c("passworddistant","passwordlocal","umysql","pwdmysql"),list)  ]
+rm(list) # nettoyage complet
+debut<-as.character(params$debut)
+fin<-as.character(params$fin)
+load_library=function(necessary) {
+  if(!all(necessary %in% installed.packages()[, 'Package']))
+    install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+  for(i in 1:length(necessary))
+    library(necessary[i], character.only = TRUE)
+}
+load_library('stringr') # text handling
+load_library('lubridate')
+load_library('reshape2')
+load_library('tidyverse')	
+
+#'==========================================================
+#' fonction d'application de la transparence à des couleurs.
+#'==========================================================
+makeTransparent<-function(someColor, alpha=100)
+{
+  newColor<-col2rgb(someColor)
+  apply(newColor, 2, function(curcoldata){rgb(red=curcoldata[1], green=curcoldata[2],
+                                              blue=curcoldata[3],alpha=alpha, maxColorValue=255)})
+}	#note: always pass alpha on the 0-255 scale
+
+#'==========================================================
+#' Définition du nom des couleurs
+#'==========================================================
+
+bleu_EV <- "#00218f"
+turquoise_EV <- "#00C9C4"
+orange_EV <- "#ff7557"
+jaune_EV <- "#ffb428"
+bleu_EVf <- "#001350"
+jaune_EVf <- "#AD7000"
+orange_EVf <- "#b2513c"
+bleu_clair_EV <- "#33b5ff"
+turquoise_EVf <- "#007873"
+
+library(SIVA)
+
+
+```
+
+Chargement des données de débit
+
+```{r loaddebit}
+#| echo: false
+#| eval: true
+  if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
+  if (!exists("hostmysql")) {
+    hostmysql. <- getPass::getPass(msg = "Saisir host")
+    # ci dessous pour ne pas redemander au prochain tour
+    hostmysql <- encrypt_string(string = hostmysql., key = mainpass)
+  } else {
+    hostmysql. <- decrypt_string(string = hostmysql, key = mainpass)
+  }
+  if (!exists("pwdmysql")) {
+    pwdmysql. <- getPass::getPass(msg = "Saisir password")
+    pwdmysql <- encrypt_string(string = pwdmysql., key = mainpass)
+  }  else {
+    # pass should be loaded
+    pwdmysql. <- decrypt_string(string = pwdmysql, key = mainpass)
+  }
+  if (!exists("umysql")) {
+    umysql. <- getPass::getPass(msg = "Saisir user")
+    umysql <- encrypt_string(string = umysql., key = mainpass)
+  } else {
+    umysql. <- decrypt_string(string = umysql, key = mainpass)
+  }
+  # attention il faut avaoir définit mainpass <- "xxxxx"
+  
+  pool <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = hostmysql.,
+    username = umysql.,
+    password = pwdmysql.,
+    port=3306
+  )
+  
+  
+  system.time(debit_barrage <-
+                load_debit_barrage (debut = as.POSIXct(
+                  strptime(debut, format = "%Y-%m-%d")
+                ),
+                fin = as.POSIXct(
+                  strptime(fin, format = "%Y-%m-%d")
+                ),
+                con=pool))# 37-70 s maison # 10.5 EPTB
+
+```
+
+# Comparaison et analyse des débits
+
+## Recalcul des débits du barrage.
+
+```{r calcul_plot_debit_10min}
+# chargement des paramètres du barrage
+
+debit_barrage2 <- traitement_siva(debit_barrage)
+Q12345 <- debit_total(param, param0 = param, debit_barrage2)
+Q12345$tot_vol <- debit_barrage$tot_vol # volume total au barrage d'Arzal
+
+
+mQ <-
+  reshape2::melt(
+    Q12345[, c("horodate",
+               "qvanne1",
+               "qvanne2",
+               "qvanne3",
+               "qvanne4",
+               "qvanne5")],
+    id.vars = "horodate",
+    value.name = "Qvanne",
+    variable.name = "vanne"
+  )
+mcond <-
+  reshape2::melt(Q12345[, c("horodate",
+                            "typecalc1",
+                            "typecalc2",
+                            "typecalc3",
+                            "typecalc4",
+                            "typecalc5")], value.name = "typecalc", id.vars = "horodate")
+mQ$vanne <- as.character(mQ$vanne)
+mQ$vanne <- gsub("qvanne", "", mQ$vanne)
+mQ12345 <- cbind(mQ, "typecalc" = mcond[, 3]) # melted object
+
+
+g <-ggplot2::ggplot(mQ12345, ggplot2::aes(
+  x = horodate,
+  y = Qvanne,
+  col = typecalc,
+  shape = vanne
+)) + ggplot2::geom_jitter(size = 0.6)
+
+print(g)
+
+```
+
+## Calcul des débits journaliers
+
+```{r debit_journalier}
+
+# Calcul du débit journalier
+
+Qj <- debit_journalier(debit_barrage=debit_barrage, type = "recalcule")
+Q2j <- debit_journalier(debit_barrage=debit_barrage, type = "barrage_volume")
+Q3j <- debit_journalier(debit_barrage=debit_barrage, type = "barrage_debit")
+
+```
+
+```{r graphe analyse debit barrage}
+
+stopifnot(nrow(Qj) == nrow(Q2j))
+stopifnot(nrow(Q2j) == nrow(Q3j))
+QV <- bind_cols(Qj, Q2j %>% select(-date), Q3j %>% select(-date))
+Q <- QV %>% select(date |  starts_with("debit"))
+(
+  QV %>%
+    pivot_longer(
+      cols = starts_with("debit"),
+      names_to = "source",
+      values_to = "Q"
+    ) %>%
+    ggplot() + # geom_point(aes(x=date,y=Q, col=source, shape=source ), alpha=0.5) +
+    geom_line(aes(
+      x = date, y = Q, col = source
+    ), alpha = 0.5)
+) %>% plotly::ggplotly()
+
+knitr::kable(QV)
+
+QV2 <- QV |> select(date,debit_moyen_recalcule,debit_moyen_vol_volet,debit_moyen_vol_passe,debit_moyen_vol_siphon,debit_moyen_vol_ecluse)
+# create folder data in file folder
+dir.create("./extraction_donnees_barrage_files/data",showWarnings = FALSE)
+datawd <- ("./extraction_donnees_barrage_files/data/")
+write_csv2(QV2, file=str_c(datawd,"/debits_barrage_2010_2023.csv"))
+```
+
+# Calcul vectoriel des vents
+
+![](images/clipboard-1634810566.png)
+
+Pour les vents il faut faire un calcul vectoriel comme suit :
+
+![](images/clipboard-3733007697.png){width="320"}
+
+Attention il ne s'agit de l'origine des vents, pour représenter les vents sur une carte (vers ou le vent souffle) et faut faire 270-θ
+
+<http://colaweb.gmu.edu/dev/clim301/lectures/wind/wind-uv>
+
+Dans le test ci-dessous, on affiche le vent avec sa force et sa direction. On veut que la somme vectorielle fasse 0 dans le premier cas (l'utilisation d'un calcul avec les complexes conduità un angle de 180), 270 avec une force de 1
+
+![](images/clipboard-2304147356.png)
+
+dat \|\>
+
+mutate(θ=2\*pi\*(vent_orientation)/360) \|\>
+
+group_by(date) \|\>
+
+summarize(vent_orientation= 360\* Arg(mean(exp(θ\*1i), na.rm=TRUE))/(2\*pi) )
+
+```{r test}
+#| echo: true
+#| eval: true 
+
+
+
+
+
+#test
+
+dat <- tribble(~date,~vent_orientation, ~vent_force, 
+               "2010-01-01", 90, 1, 
+               "2010-01-01", 270,1,
+               "2010-01-02", 90, 1, 
+               "2010-01-02", 270,2,
+               "2010-01-03", 45, 1, 
+               "2010-01-03", -45,1)  
+knitr::kable(dat)
+
+# l'angle theta c'est arg d'un nombre complexe ne marche pas car c'est des coordonnées, l'angle de l'exemple 1 devient 180 et on ne peut pas utiliser les forces de vents pour calculer une somme pondérée :
+
+  dat |> 
+  mutate(θ=2*pi*(vent_orientation)/360) |>
+  group_by(date) |>
+  summarize(vent_orientation= 360* Arg(mean(exp(θ*1i), na.rm=TRUE))/(2*pi) )
+
+
+# Donc pour utiliser la force il faut des vecteurs :
+  dat |> 
+  mutate(θ=2*pi*(vent_orientation)/360) |>  #θ est maintenant en radians
+  rename(ws=vent_force) |>
+  mutate( u = ws * cos(θ), v=ws * sin(θ)) |> # problèmes d'arrondi machine
+  mutate(u = case_when(abs(u)<1e-10 ~ 0, TRUE ~u),
+         v = case_when(abs(v)<1e-10 ~ 0, TRUE ~v)) |>
+  group_by(date) |>
+  summarize(u = sum(u),
+            v = sum(v))  |>
+  mutate(θ=atan2(v,u), 
+         ws =sqrt(u^2+v^2)) |>
+  mutate(vent_orientation = 360*θ/(2*pi),
+         vent_force= ws,
+         vent_orientation =case_when(vent_orientation <0 ~ vent_orientation+360, 
+                   TRUE ~ vent_orientation)) |>
+    knitr::kable(digits =2)
+
+```
+
+![](images/clipboard-2492358492.png)
+
+# extraction des données météo
+
+Pour aller chercher les variables dispo, regarder l'id sur SIVA : [SIVA](http://portail.eptb-vilaine.fr/siva/dev/fichesmeta/metadonnees.php?id_var=2534&int_var=Vent%20-%20force). Les données sont dans le tableau de données `variable`. Il faut les chercher avec leur tag comme dans le script ci dessous
+
+
+```{r loadwindtemp}
+#| echo: false
+#| eval: true 
+
+# On extrait du tableau de données variable du package SIVA pour avoir les noms dans la table
+SIVA::variable |> dplyr::filter(tag %in% c(2526,2560,2534,2535)) 
+# je ne garde pas la 2560 
+pool <- pool::dbPool( drv = RMariaDB::MariaDB(), dbname = "archive_IAV", host = hostmysql., username = umysql., password = pwdmysql., port=3306 )
+
+bil<-new("bilansiva", tables=c("b_barrage_temperature", "b_barrage_vent", "b_barrage_vent" ), 
+         noms=c( "temperature_air", "vent_force", "vent_orientation" ), 
+         tags=as.integer(c(2560,2534,2535)), 
+         daterondes=rep("constant",3), 
+         debut= as.POSIXct( strptime(debut, format = "%Y-%m-%d") ), 
+         fin=as.POSIXct( strptime(fin, format = "%Y-%m-%d") ) ) # the pool connexion will be removed when executing loaddb 
+res <- loaddb(bil, con = pool)
+
+# Le calcul d'une moyenne circulaire peut être fait en passant par des nombres complexes et la fonction Arg
+
+
+
+
+  
+dat <- res@bilandata |> 
+  mutate(date=as.Date(horodate))  |>
+  mutate(θ=2*pi*(vent_orientation)/360) |>  #θ est maintenant en radians
+  rename(ws=vent_force) |>
+  mutate( u = ws * cos(θ), v=ws * sin(θ)) |> # problèmes d'arrondi machine
+  mutate(u = case_when(abs(u)<1e-10 ~ 0, TRUE ~u),
+         v = case_when(abs(v)<1e-10 ~ 0, TRUE ~v)) |>
+  group_by(date) |>
+  summarize(u = sum(u),
+            v = sum(v),
+            temperature_air = mean(temperature_air, na.rm=TRUE)) |>
+   mutate(θ=atan2(v,u), 
+         ws =sqrt(u^2+v^2)) |>
+  mutate(vent_orientation = 360*θ/(2*pi),
+         vent_force= ws,
+         vent_orientation =case_when(vent_orientation <0 ~ vent_orientation+360, 
+                   TRUE ~ vent_orientation)) |>
+  select(temperature_air, vent_orientation, vent_force)
+
+
+write_csv2(dat, file=str_c(datawd,"/vent_temperature_barrage_2010_2023.csv"))
+cat(sprintf("Les fichiers sont écrits dans %s et %s",
+            str_c(datawd,"/vent_temperature_barrage_2010_2023.csv"),
+            str_c(datawd,"/debits_barrage_2010_2023.csv")))
+
+```
+
+Au final deux fichiers sont produits, les debits du barrage donnent les valeurs de débit moyen journalier pour :
+
+* debit_moyen_recalcule = débit de l'ensemble du barrage
+* debit_moyen_vol_volet	= débit des volets, clapet déversants sur l'ouvrage
+* debit_moyen_vol_passe	= débit de la passe (tel que caculé par le barrage)
+* debit_moyen_vol_siphon = débit des siphons (qui évacuent les lentilles d'eau salée par le fond)
+* debit_moyen_vol_ecluse = débit de l'écluse (très limités)
+
+Et le fichier vent temperature donne les valeurs de vent et de température moyennes journaliers
+
+
+
+
+
