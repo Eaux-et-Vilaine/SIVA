@@ -4,7 +4,7 @@ format: html
 editor: visual
 params:
   debut: 2010-01-01
-  fin: 2024-02-01
+  fin: 2024-12-24
 ---
 
 # Extraction des données du barrage
@@ -200,7 +200,7 @@ QV2 <- QV |> select(date,debit_moyen_recalcule,debit_moyen_vol_volet,debit_moyen
 # create folder data in file folder
 dir.create("./extraction_donnees_barrage_files/data",showWarnings = FALSE)
 datawd <- ("./extraction_donnees_barrage_files/data/")
-write_csv2(QV2, file=str_c(datawd,"/debits_barrage_2010_2023.csv"))
+write_csv2(QV2, file=str_c(datawd,"/debits_barrage_2010_2024.csv"))
 ```
 
 # Calcul vectoriel des vents
@@ -280,7 +280,6 @@ knitr::kable(dat)
 
 Pour aller chercher les variables dispo, regarder l'id sur SIVA : [SIVA](http://portail.eptb-vilaine.fr/siva/dev/fichesmeta/metadonnees.php?id_var=2534&int_var=Vent%20-%20force). Les données sont dans le tableau de données `variable`. Il faut les chercher avec leur tag comme dans le script ci dessous
 
-
 ```{r loadwindtemp}
 #| echo: false
 #| eval: true 
@@ -333,15 +332,10 @@ cat(sprintf("Les fichiers sont écrits dans %s et %s",
 
 Au final deux fichiers sont produits, les debits du barrage donnent les valeurs de débit moyen journalier pour :
 
-* debit_moyen_recalcule = débit de l'ensemble du barrage
-* debit_moyen_vol_volet	= débit des volets, clapet déversants sur l'ouvrage
-* debit_moyen_vol_passe	= débit de la passe (tel que caculé par le barrage)
-* debit_moyen_vol_siphon = débit des siphons (qui évacuent les lentilles d'eau salée par le fond)
-* debit_moyen_vol_ecluse = débit de l'écluse (très limités)
+-   debit_moyen_recalcule = débit de l'ensemble du barrage
+-   debit_moyen_vol_volet = débit des volets, clapet déversants sur l'ouvrage
+-   debit_moyen_vol_passe = débit de la passe (tel que caculé par le barrage)
+-   debit_moyen_vol_siphon = débit des siphons (qui évacuent les lentilles d'eau salée par le fond)
+-   debit_moyen_vol_ecluse = débit de l'écluse (très limités)
 
 Et le fichier vent temperature donne les valeurs de vent et de température moyennes journaliers
-
-
-
-
-
