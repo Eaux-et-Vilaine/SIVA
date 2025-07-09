@@ -208,7 +208,7 @@ if (interactive()){
 #> Table niveaumerb(b_barrage_niveau:2508), chargement de 1288 lignes 
 #> Table debit_siphon_1(b_siphon_debit:1528), chargement de 1288 lignes 
 #> Table debit_siphon_2(b_siphon_debit:1565), chargement de 1288 lignes 
-#> Table debit_vanne1(b_barrage_debit:2571), chargement de 1288 lignes 
+#> Table debit_vanne1(b_barrage_debit:2571), chargement de 1288 lignes s
 #> Table debit_vanne2(b_barrage_debit:2572), chargement de 1288 lignes 
 #> Table debit_vanne3(b_barrage_debit:2573), chargement de 1288 lignes 
 #> Table debit_vanne4(b_barrage_debit:2574), chargement de 1288 lignes 
@@ -226,6 +226,10 @@ Pour plus d’exemples sur le chargement des données télécharger
 vignette("fonctions-de-debit",package="SIVA")
 vignette("database-tools",package="SIVA")
 ```
+
+Pour extraire les données du barrage dans un csv voir : vignette/extraction_donnees_barrage.qmd
+
+
 
 ## Pour aller plus loin
 
