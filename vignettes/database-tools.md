@@ -93,7 +93,7 @@ if (!exists("umysql")) {
 
      # attention il faut avaoir définit mainpass <- "xxxxx"
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,
@@ -137,7 +137,7 @@ La méthode loaddb fonctionne ensuite pour un ensemble de tables, il s'agit alor
 if (interactive()){
 
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,

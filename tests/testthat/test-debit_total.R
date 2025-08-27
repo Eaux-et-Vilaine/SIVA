@@ -31,7 +31,7 @@ test_that("debit total in 2009 (bug #23)", {
       }
       
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,

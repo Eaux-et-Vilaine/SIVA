@@ -49,6 +49,10 @@ setMethod(
     sql <- stringr::str_c(selectsiva, wheresiva, orderbysiva)
     objet@rawdata <- DBI::dbGetQuery(conn=con, statement = sql)
     cat(sprintf("Table %s(%s:%s), chargement de %s lignes \n",objet@nom,objet@table,objet@tag,nrow(objet@rawdata)))
+    # fix when using RmySQL instead of RMariaDB we have a problem the class reported is not the same (character instead of date)
+    if (attr(con$objClass,"package") == "RMySQL"){
+      objet@rawdata$horodate <- strptime(objet@rawdata$horodate, format ="%Y-%m-%d %H:%M:%S")
+    }
     if (nrow(objet@rawdata) == 0) 
       warning(paste("no data for", objet@table,"\n"))
     colnames(objet@rawdata)[2] <- objet@nom

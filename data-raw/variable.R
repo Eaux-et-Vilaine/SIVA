@@ -59,7 +59,7 @@ if (!exists("umysql")) {
 }
 
 pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,

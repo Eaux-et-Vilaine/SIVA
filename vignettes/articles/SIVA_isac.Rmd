@@ -87,7 +87,7 @@ passer à la main comme ci-dessous.
                 
 ```{r data_isac, echo = TRUE, eval = FALSE }
 pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = "demande à Cédric",
     username = "demande à Cédric le nom en lecture",
@@ -133,7 +133,7 @@ if (params$work_with_db){
   # attention il faut avaoir définit mainpass <- "xxxxx"
   
   pool <- pool::dbPool(
-      drv = RMariaDB::MariaDB(),
+      drv = RMySQL::MySQL(),
       dbname = "archive_IAV",
       host = hostmysql.,
       username = umysql.,

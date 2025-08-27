@@ -25,7 +25,7 @@ Methode de chargement pour loadb
 \examples{
 \dontrun{
 pool <- pool::dbPool(
-   drv = RMariaDB::MariaDB(),
+   drv = RMySQL::MySQL(),
    dbname = "archive_IAV",
    host = hostmysql.,
    username = umysql.,

@@ -24,7 +24,7 @@ test_that("traitement isac works", {
   }
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,

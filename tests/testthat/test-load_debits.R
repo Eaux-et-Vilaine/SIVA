@@ -26,7 +26,7 @@ test_that("load_debits fonctionne (variables sans recalcul)", {
   }
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,
@@ -76,7 +76,7 @@ test_that("load_debits fonctionne (variables nécessitant un recalcul des débit
   }
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,

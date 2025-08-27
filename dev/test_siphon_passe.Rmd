@@ -34,7 +34,7 @@ if (!exists("umysql")) {
   umysql. <- decrypt_string(string = umysql, key = mainpass)
 }
 pool <- pool::dbPool(
-  drv = RMariaDB::MariaDB(),
+  drv = RMySQL::MySQL(),
   dbname = "archive_IAV",
   host = hostmysql.,
   username = umysql.,
@@ -65,7 +65,7 @@ plot(rawdata2020$tot_vol_passe)
 # test avec load_debit_barrage
 
 pool <- pool::dbPool(
-  drv = RMariaDB::MariaDB(),
+  drv = RMySQL::MySQL(),
   dbname = "archive_IAV",
   host = hostmysql.,
   username = umysql.,

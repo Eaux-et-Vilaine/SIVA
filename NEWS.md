@@ -1,3 +1,8 @@
+# SIVA 0.1.5.0
+
+* RMariaDB is no longer connecting, changed connexions to RMySQL
+* This requires a formatting of dates.
+
 # SIVA 0.1.4.3
 
 * fixed bug #23 missing values for `tot_vol_passe` and `tot_vol_siphon` in the db in 2009

@@ -24,7 +24,7 @@ test_that("loaddb-method for tablesiva fonctionne et retourne un tableau de donn
       }
       # attention il faut avaoir définit mainpass <- "xxxxx"
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,
@@ -79,7 +79,7 @@ test_that("loaddb-method retourne une erreur si checktag=TRUE, et le tag n'exist
   }
   # attention il faut avaoir définit mainpass <- "xxxxx"
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,

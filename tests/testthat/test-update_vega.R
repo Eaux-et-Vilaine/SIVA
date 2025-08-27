@@ -24,7 +24,7 @@ test_that("updating latest data to the db works", {
       }
       # attention il faut avaoir définit mainpass <- "xxxxx"
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,

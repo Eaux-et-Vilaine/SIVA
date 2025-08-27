@@ -24,7 +24,7 @@ test_that("load isac fonctionne", {
       }
       
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,
@@ -70,7 +70,7 @@ test_that("load isac fonctionne pour donnees pluvio", {
       }
       
       pool <- pool::dbPool(
-          drv = RMariaDB::MariaDB(),
+          drv = RMySQL::MySQL(),
           dbname = "archive_IAV",
           host = hostmysql.,
           username = umysql.,

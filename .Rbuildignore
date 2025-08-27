@@ -11,3 +11,4 @@
 ^data-raw$
 ^Scripts$
 ^SQL$
+^vignettes/extraction_donnees_barrage_files$

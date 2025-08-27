@@ -4,7 +4,7 @@
 #' @param checktag Defaut FALSE, faut il vérifier que le tag existe dans la table,
 #' à utiliser lors des tests.
 #' @param plot Boolean, faut il un graphe ?
-#' @importFrom RMariaDB MariaDB
+#' @importFrom RMySQL MySQL
 #' @importFrom pool dbPool
 #' @importFrom lubridate round_date
 #' @importFrom lubridate POSIXct
@@ -12,7 +12,7 @@
 #' @examples
 #' \dontrun{
 #' pool <- pool::dbPool(
-#'    drv = RMariaDB::MariaDB(),
+#'    drv = RMySQL::MySQL(),
 #'    dbname = "archive_IAV",
 #'    host = hostmysql.,
 #'    username = umysql.,

@@ -24,7 +24,7 @@ if (!exists("mainpass")) mainpass <- getPass::getPass(msg = "main password")
   # attention il faut avaoir définit mainpass <- "xxxxx"
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,

@@ -26,7 +26,7 @@ test_that("load_niveaux fonctionne ", {
   }
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,

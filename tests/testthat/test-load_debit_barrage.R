@@ -24,7 +24,7 @@ test_that("load_debit_barrage works", {
   }
   
   pool <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,
@@ -39,6 +39,6 @@ test_that("load_debit_barrage works", {
                   con = pool
                 ))# 23 s maison
   expect_is(debit_barrage, "data.frame")
-  poolClose(pool)
+  pool::poolClose(pool)
 })
 
