@@ -6,7 +6,8 @@
 \usage{
 debit_journalier(
   debit_barrage,
-  type = c("recalcule", "barrage_volume", "barrage_debit")
+  type = c("recalcule", "barrage_volume", "barrage_debit"),
+  param = SIVA::param
 )
 }
 \arguments{
@@ -14,6 +15,8 @@ debit_journalier(
 
 \item{type}{Le type de sortie, soit "recacule", sinon "barrage_volume" ou
 barrage_debit.}
+
+\item{param}{Le jeu de paramètre pour l'optimisation}
 }
 \value{
 Un tableau de données de débit journier.

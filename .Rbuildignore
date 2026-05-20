@@ -12,3 +12,5 @@
 ^Scripts$
 ^SQL$
 ^vignettes/extraction_donnees_barrage_files$
+^\.positai$
+^\.claude$

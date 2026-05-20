@@ -1,3 +1,7 @@
+# SIVA 0.1.5.1
+
+* Added parame to debit journalier to allow for optim
+
 # SIVA 0.1.5.0
 
 * RMariaDB is no longer connecting, changed connexions to RMySQL

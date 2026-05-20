@@ -1,12 +1,10 @@
 
-
-
-
 #' Débit journalier du barrage.
 #' 
 #' Attention la valeur du jour 1 est enlevée à cause des totaliseurs.
 #'
 #' @param debit_barrage Le jeu de données issu du chargement `load_debit_barrage`.
+#' @param param Le jeu de paramètre pour l'optimisation
 #' @param type Le type de sortie, soit "recacule", sinon "barrage_volume" ou
 #' barrage_debit.
 #'
@@ -47,10 +45,10 @@
 #' 
 #' 
 #'  
-debit_journalier <- function(debit_barrage, type = c("recalcule","barrage_volume","barrage_debit")){
+debit_journalier <- function(debit_barrage, type = c("recalcule","barrage_volume","barrage_debit"), param = SIVA::param){
   type <- match.arg(type)
   debit_barrage <- traitement_siva(dat=debit_barrage)
-Q12345 <- debit_total(SIVA::param, param0 = SIVA::param, debit_barrage)
+Q12345 <- debit_total(param, param0 = SIVA::param, debit_barrage)
   Q12345$tot_vol <- debit_barrage$tot_vol
   
   if (type == "recalcule") {

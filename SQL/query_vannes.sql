@@ -59,4 +59,6 @@ SELECT avg(valeur) FROM b_barrage_debit
 WHERE horodate between '2018-01-01' AND '2018-10-01'
 AND tag=2585; #0.77
 
-
+SELECT PLUGIN_NAME, PLUGIN_STATUS
+       FROM INFORMATION_SCHEMA.PLUGINS
+       WHERE PLUGIN_NAME = 'clone';
